@@ -1,0 +1,388 @@
+
+> pixel-dash@1.0.0 test
+> jest --verbose
+
+FAIL tests/integration.test.js
+  Player Data Persistence
+    ✕ should save player data to localStorage (8 ms)
+    ✕ should retrieve player data from localStorage (1 ms)
+    ✕ should handle missing player data gracefully (1 ms)
+    ✕ should merge loaded data with default data (1 ms)
+    ✕ should validate saved player data
+    ✕ should handle JSON parse errors for corrupted data (1 ms)
+  Game Configuration
+    ✓ should have default configuration (5 ms)
+    ✓ should allow configuration override (1 ms)
+    ✓ should validate color codes (3 ms)
+  Game State Transitions
+    ✓ should transition from menu to playing (1 ms)
+    ✓ should transition from playing to dead
+    ✓ should transition from dead to playing on retry (1 ms)
+    ✓ should transition from playing to levelcomplete
+    ✓ should transition from levelcomplete to playing for next level
+    ✓ should transition from levelcomplete to menu when out of levels (1 ms)
+    ✓ valid state transitions (1 ms)
+  Level Progression
+    ✓ should track level completion (1 ms)
+    ✓ should loop levels when going past the end (1 ms)
+    ✓ should update best score
+  Coin and Score System
+    ✓ should accumulate coins correctly
+    ✓ should apply coin multiplier
+    ✓ should handle coin collection without multiplier (1 ms)
+    ✓ should calculate shop prices correctly (1 ms)
+  Achievement System
+    ✓ should track unlocked achievements (2 ms)
+    ✓ should not add duplicate achievements
+    ✓ should unlock challenge-based achievement (1 ms)
+  Death Streak Tracking
+    ✓ should increment death streak on death (1 ms)
+    ✓ should reset death streak on level complete
+    ✓ should track longest death streak
+
+  ● Player Data Persistence › should save player data to localStorage
+
+    TypeError: localStorage.getItem.mockClear is not a function
+
+       5 |   beforeEach(() => {
+       6 |     localStorage.clear();
+    >  7 |     localStorage.getItem.mockClear();
+         |                          ^
+       8 |     localStorage.setItem.mockClear();
+       9 |   });
+      10 |
+
+      at Object.mockClear (tests/integration.test.js:7:26)
+
+  ● Player Data Persistence › should retrieve player data from localStorage
+
+    TypeError: localStorage.getItem.mockClear is not a function
+
+       5 |   beforeEach(() => {
+       6 |     localStorage.clear();
+    >  7 |     localStorage.getItem.mockClear();
+         |                          ^
+       8 |     localStorage.setItem.mockClear();
+       9 |   });
+      10 |
+
+      at Object.mockClear (tests/integration.test.js:7:26)
+
+  ● Player Data Persistence › should handle missing player data gracefully
+
+    TypeError: localStorage.getItem.mockClear is not a function
+
+       5 |   beforeEach(() => {
+       6 |     localStorage.clear();
+    >  7 |     localStorage.getItem.mockClear();
+         |                          ^
+       8 |     localStorage.setItem.mockClear();
+       9 |   });
+      10 |
+
+      at Object.mockClear (tests/integration.test.js:7:26)
+
+  ● Player Data Persistence › should merge loaded data with default data
+
+    TypeError: localStorage.getItem.mockClear is not a function
+
+       5 |   beforeEach(() => {
+       6 |     localStorage.clear();
+    >  7 |     localStorage.getItem.mockClear();
+         |                          ^
+       8 |     localStorage.setItem.mockClear();
+       9 |   });
+      10 |
+
+      at Object.mockClear (tests/integration.test.js:7:26)
+
+  ● Player Data Persistence › should validate saved player data
+
+    TypeError: localStorage.getItem.mockClear is not a function
+
+       5 |   beforeEach(() => {
+       6 |     localStorage.clear();
+    >  7 |     localStorage.getItem.mockClear();
+         |                          ^
+       8 |     localStorage.setItem.mockClear();
+       9 |   });
+      10 |
+
+      at Object.mockClear (tests/integration.test.js:7:26)
+
+  ● Player Data Persistence › should handle JSON parse errors for corrupted data
+
+    TypeError: localStorage.getItem.mockClear is not a function
+
+       5 |   beforeEach(() => {
+       6 |     localStorage.clear();
+    >  7 |     localStorage.getItem.mockClear();
+         |                          ^
+       8 |     localStorage.setItem.mockClear();
+       9 |   });
+      10 |
+
+      at Object.mockClear (tests/integration.test.js:7:26)
+
+FAIL tests/game-logic.test.js
+  Game Constants
+    ✓ should have correct gravity value (10 ms)
+    ✓ should have correct jump force (1 ms)
+    ✓ should have correct move speed (1 ms)
+    ✓ should have correct friction (2 ms)
+    ✓ should have correct tile size (1 ms)
+  Collision Detection
+    ✓ rectCollide should detect collision between overlapping rectangles (1 ms)
+    ✓ rectCollide should not detect collision between non-overlapping rectangles (1 ms)
+    ✓ rectCollide should detect collision when rectangles touch edges
+    ✓ rectCollide should detect collision when one rect is inside another (1 ms)
+  Player Initialization
+    ✓ initPlayer should create player with default values (2 ms)
+    ✓ initPlayer should accept custom x and y (1 ms)
+    ✓ isValidPlayer should return true for valid player (1 ms)
+    ✓ isValidPlayer should return false for invalid player
+    ✕ isValidPlayer should return false for null (3 ms)
+  Camera Initialization
+    ✓ initCamera should create camera with default values (1 ms)
+    ✓ initCamera should accept custom x and y
+  Player Death Detection
+    ✓ isPlayerDead should return false when player is above death line
+    ✓ isPlayerDead should return true when player is below death line (1 ms)
+    ✕ isPlayerDead should return true when player is at death line (1 ms)
+  Gravity Application
+    ✓ applyGravity should increase downward velocity (1 ms)
+    ✓ applyGravity should accumulate gravity over multiple frames (1 ms)
+    ✓ applyGravity should cap maximum velocity at 15 (1 ms)
+    ✓ applyGravity should not modify original player (1 ms)
+  Movement Application
+    ✓ applyMovement should increase velocity when moving right (1 ms)
+    ✓ applyMovement should decrease velocity when moving left (1 ms)
+    ✓ applyMovement should apply friction (1 ms)
+    ✓ applyMovement should cap velocity at MOVE_SPEED
+    ✓ applyMovement should set facing direction (1 ms)
+    ✓ applyMovement should not modify original player (1 ms)
+  Coyote Time Management
+    ✓ updateCoyoteTime should set coyote time to 6 when grounded (1 ms)
+    ✓ updateCoyoteTime should decrease coyote time when not grounded
+    ✓ updateCoyoteTime should not go below 0 (1 ms)
+  Jump Buffer Management
+    ✓ updateJumpBuffer should set jump buffer to 6 when jump is pressed (1 ms)
+    ✓ updateJumpBuffer should decrease jump buffer when jump is not pressed
+    ✓ updateJumpBuffer should handle continuous jump input (1 ms)
+  Jump Mechanics
+    ✓ applyJump should apply jump force when conditions are met (1 ms)
+    ✓ applyJump should not jump without jump buffer (1 ms)
+    ✓ applyJump should not jump without coyote time (1 ms)
+    ✓ applyJump should reset buffers after jump (1 ms)
+  Coin Collection
+    ✓ collectCoins should collect coin when player touches it (1 ms)
+    ✓ collectCoins should not collect already collected coins
+    ✓ collectCoins should collect multiple coins (1 ms)
+    ✓ collectCoins should not collect coin out of range (1 ms)
+  Level Completion
+    ✕ checkLevelCompletion should return true when player reaches finish (1 ms)
+    ✓ checkLevelCompletion should return false when player is below finish (1 ms)
+    ✓ checkLevelCompletion should return false with no platforms
+  Horizontal Collision
+    ✓ resolveHorizontalCollision should stop player moving right into platform (1 ms)
+    ✕ resolveHorizontalCollision should stop player moving left into platform (1 ms)
+    ✓ resolveHorizontalCollision should skip invisible platforms (1 ms)
+  Vertical Collision
+    ✕ resolveVerticalCollision should detect ground collision from above (2 ms)
+    ✕ resolveVerticalCollision should detect ceiling collision from below (1 ms)
+    ✕ resolveVerticalCollision should not ground player when not above platform (1 ms)
+    ✕ resolveVerticalCollision should mark crumbling platforms (2 ms)
+  Level Validation
+    ✓ isValidLevel should return true for valid level
+    ✓ isValidLevel should return false for missing platforms (1 ms)
+    ✓ isValidLevel should return false for empty platforms (1 ms)
+    ✕ isValidLevel should return false for null (1 ms)
+  Score Calculation
+    ✓ calculateLevelScore should calculate score based on time
+    ✓ calculateLevelScore should not go below 100 (1 ms)
+    ✓ calculateLevelScore should give maximum bonus for fast completion
+  Player Data Validation
+    ✓ isValidPlayerData should return true for valid data (1 ms)
+    ✓ isValidPlayerData should return false for missing properties
+    ✕ isValidPlayerData should return false for null (1 ms)
+  Color Utilities
+    ✓ hexToRgb should convert hex color to RGB
+    ✓ hexToRgb should handle 3-digit hex
+    ✓ hexToRgb should handle invalid hex gracefully (1 ms)
+    ✓ hexToRgb should convert various colors (1 ms)
+
+  ● Player Initialization › isValidPlayer should return false for null
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: null
+
+      108 |
+      109 |   test('isValidPlayer should return false for null', () => {
+    > 110 |     expect(isValidPlayer(null)).toBe(false);
+          |                                 ^
+      111 |   });
+      112 | });
+      113 |
+
+      at Object.toBe (tests/game-logic.test.js:110:33)
+
+  ● Player Death Detection › isPlayerDead should return true when player is at death line
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      138 |   test('isPlayerDead should return true when player is at death line', () => {
+      139 |     const player = initPlayer(50, 700);
+    > 140 |     expect(isPlayerDead(player, 700)).toBe(true);
+          |                                       ^
+      141 |   });
+      142 | });
+      143 |
+
+      at Object.toBe (tests/game-logic.test.js:140:39)
+
+  ● Level Completion › checkLevelCompletion should return true when player reaches finish
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      346 |       { x: 650, y: 300, w: 200, h: 40 },
+      347 |     ];
+    > 348 |     expect(checkLevelCompletion(player, platforms)).toBe(true);
+          |                                                     ^
+      349 |   });
+      350 |
+      351 |   test('checkLevelCompletion should return false when player is below finish', () => {
+
+      at Object.toBe (tests/game-logic.test.js:348:53)
+
+  ● Horizontal Collision › resolveHorizontalCollision should stop player moving left into platform
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: -5
+
+      377 |     const updated = resolveHorizontalCollision(player, platforms);
+      378 |     expect(updated.x).toBeGreaterThan(90);
+    > 379 |     expect(updated.vx).toBe(0);
+          |                        ^
+      380 |   });
+      381 |
+      382 |   test('resolveHorizontalCollision should skip invisible platforms', () => {
+
+      at Object.toBe (tests/game-logic.test.js:379:24)
+
+  ● Vertical Collision › resolveVerticalCollision should detect ground collision from above
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      395 |     const platforms = [{ x: 0, y: 500, w: 150, h: 20, type: 0, visible: true }];
+      396 |     const result = resolveVerticalCollision(player, platforms);
+    > 397 |     expect(result.grounded).toBe(true);
+          |                             ^
+      398 |     expect(result.vy).toBe(0);
+      399 |     expect(result.y).toBeLessThan(500);
+      400 |   });
+
+      at Object.toBe (tests/game-logic.test.js:397:29)
+
+  ● Vertical Collision › resolveVerticalCollision should detect ceiling collision from below
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: -5
+
+      405 |     const platforms = [{ x: 0, y: 400, w: 150, h: 20, type: 0, visible: true }];
+      406 |     const result = resolveVerticalCollision(player, platforms);
+    > 407 |     expect(result.vy).toBe(0);
+          |                       ^
+      408 |     expect(result.y).toBeGreaterThan(420);
+      409 |   });
+      410 |
+
+      at Object.toBe (tests/game-logic.test.js:407:23)
+
+  ● Vertical Collision › resolveVerticalCollision should not ground player when not above platform
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      414 |     const platforms = [{ x: 0, y: 400, w: 150, h: 20, type: 0, visible: true }];
+      415 |     const result = resolveVerticalCollision(player, platforms);
+    > 416 |     expect(result.grounded).toBe(false);
+          |                             ^
+      417 |   });
+      418 |
+      419 |   test('resolveVerticalCollision should mark crumbling platforms', () => {
+
+      at Object.toBe (tests/game-logic.test.js:416:29)
+
+  ● Vertical Collision › resolveVerticalCollision should mark crumbling platforms
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 0
+    Received array: []
+
+      422 |     const platforms = [{ x: 0, y: 500, w: 150, h: 20, type: 2, visible: true, crumbling: false }];
+      423 |     const result = resolveVerticalCollision(player, platforms);
+    > 424 |     expect(result.crumblingPlatforms).toContain(0);
+          |                                       ^
+      425 |   });
+      426 | });
+      427 |
+
+      at Object.toContain (tests/game-logic.test.js:424:39)
+
+  ● Level Validation › isValidLevel should return false for null
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: null
+
+      454 |
+      455 |   test('isValidLevel should return false for null', () => {
+    > 456 |     expect(isValidLevel(null)).toBe(false);
+          |                                ^
+      457 |   });
+      458 | });
+      459 |
+
+      at Object.toBe (tests/game-logic.test.js:456:32)
+
+  ● Player Data Validation › isValidPlayerData should return false for null
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: null
+
+      495 |
+      496 |   test('isValidPlayerData should return false for null', () => {
+    > 497 |     expect(isValidPlayerData(null)).toBe(false);
+          |                                     ^
+      498 |   });
+      499 | });
+      500 |
+
+      at Object.toBe (tests/game-logic.test.js:497:37)
+
+Test Suites: 2 failed, 2 total
+Tests:       16 failed, 80 passed, 96 total
+Snapshots:   0 total
+Time:        2.603 s
+Ran all test suites.

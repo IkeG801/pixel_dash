@@ -36,8 +36,8 @@ function initCamera(x = 0, y = 0) {
 
 // Validate if a player is valid
 function isValidPlayer(player) {
-  return player &&
-    typeof player.x === 'number' &&
+  if (!player) return false;
+  return typeof player.x === 'number' &&
     typeof player.y === 'number' &&
     typeof player.vx === 'number' &&
     typeof player.vy === 'number' &&
@@ -48,7 +48,7 @@ function isValidPlayer(player) {
 
 // Check if player has died (fallen too far)
 function isPlayerDead(player, deathY) {
-  return player.y > deathY;
+  return player.y >= deathY;
 }
 
 // Apply gravity to player
@@ -125,9 +125,9 @@ function checkLevelCompletion(player, platforms) {
   const finish = platforms[platforms.length - 1];
   return rectCollide(player, {
     x: finish.x,
-    y: finish.y - 40,
+    y: finish.y - 50,
     w: finish.w,
-    h: 40,
+    h: 50,
   });
 }
 
@@ -162,11 +162,11 @@ function resolveVerticalCollision(player, platforms) {
   const crumblingPlatforms = [];
 
   platforms.forEach((pl, idx) => {
-    if (!pl.visible && pl.visible !== undefined) return;
+    if (pl.visible === false) return;
 
     if (rectCollide(updated, pl)) {
-      const wasAbove = oldY + updated.h <= pl.y;
-      const wasBelow = oldY >= pl.y + pl.h;
+      const wasAbove = oldY + updated.h <= pl.y + 1;
+      const wasBelow = oldY >= pl.y + pl.h - 1;
 
       if (wasAbove && updated.vy >= 0) {
         updated.y = pl.y - updated.h;
@@ -188,8 +188,8 @@ function resolveVerticalCollision(player, platforms) {
 
 // Validate a level structure
 function isValidLevel(level) {
+  if (!level) return false;
   return (
-    level &&
     Array.isArray(level.platforms) &&
     Array.isArray(level.coins) &&
     Array.isArray(level.spikes) &&
@@ -206,8 +206,8 @@ function calculateLevelScore(timeInFrames) {
 
 // Player data validation
 function isValidPlayerData(data) {
+  if (!data) return false;
   return (
-    data &&
     typeof data.player_name === 'string' &&
     typeof data.total_coins === 'number' &&
     typeof data.challenge_points === 'number' &&

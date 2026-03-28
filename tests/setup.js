@@ -2,17 +2,32 @@
 // Mocks and global test configuration
 
 // Mock localStorage for tests
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-};
+const localStorageMock = (() => {
+  const store = {};
+  return {
+    getItem: jest.fn((key) => store[key] || null),
+    setItem: jest.fn((key, value) => {
+      store[key] = value;
+    }),
+    removeItem: jest.fn((key) => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      for (let key in store) {
+        delete store[key];
+      }
+    }),
+  };
+})();
 global.localStorage = localStorageMock;
 
 // Clear mocks before each test
 beforeEach(() => {
-  Object.values(localStorageMock).forEach((mock) => mock.mockClear());
+  localStorageMock.clear();
+  localStorageMock.getItem.mockClear();
+  localStorageMock.setItem.mockClear();
+  localStorageMock.removeItem.mockClear();
+  localStorageMock.clear.mockClear();
 });
 
 // Mock Canvas API

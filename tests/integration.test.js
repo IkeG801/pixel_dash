@@ -4,8 +4,6 @@ const { isValidPlayerData } = require('../src/game-logic');
 describe('Player Data Persistence', () => {
   beforeEach(() => {
     localStorage.clear();
-    localStorage.getItem.mockClear();
-    localStorage.setItem.mockClear();
   });
 
   test('should save player data to localStorage', () => {
@@ -18,10 +16,7 @@ describe('Player Data Persistence', () => {
 
     localStorage.setItem('pixelDashPlayer', JSON.stringify(playerData));
 
-    expect(localStorage.setItem).toHaveBeenCalledWith(
-      'pixelDashPlayer',
-      JSON.stringify(playerData)
-    );
+    expect(localStorage.getItem('pixelDashPlayer')).toBe(JSON.stringify(playerData));
   });
 
   test('should retrieve player data from localStorage', () => {
@@ -32,19 +27,14 @@ describe('Player Data Persistence', () => {
       level_completed: 5,
     };
 
-    localStorage.getItem.mockReturnValue(JSON.stringify(playerData));
-
+    localStorage.setItem('pixelDashPlayer', JSON.stringify(playerData));
     const retrieved = JSON.parse(localStorage.getItem('pixelDashPlayer'));
 
-    expect(localStorage.getItem).toHaveBeenCalledWith('pixelDashPlayer');
     expect(retrieved).toEqual(playerData);
   });
 
   test('should handle missing player data gracefully', () => {
-    localStorage.getItem.mockReturnValue(null);
-
-    const retrieved = localStorage.getItem('pixelDashPlayer');
-
+    const retrieved = localStorage.getItem('nonexistentKey');
     expect(retrieved).toBeNull();
   });
 
@@ -62,7 +52,7 @@ describe('Player Data Persistence', () => {
       level_completed: 3,
     };
 
-    localStorage.getItem.mockReturnValue(JSON.stringify(savedData));
+    localStorage.setItem('pixelDashPlayer', JSON.stringify(savedData));
     const saved = JSON.parse(localStorage.getItem('pixelDashPlayer'));
     const merged = { ...defaultData, ...saved };
 
@@ -87,7 +77,7 @@ describe('Player Data Persistence', () => {
   });
 
   test('should handle JSON parse errors for corrupted data', () => {
-    localStorage.getItem.mockReturnValue('corrupted{data');
+    localStorage.setItem('pixelDashPlayer', 'corrupted{data');
 
     expect(() => {
       JSON.parse(localStorage.getItem('pixelDashPlayer'));

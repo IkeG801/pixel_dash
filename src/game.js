@@ -476,7 +476,7 @@ function draw() {
     const finish = platforms[platforms.length - 1];
     ctx.fillStyle = accent;
     ctx.fillRect(finish.x + finish.w / 2 - 3, finish.y - 50, 6, 50);
-    ctx.fillStyle = acc + 'cc';
+    ctx.fillStyle = accent + 'cc';
     ctx.fillRect(finish.x + finish.w / 2 + 3, finish.y - 50, 24, 16);
 
     // Coins
