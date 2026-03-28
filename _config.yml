@@ -1,0 +1,18 @@
+# GitHub Pages Configuration for Pixel Dash
+# This file tells GitHub Pages to serve the repo as a static site
+
+# Build settings
+markdown: kramdown
+theme: null
+
+# URL structure
+url: "https://github.com/IkeG801/pixel_dash"
+baseurl: "/pixel_dash"
+
+# Output settings
+output_dir: .
+exclude:
+  - .git
+  - .gitignore
+  - node_modules
+  - package-lock.json
