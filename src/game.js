@@ -242,14 +242,18 @@ const INITIAL_LEVELS = [
 // Add placeholder levels 3..13 if not provided by original data
 typeof Array.prototype.fill === 'function';
 
+// Simple seeded random for deterministic variation per level
+function seededRandom(seed) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
 function createAutoLevel(levelIndex) {
   const levelNum = levelIndex + 1;
-  const horizontalShift = levelIndex * 28;
-  const verticalShift = levelIndex * 8;
-
-  const baseY = 520 - verticalShift;
-  const gapX = 170;
-  const platformCount = 4 + (levelIndex % 3);
+  const seed = levelIndex * 123.456;  // Deterministic seed based on level
+  
+  // Random helper function that uses seed
+  const rand = (min, max, n) => min + ((seededRandom(seed + n) * (max - min)));
 
   const spawnPlatform = {
     x: 30,
@@ -259,345 +263,101 @@ function createAutoLevel(levelIndex) {
     type: 0
   };
 
-  // Level 3 safe layout - conservative horizontal (<=130px) and vertical (<=15px drop) gaps
-  if (levelIndex === 2) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 210, y: 510, w: 110, h: 20, type: 4 },
-      { x: 330, y: 500, w: 110, h: 20, type: 5 },
-      { x: 450, y: 490, w: 110, h: 20, type: 4 },
-      { x: 570, y: 480, w: 120, h: 20, type: 0 },
-      { x: 690, y: 470, w: 120, h: 20, type: 5 },
-      { x: 810, y: 460, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 260, y: 530, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 810, y: 420, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 3 - First Challenge',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
+  // Generate platforms with random variation but safe spacing
+  const platforms = [spawnPlatform];
+  const platformCount = 5 + Math.floor(rand(0, 3, levelIndex * 1));  // 5-7 platforms
+  
+  let currentX = 210;
+  let currentY = 520;
+  
+  for (let j = 0; j < platformCount; j++) {
+    // Random gap between 100-120px (safe jump distance)
+    const gapX = 100 + rand(0, 20, seed + j * 2);
+    // Random drop 8-12px per step (safe fall distance)
+    const dropY = 8 + rand(0, 4, seed + j * 2.5);
+    
+    currentX += gapX;
+    currentY -= dropY;
+    
+    // Clamp to keep level navigable
+    currentY = Math.max(currentY, 380);
+    
+    const platformWidth = 110 + rand(0, 20, seed + j * 3);
+    const platformType = [0, 4, 5][Math.floor(rand(0, 3, seed + j * 4))];
+    
+    platforms.push({
+      x: currentX,
+      y: currentY,
+      w: platformWidth,
+      h: 20,
+      type: platformType
+    });
   }
 
-  // Level 4 safe layout
-  if (levelIndex === 3) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 200, y: 512, w: 110, h: 20, type: 5 },
-      { x: 320, y: 503, w: 110, h: 20, type: 4 },
-      { x: 440, y: 494, w: 110, h: 20, type: 5 },
-      { x: 560, y: 485, w: 120, h: 20, type: 4 },
-      { x: 680, y: 476, w: 120, h: 20, type: 0 },
-      { x: 800, y: 467, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 240, y: 532, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 800, y: 427, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 4 - Rising Action',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
+  // Generate spikes randomly on every other platform (skip spawn and last)
+  const spikes = [];
+  for (let j = 1; j < Math.min(platforms.length - 1, 4); j += 2) {
+    if (rand(0, 1, seed + j * 10) > 0.3) {  // 70% chance
+      const p = platforms[j];
+      spikes.push({
+        x: p.x + p.w / 2 - 20 + rand(-20, 20, seed + j * 11),
+        y: p.y + 20,
+        w: 40,
+        h: 16,
+        type: 0
+      });
+    }
   }
 
-  // Level 5 safe layout
-  if (levelIndex === 4) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 210, y: 511, w: 110, h: 20, type: 4 },
-      { x: 330, y: 502, w: 110, h: 20, type: 5 },
-      { x: 450, y: 493, w: 110, h: 20, type: 4 },
-      { x: 570, y: 484, w: 120, h: 20, type: 5 },
-      { x: 690, y: 475, w: 120, h: 20, type: 0 },
-      { x: 810, y: 466, w: 180, h: 40, type: 0 }
-    ];
+  // Generate coins on platforms
+  const coins = platforms.slice(1).map((p, idx) => ({
+    x: p.x + p.w / 2 - 8,
+    y: p.y - 36,
+    w: 16,
+    h: 16,
+    collected: false
+  }));
 
-    const spikes = [
-      { x: 260, y: 531, w: 40, h: 16, type: 0 },
-      { x: 400, y: 513, w: 40, h: 16, type: 0 }
-    ];
+  // Add powerup on final platform
+  const finalPlatform = platforms[platforms.length - 1];
+  const powerups = [{
+    x: finalPlatform.x + finalPlatform.w / 2 - 7,
+    y: finalPlatform.y - 36,
+    w: 14,
+    h: 14,
+    collected: false,
+    type: 'jumpboost'
+  }];
 
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 810, y: 426, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 5 - Tower Ascent',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
+  // Randomly add obstacles on higher levels
+  const obstacles = [];
+  if (levelIndex >= 10 && rand(0, 1, seed + 999) > 0.4) {
+    const midIdx = Math.floor(platforms.length / 2);
+    const midPlatform = platforms[midIdx];
+    obstacles.push({
+      x: midPlatform.x + midPlatform.w / 2 - 13,
+      y: midPlatform.y - 50,
+      w: 26,
+      h: 26,
+      vx: 1 + rand(0, 2, seed + 1000),
+      minX: midPlatform.x,
+      maxX: midPlatform.x + 100,
+      type: 'spike'
+    });
   }
 
-  // Level 6 safe layout
-  if (levelIndex === 5) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 205, y: 512, w: 110, h: 20, type: 5 },
-      { x: 325, y: 503, w: 110, h: 20, type: 4 },
-      { x: 445, y: 494, w: 110, h: 20, type: 5 },
-      { x: 565, y: 485, w: 120, h: 20, type: 4 },
-      { x: 685, y: 476, w: 120, h: 20, type: 5 },
-      { x: 805, y: 467, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 250, y: 532, w: 40, h: 16, type: 0 },
-      { x: 380, y: 523, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 805, y: 427, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 6 - Mountain Trail',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
-  }
-
-  // Level 7 safe ascent - conservative spacing
-  if (levelIndex === 6) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 210, y: 511, w: 110, h: 20, type: 4 },
-      { x: 330, y: 502, w: 110, h: 20, type: 5 },
-      { x: 450, y: 493, w: 110, h: 20, type: 4 },
-      { x: 570, y: 484, w: 120, h: 20, type: 0 },
-      { x: 690, y: 475, w: 120, h: 20, type: 5 },
-      { x: 810, y: 466, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 260, y: 531, w: 40, h: 16, type: 0 },
-      { x: 400, y: 513, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 810, y: 426, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 7 - Safe Ascent',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
-  }
-
-  // Level 8 safe layout
-  if (levelIndex === 7) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 215, y: 510, w: 110, h: 20, type: 5 },
-      { x: 335, y: 501, w: 110, h: 20, type: 4 },
-      { x: 455, y: 492, w: 110, h: 20, type: 5 },
-      { x: 575, y: 483, w: 120, h: 20, type: 4 },
-      { x: 695, y: 474, w: 120, h: 20, type: 0 },
-      { x: 815, y: 465, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 265, y: 530, w: 40, h: 16, type: 0 },
-      { x: 405, y: 512, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 815, y: 425, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 8 - Steady Climb',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
-  }
-
-  // Level 9 safe layout
-  if (levelIndex === 8) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 220, y: 509, w: 110, h: 20, type: 4 },
-      { x: 340, y: 500, w: 110, h: 20, type: 5 },
-      { x: 460, y: 491, w: 110, h: 20, type: 4 },
-      { x: 580, y: 482, w: 120, h: 20, type: 5 },
-      { x: 700, y: 473, w: 120, h: 20, type: 0 },
-      { x: 820, y: 464, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 270, y: 529, w: 40, h: 16, type: 0 },
-      { x: 410, y: 511, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 820, y: 424, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 9 - Precision Path',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
-  }
-
-  // Level 10 safe layout
-  if (levelIndex === 9) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 210, y: 510, w: 110, h: 20, type: 5 },
-      { x: 330, y: 501, w: 110, h: 20, type: 4 },
-      { x: 450, y: 492, w: 110, h: 20, type: 5 },
-      { x: 570, y: 483, w: 120, h: 20, type: 4 },
-      { x: 690, y: 474, w: 120, h: 20, type: 0 },
-      { x: 810, y: 465, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 260, y: 530, w: 40, h: 16, type: 0 },
-      { x: 400, y: 512, w: 40, h: 16, type: 0 },
-      { x: 540, y: 503, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 810, y: 425, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 10 - Gauntlet Challenge',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
-  }
-
-  // Level 11 safe layout
-  if (levelIndex === 10) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 215, y: 509, w: 110, h: 20, type: 4 },
-      { x: 335, y: 500, w: 110, h: 20, type: 5 },
-      { x: 455, y: 491, w: 110, h: 20, type: 4 },
-      { x: 575, y: 482, w: 120, h: 20, type: 5 },
-      { x: 695, y: 473, w: 120, h: 20, type: 0 },
-      { x: 815, y: 464, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 265, y: 529, w: 40, h: 16, type: 0 },
-      { x: 405, y: 511, w: 40, h: 16, type: 0 },
-      { x: 535, y: 502, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 815, y: 424, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 11 - Sky Bridge',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [],
-      powerups
-    };
-  }
-
-  // Level 12 safe layout
-  if (levelIndex === 11) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 220, y: 508, w: 110, h: 20, type: 5 },
-      { x: 340, y: 499, w: 110, h: 20, type: 4 },
-      { x: 460, y: 490, w: 110, h: 20, type: 5 },
-      { x: 580, y: 481, w: 120, h: 20, type: 4 },
-      { x: 700, y: 472, w: 120, h: 20, type: 0 },
-      { x: 820, y: 463, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 270, y: 528, w: 40, h: 16, type: 0 },
-      { x: 410, y: 510, w: 40, h: 16, type: 0 },
-      { x: 550, y: 501, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 820, y: 423, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 12 - Ascending Peak',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [
-        { x: 400, y: 470, w: 26, h: 26, vx: 1.5, minX: 370, maxX: 500, type: 'spike' }
-      ],
-      powerups
-    };
-  }
-
-  // Level 13 safe layout
-  if (levelIndex === 12) {
-    const safePlatforms = [
-      spawnPlatform,
-      { x: 210, y: 508, w: 110, h: 20, type: 4 },
-      { x: 330, y: 499, w: 110, h: 20, type: 5 },
-      { x: 450, y: 490, w: 110, h: 20, type: 4 },
-      { x: 570, y: 481, w: 120, h: 20, type: 5 },
-      { x: 690, y: 472, w: 120, h: 20, type: 0 },
-      { x: 810, y: 463, w: 180, h: 40, type: 0 }
-    ];
-
-    const spikes = [
-      { x: 260, y: 528, w: 40, h: 16, type: 0 },
-      { x: 400, y: 510, w: 40, h: 16, type: 0 },
-      { x: 540, y: 501, w: 40, h: 16, type: 0 }
-    ];
-
-    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 810, y: 423, w: 14, h: 14, collected: false, type: 'jumpboost' }];
-
-    return {
-      name: 'Level 13 - Final Summit',
-      platforms: safePlatforms,
-      spikes,
-      coins,
-      obstacles: [
-        { x: 410, y: 470, w: 26, h: 26, vx: 2, minX: 380, maxX: 520, type: 'spike' }
-      ],
-      powerups
-    };
-  }
-
-  // This should never be reached as all levels 2-12 have explicit returns above
-  return null;
+  return {
+    name: `Level ${levelNum} - Random Path`,
+    platforms,
+    spikes,
+    coins,
+    obstacles,
+    powerups
+  };
 }
+
+// Procedural generation generates random but playable levels 3-13
+// No additional hardcoded definitions needed
 
 for (let i = INITIAL_LEVELS.length; i < 13; i++) {
   INITIAL_LEVELS.push(createAutoLevel(i));
