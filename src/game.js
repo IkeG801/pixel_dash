@@ -186,6 +186,7 @@ const CUBE_SKINS = {
   classic: {
     name: 'Classic',
     price: 0,
+    currency: 'coins',
     bodyColor: '#3b82f6',
     bodyStroke: '#1e40af',
     faceColor: '#fbbf24',
@@ -195,11 +196,32 @@ const CUBE_SKINS = {
   red: {
     name: 'Ruby',
     price: 30,
+    currency: 'coins',
     bodyColor: '#ef4444',
     bodyStroke: '#991b1b',
     faceColor: '#fecaca',
     faceStroke: '#7f1d1d',
     description: 'A fiery red cube'
+  },
+  gold: {
+    name: 'Golden',
+    price: 50,
+    currency: 'coins',
+    bodyColor: '#fbbf24',
+    bodyStroke: '#b45309',
+    faceColor: '#f59e0b',
+    faceStroke: '#d97706',
+    description: 'Shiny golden cube'
+  },
+  emerald: {
+    name: 'Emerald',
+    challengePrice: 100,
+    currency: 'challenge',
+    bodyColor: '#10b981',
+    bodyStroke: '#047857',
+    faceColor: '#34d399',
+    faceStroke: '#059669',
+    description: 'Challenge cube with special power'
   }
 };
 
@@ -254,6 +276,11 @@ let playerData = {
   deathStreak: 0 
 };
 
+// Menu navigation state
+let selectedLevel = 0;
+let levelSelectScrollY = 0;
+let shopScrollY = 0;
+
 score = 0;
 
 // Collision
@@ -262,6 +289,136 @@ function rectCollide(a, b) {
 }
 
 function update() {
+  // Menu navigation
+  if (state === 'menu') {
+    // Button click detection (approximate regions)
+    const levelButtonX = W / 2 - 130;
+    const levelButtonY = H / 2 + 220;
+    const shopButtonX = W / 2 + 30;
+    const shopButtonY = H / 2 + 220;
+    const buttonW = 100;
+    const buttonH = 40;
+
+    if (keys['l'] || keys['L']) {
+      keys['l'] = false;
+      state = 'levelselect';
+      selectedLevel = 0;
+      levelSelectScrollY = 0;
+    }
+    if (keys['s'] || keys['S']) {
+      keys['s'] = false;
+      state = 'shop';
+      shopScrollY = 0;
+    }
+    return;
+  }
+
+  if (state === 'levelselect') {
+    // Level selection navigation
+    if (keys['ArrowUp'] || keys['w']) {
+      keys['ArrowUp'] = false;
+      keys['w'] = false;
+      selectedLevel = Math.max(0, selectedLevel - 1);
+      levelSelectScrollY = Math.max(0, levelSelectScrollY - 90);
+    }
+    if (keys['ArrowDown'] || keys['s']) {
+      keys['ArrowDown'] = false;
+      keys['s'] = false;
+      selectedLevel = Math.min(INITIAL_LEVELS.length - 1, selectedLevel + 1);
+      levelSelectScrollY += 90;
+    }
+    if (keys['ArrowLeft'] || keys['a']) {
+      keys['ArrowLeft'] = false;
+      keys['a'] = false;
+      selectedLevel = Math.max(0, selectedLevel - 1);
+    }
+    if (keys['ArrowRight'] || keys['d']) {
+      keys['ArrowRight'] = false;
+      keys['d'] = false;
+      selectedLevel = Math.min(INITIAL_LEVELS.length - 1, selectedLevel + 1);
+    }
+
+    if (keys[' '] || keys['Enter']) {
+      keys[' '] = false;
+      keys['Enter'] = false;
+      initGame(selectedLevel);
+    }
+
+    // Backspace or Escape to go back
+    if (keys['Backspace'] || keys['Escape']) {
+      keys['Backspace'] = false;
+      keys['Escape'] = false;
+      state = 'menu';
+    }
+    return;
+  }
+
+  if (state === 'shop') {
+    // Shop scrolling
+    if (keys['ArrowUp'] || keys['w']) {
+      keys['ArrowUp'] = false;
+      keys['w'] = false;
+      shopScrollY = Math.max(0, shopScrollY - 100);
+    }
+    if (keys['ArrowDown'] || keys['s']) {
+      keys['ArrowDown'] = false;
+      keys['s'] = false;
+      shopScrollY += 100;
+    }
+
+    // Shop cube selection (use arrow keys to navigate)
+    const cubeEntries = Object.entries(CUBE_SKINS).sort((a, b) => {
+      const aIsChallenge = a[1].currency === 'challenge';
+      const bIsChallenge = b[1].currency === 'challenge';
+      if (aIsChallenge !== bIsChallenge) return aIsChallenge ? 1 : -1;
+      return a[1].price - b[1].price;
+    });
+
+    if (keys['ArrowLeft'] || keys['a']) {
+      keys['ArrowLeft'] = false;
+      keys['a'] = false;
+      let currentIdx = cubeEntries.findIndex(e => e[0] === playerData.selected_cube);
+      if (currentIdx > 0) {
+        playerData.selected_cube = cubeEntries[currentIdx - 1][0];
+      }
+    }
+    if (keys['ArrowRight'] || keys['d']) {
+      keys['ArrowRight'] = false;
+      keys['d'] = false;
+      let currentIdx = cubeEntries.findIndex(e => e[0] === playerData.selected_cube);
+      if (currentIdx < cubeEntries.length - 1) {
+        playerData.selected_cube = cubeEntries[currentIdx + 1][0];
+      }
+    }
+
+    // Try to buy selected cube
+    if (keys['Enter']) {
+      keys['Enter'] = false;
+      const selectedSkin = CUBE_SKINS[playerData.selected_cube];
+      const ownedCubes = playerData.owned_cubes.split(',').map(c => c.trim());
+      
+      if (!ownedCubes.includes(playerData.selected_cube)) {
+        if (selectedSkin.currency === 'challenge') {
+          if ((playerData.challenge_points || 0) >= selectedSkin.challengePrice) {
+            playerData.challenge_points -= selectedSkin.challengePrice;
+            playerData.owned_cubes += ',' + playerData.selected_cube;
+            savePlayerData();
+          }
+        } else {
+          if (playerData.total_coins >= selectedSkin.price) {
+            playerData.total_coins -= selectedSkin.price;
+            playerData.owned_cubes += ',' + playerData.selected_cube;
+            savePlayerData();
+          }
+        }
+      } else {
+        // Already own, just select it
+        savePlayerData();
+      }
+    }
+    return;
+  }
+
   if (state !== 'playing') return;
   time++;
 
@@ -447,12 +604,232 @@ function draw() {
     ctx.fillText('[ PRESS SPACE OR TAP TO START ]', W / 2, H / 2 + 160);
     ctx.globalAlpha = 1;
 
-    if (keys[' '] || keys['Enter'] || touchJump) {
-      keys[' '] = false;
-      touchJump = false;
-      initGame(0);
-    }
+    // Menu buttons with labels
+    ctx.fillStyle = accent;
+    ctx.fillRect(W / 2 - 130, H / 2 + 220, 100, 40);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px Silkscreen';
+    ctx.textAlign = 'center';
+    ctx.fillText('LEVELS', W / 2 - 80, H / 2 + 245);
+    ctx.fillStyle = txt;
+    ctx.font = '10px Silkscreen';
+    ctx.fillText('[L]', W / 2 - 80, H / 2 + 265);
+
+    ctx.fillStyle = accent;
+    ctx.fillRect(W / 2 + 30, H / 2 + 220, 100, 40);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px Silkscreen';
+    ctx.textAlign = 'center';
+    ctx.fillText('SHOP', W / 2 + 80, H / 2 + 245);
+    ctx.fillStyle = txt;
+    ctx.font = '10px Silkscreen';
+    ctx.fillText('[S]', W / 2 + 80, H / 2 + 265);
+
     return;
+  }
+
+  if (state === 'levelselect') {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = surf;
+    ctx.font = 'bold 36px Silkscreen';
+    ctx.fillText('SELECT LEVEL', W / 2, 80);
+
+    const maxLevels = INITIAL_LEVELS.length;
+    const levelSize = 80;
+    const spacing = 20;
+    const levelsPerRow = Math.floor((W - 40) / (levelSize + spacing));
+    const levelRows = Math.ceil(maxLevels / levelsPerRow);
+    const contentHeight = levelRows * (levelSize + spacing + 50);
+    const visibleHeight = H - 180;
+    const maxScroll = Math.max(0, contentHeight - visibleHeight);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 120, W, visibleHeight);
+    ctx.clip();
+
+    for (let i = 0; i < maxLevels; i++) {
+      const col = i % levelsPerRow;
+      const row = Math.floor(i / levelsPerRow);
+      const lx = W / 2 - (levelsPerRow * (levelSize + spacing)) / 2 + col * (levelSize + spacing);
+      const ly = 140 + row * (levelSize + spacing + 50) - levelSelectScrollY;
+
+      if (ly + levelSize < 120 || ly > H - 60) continue;
+
+      const isSelected = i === selectedLevel;
+      const levelData = generateLevel(i);
+
+      // Draw selection highlight
+      if (isSelected) {
+        ctx.fillStyle = accent;
+        ctx.fillRect(lx - 4, ly - 4, levelSize + 8, levelSize + 8);
+      }
+
+      // Draw level box
+      ctx.fillStyle = isSelected ? accent + '80' : sec + '40';
+      ctx.fillRect(lx, ly, levelSize, levelSize);
+      ctx.strokeStyle = isSelected ? accent : txt;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(lx, ly, levelSize, levelSize);
+
+      // Draw level number
+      ctx.fillStyle = txt;
+      ctx.font = 'bold 28px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText(i + 1, lx + levelSize / 2, ly + levelSize / 2 + 12);
+
+      // Draw level name below
+      ctx.fillStyle = txt;
+      ctx.font = '11px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText(levelData.name, lx + levelSize / 2, ly + levelSize + 20);
+    }
+
+    ctx.restore();
+
+    // Navigation info
+    ctx.fillStyle = txt;
+    ctx.font = '12px Silkscreen';
+    ctx.textAlign = 'center';
+    ctx.fillText('Arrow keys or scroll to browse • Space to play', W / 2, H - 60);
+
+    // Play button
+    ctx.fillStyle = accent;
+    ctx.fillRect(W / 2 - 60, H - 45, 120, 35);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 13px Silkscreen';
+    ctx.textAlign = 'center';
+    ctx.fillText('PLAY LEVEL', W / 2, H - 20);
+
+    // Back button
+    ctx.fillStyle = sec;
+    ctx.fillRect(20, H - 45, 60, 35);
+    ctx.fillStyle = txt;
+    ctx.font = 'bold 11px Silkscreen';
+    ctx.textAlign = 'center';
+    ctx.fillText('BACK', 50, H - 20);
+  }
+
+  if (state === 'shop') {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = surf;
+    ctx.font = 'bold 40px Silkscreen';
+    ctx.fillText('CUBE SHOP', W / 2, 60);
+
+    ctx.fillStyle = txt;
+    ctx.font = '14px Silkscreen';
+    ctx.fillText(`Your Coins: ${playerData.total_coins}`, W / 2, 100);
+
+    ctx.fillStyle = '#ffd700';
+    ctx.font = '12px Silkscreen';
+    ctx.fillText(`Challenge Points: ${playerData.challenge_points || 0}`, W / 2, 118);
+
+    // Create clip region for scrollable area
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 130, W, H - 200);
+    ctx.clip();
+
+    // Create cube list with sorting
+    const cubeEntries = Object.entries(CUBE_SKINS).sort((a, b) => {
+      const aIsChallenge = a[1].currency === 'challenge';
+      const bIsChallenge = b[1].currency === 'challenge';
+      if (aIsChallenge !== bIsChallenge) return aIsChallenge ? 1 : -1;
+      return a[1].price - b[1].price;
+    });
+    const cubesPerRow = 4;
+    const cubeBoxSize = 100;
+    const spacing = 20;
+    const contentHeight = Math.ceil(cubeEntries.length / cubesPerRow) * (cubeBoxSize + spacing + 60);
+    const maxScroll = Math.max(0, contentHeight - (H - 200));
+
+    cubeEntries.forEach((entry, idx) => {
+      const [skinKey, skinData] = entry;
+      const row = Math.floor(idx / cubesPerRow);
+      const col = idx % cubesPerRow;
+      const x = W / 2 - (cubesPerRow * (cubeBoxSize + spacing)) / 2 + col * (cubeBoxSize + spacing);
+      const y = 140 + row * (cubeBoxSize + spacing + 60) - shopScrollY;
+
+      if (y + cubeBoxSize < 130 || y > H - 70) return;
+
+      const ownedCubes = playerData.owned_cubes.split(',').map(c => c.trim());
+      const isOwned = ownedCubes.includes(skinKey);
+      const isSelected = playerData.selected_cube === skinKey;
+      const canAfford = playerData.total_coins >= skinData.price;
+      const canAffordChallenge = (playerData.challenge_points || 0) >= (skinData.challengePrice || 0);
+
+      // Draw selection highlight
+      if (isSelected) {
+        ctx.fillStyle = accent;
+        ctx.fillRect(x - 3, y - 3, cubeBoxSize + 6, cubeBoxSize + 6);
+      }
+
+      // Draw level box
+      ctx.fillStyle = isSelected ? accent + '80' : sec + '40';
+      ctx.fillRect(x, y, cubeBoxSize, cubeBoxSize);
+      ctx.strokeStyle = isSelected ? accent : txt;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, cubeBoxSize, cubeBoxSize);
+
+      // Draw preview cube
+      const previewScale = 0.8;
+      drawCube(x + cubeBoxSize / 2 - 10 * previewScale, y + 20, skinKey);
+
+      // Draw info
+      ctx.fillStyle = txt;
+      ctx.font = 'bold 12px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText(skinData.name, x + cubeBoxSize / 2, y + 70);
+
+      if (isOwned) {
+        if (isSelected) {
+          ctx.fillStyle = accent;
+          ctx.font = 'bold 11px Silkscreen';
+          ctx.fillText('EQUIPPED', x + cubeBoxSize / 2, y + 90);
+        } else {
+          ctx.fillStyle = '#10b981';
+          ctx.font = 'bold 11px Silkscreen';
+          ctx.fillText('OWNED', x + cubeBoxSize / 2, y + 90);
+        }
+      } else {
+        if (skinData.currency === 'challenge') {
+          if ((playerData.challenge_points || 0) >= skinData.challengePrice) {
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 11px Silkscreen';
+            ctx.fillText(`${skinData.challengePrice}⭐`, x + cubeBoxSize / 2, y + 90);
+          } else {
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 11px Silkscreen';
+            ctx.fillText(`${skinData.challengePrice}⭐`, x + cubeBoxSize / 2, y + 90);
+          }
+        } else {
+          if (canAfford) {
+            ctx.fillStyle = accent;
+            ctx.font = 'bold 11px Silkscreen';
+            ctx.fillText(`${skinData.price}$`, x + cubeBoxSize / 2, y + 90);
+          } else {
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 11px Silkscreen';
+            ctx.fillText(`${skinData.price}$`, x + cubeBoxSize / 2, y + 90);
+          }
+        }
+      }
+    });
+
+    ctx.restore();
+
+    // Back button
+    ctx.fillStyle = sec;
+    ctx.fillRect(W / 2 - 70, H - 60, 140, 40);
+    ctx.fillStyle = txt;
+    ctx.font = 'bold 14px Silkscreen';
+    ctx.fillText('[ SPACE TO BACK ]', W / 2, H - 35);
+
+    if (keys[' '] || keys['Enter']) {
+      keys[' '] = false;
+      keys['Enter'] = false;
+      state = 'menu';
+    }
   }
 
   if (state === 'playing') {
