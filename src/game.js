@@ -181,12 +181,11 @@ function spawnParticles(x, y, color, count) {
   }
 }
 
-// Cube skins (abbreviated - see original for full list)
+// All 28 cube skins
 const CUBE_SKINS = {
   classic: {
     name: 'Classic',
     price: 0,
-    currency: 'coins',
     bodyColor: '#3b82f6',
     bodyStroke: '#1e40af',
     faceColor: '#fbbf24',
@@ -196,32 +195,233 @@ const CUBE_SKINS = {
   red: {
     name: 'Ruby',
     price: 30,
-    currency: 'coins',
     bodyColor: '#ef4444',
     bodyStroke: '#991b1b',
     faceColor: '#fecaca',
     faceStroke: '#7f1d1d',
     description: 'A fiery red cube'
   },
-  gold: {
-    name: 'Golden',
+  purple: {
+    name: 'Amethyst',
     price: 50,
-    currency: 'coins',
-    bodyColor: '#fbbf24',
-    bodyStroke: '#b45309',
-    faceColor: '#f59e0b',
-    faceStroke: '#d97706',
-    description: 'Shiny golden cube'
+    bodyColor: '#a855f7',
+    bodyStroke: '#6b21a8',
+    faceColor: '#e9d5ff',
+    faceStroke: '#7e22ce',
+    description: 'Mystical purple cube'
   },
-  emerald: {
+  green: {
     name: 'Emerald',
-    challengePrice: 100,
-    currency: 'challenge',
+    price: 40,
     bodyColor: '#10b981',
-    bodyStroke: '#047857',
-    faceColor: '#34d399',
-    faceStroke: '#059669',
-    description: 'Challenge cube with special power'
+    bodyStroke: '#065f46',
+    faceColor: '#d1fae5',
+    faceStroke: '#047857',
+    description: 'Nature\'s green cube'
+  },
+  ice: {
+    name: 'Frost',
+    price: 50,
+    bodyColor: '#06b6d4',
+    bodyStroke: '#0e7490',
+    faceColor: '#cffafe',
+    faceStroke: '#164e63',
+    description: 'Frozen ice cube'
+  },
+  astronaut: {
+    name: 'Astronaut',
+    price: 100,
+    bodyColor: '#3b82f6',
+    bodyStroke: '#1e40af',
+    faceColor: '#000',
+    faceStroke: '#666',
+    description: 'Space explorer mode',
+    isAstronaut: true
+  },
+  gold: {
+    name: 'Treasure',
+    price: 80,
+    bodyColor: '#fbbf24',
+    bodyStroke: '#92400e',
+    faceColor: '#fef3c7',
+    faceStroke: '#b45309',
+    description: 'Worth its weight in coins'
+  },
+  candy: {
+    name: 'Candy',
+    price: 60,
+    bodyColor: '#ec4899',
+    bodyStroke: '#831843',
+    faceColor: '#fce7f3',
+    faceStroke: '#be185d',
+    description: 'Sweet and colorful'
+  },
+  volcano: {
+    name: 'Volcano',
+    price: 75,
+    bodyColor: '#7c2d12',
+    bodyStroke: '#431407',
+    faceColor: '#fb923c',
+    faceStroke: '#c2410c',
+    description: 'Molten hot cube'
+  },
+  forest: {
+    name: 'Forest',
+    price: 55,
+    bodyColor: '#15803d',
+    bodyStroke: '#052e16',
+    faceColor: '#86efac',
+    faceStroke: '#166534',
+    description: 'Deep woods cube'
+  },
+  ocean: {
+    name: 'Ocean',
+    price: 65,
+    bodyColor: '#0369a1',
+    bodyStroke: '#082f49',
+    faceColor: '#06b6d4',
+    faceStroke: '#0c4a6e',
+    description: 'Deep sea cube'
+  },
+  storm: {
+    name: 'Storm',
+    price: 70,
+    bodyColor: '#475569',
+    bodyStroke: '#1e293b',
+    faceColor: '#cbd5e1',
+    faceStroke: '#334155',
+    description: 'Thunderstorm grey'
+  },
+  sunset: {
+    name: 'Sunset',
+    price: 85,
+    bodyColor: '#ea580c',
+    bodyStroke: '#92400e',
+    faceColor: '#fcd34d',
+    faceStroke: '#f59e0b',
+    description: 'Golden hour vibes'
+  },
+  midnight: {
+    name: 'Midnight',
+    price: 90,
+    bodyColor: '#1e1b4b',
+    bodyStroke: '#0f0d29',
+    faceColor: '#818cf8',
+    faceStroke: '#4f46e5',
+    description: 'Deep night cube'
+  },
+  shinygold: {
+    name: 'Solid Gold',
+    price: 150,
+    bodyColor: '#d4af37',
+    bodyStroke: '#aa8c2c',
+    faceColor: '#ffd700',
+    faceStroke: '#daa520',
+    description: 'Luxurious solid gold',
+    isShiny: true
+  },
+  diamond: {
+    name: 'Diamond',
+    price: 120,
+    bodyColor: '#e0f2fe',
+    bodyStroke: '#0284c7',
+    faceColor: '#ffffff',
+    faceStroke: '#7dd3fc',
+    description: 'Precious gem cube',
+    isShiny: true
+  },
+  crystal: {
+    name: 'Crystal',
+    price: 110,
+    bodyColor: '#f3e8ff',
+    bodyStroke: '#a78bfa',
+    faceColor: '#ede9fe',
+    faceStroke: '#c4b5fd',
+    description: 'Amethyst crystal cube',
+    isShiny: true
+  },
+  neon: {
+    name: 'Neon',
+    price: 95,
+    bodyColor: '#0f172a',
+    bodyStroke: '#00ff00',
+    faceColor: '#00ff00',
+    faceStroke: '#00aa00',
+    description: 'Glowing neon gamer',
+    isNeon: true
+  },
+  fire: {
+    name: 'Phoenix',
+    price: 105,
+    bodyColor: '#7c0000',
+    bodyStroke: '#3f0000',
+    faceColor: '#ff6b35',
+    faceStroke: '#ff4500',
+    description: 'Burning hot phoenix'
+  },
+  quantum: {
+    name: 'Quantum',
+    price: 0,
+    currency: 'challenge',
+    challengePrice: 50,
+    bodyColor: '#4c0080',
+    bodyStroke: '#2a0052',
+    faceColor: '#9d00ff',
+    faceStroke: '#6a00cc',
+    description: 'Phased quantum realm',
+    isShiny: true,
+    isQuantum: true
+  },
+  nebula: {
+    name: 'Nebula',
+    price: 0,
+    currency: 'challenge',
+    challengePrice: 75,
+    bodyColor: '#1a0033',
+    bodyStroke: '#0f001a',
+    faceColor: '#ff00ff',
+    faceStroke: '#cc00ff',
+    description: 'Cosmic nebula swirl',
+    isShiny: true
+  },
+  radiant: {
+    name: 'Radiant',
+    price: 0,
+    currency: 'challenge',
+    challengePrice: 100,
+    bodyColor: '#ffaa00',
+    bodyStroke: '#cc8800',
+    faceColor: '#ffff00',
+    faceStroke: '#ffdd00',
+    description: 'Pure radiant energy',
+    isShiny: true,
+    isRadiant: true
+  },
+  ethereal: {
+    name: 'Ethereal',
+    price: 0,
+    currency: 'challenge',
+    challengePrice: 60,
+    bodyColor: '#e0e7ff',
+    bodyStroke: '#c7d2fe',
+    faceColor: '#f3f4f6',
+    faceStroke: '#e5e7eb',
+    description: 'Glowing ethereal spirit',
+    isShiny: true,
+    isEthereal: true
+  },
+  wisp: {
+    name: 'Wisp',
+    price: 0,
+    currency: 'challenge',
+    challengePrice: 85,
+    bodyColor: '#a5f3fc',
+    bodyStroke: '#7dd3fc',
+    faceColor: '#cffafe',
+    faceStroke: '#a5f3fc',
+    description: 'Luminous wisp of light',
+    isShiny: true,
+    isWisp: true
   }
 };
 
@@ -398,7 +598,8 @@ function update() {
       const ownedCubes = playerData.owned_cubes.split(',').map(c => c.trim());
       
       if (!ownedCubes.includes(playerData.selected_cube)) {
-        if (selectedSkin.currency === 'challenge') {
+        const currency = selectedSkin.currency || 'coins';
+        if (currency === 'challenge') {
           if ((playerData.challenge_points || 0) >= selectedSkin.challengePrice) {
             playerData.challenge_points -= selectedSkin.challengePrice;
             playerData.owned_cubes += ',' + playerData.selected_cube;
@@ -533,11 +734,35 @@ function drawCube(x, y, skinKey) {
   const skin = CUBE_SKINS[skinKey] || CUBE_SKINS['classic'];
   const cubeSize = 20;
   
+  // Special effect: Neon glow
+  if (skin.isNeon) {
+    ctx.shadowColor = '#00ff00';
+    ctx.shadowBlur = 10;
+  } else if (skin.isRadiant) {
+    ctx.shadowColor = '#ffaa00';
+    ctx.shadowBlur = 12;
+  } else if (skin.isEthereal) {
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 8;
+  } else if (skin.isWisp) {
+    ctx.shadowColor = '#a5f3fc';
+    ctx.shadowBlur = 10;
+  } else if (skin.isQuantum) {
+    ctx.shadowColor = '#9d00ff';
+    ctx.shadowBlur = 8;
+  } else if (skin.isShiny) {
+    ctx.shadowColor = skin.bodyColor;
+    ctx.shadowBlur = 8;
+  }
+  
   ctx.fillStyle = skin.bodyColor;
   ctx.fillRect(x, y, cubeSize, cubeSize);
   ctx.strokeStyle = skin.bodyStroke;
   ctx.lineWidth = 2;
   ctx.strokeRect(x, y, cubeSize, cubeSize);
+  
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
   
   const faceX = x + 2;
   const faceY = y + 2;
@@ -549,23 +774,34 @@ function drawCube(x, y, skinKey) {
   ctx.lineWidth = 1.5;
   ctx.strokeRect(faceX, faceY, faceSize, faceSize);
   
-  // Eyes
-  const eyeY = faceY + 5;
-  const eyeSpacing = 5;
-  const leftEyeX = faceX + eyeSpacing;
-  const rightEyeX = faceX + faceSize - eyeSpacing - 2;
-  const eyeSize = 2;
-  ctx.fillStyle = '#000';
-  ctx.fillRect(leftEyeX, eyeY, eyeSize, eyeSize);
-  ctx.fillRect(rightEyeX, eyeY, eyeSize, eyeSize);
-  
-  // Mouth
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(faceX + 4, faceY + faceSize - 4);
-  ctx.lineTo(faceX + faceSize - 4, faceY + faceSize - 4);
-  ctx.stroke();
+  // Special: Astronaut helmet visor
+  if (skin.isAstronaut) {
+    ctx.fillStyle = 'rgba(100, 150, 255, 0.6)';
+    ctx.beginPath();
+    ctx.arc(faceX + faceSize / 2, faceY + faceSize / 2, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#1e40af';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  } else {
+    // Eyes
+    const eyeY = faceY + 5;
+    const eyeSpacing = 5;
+    const leftEyeX = faceX + eyeSpacing;
+    const rightEyeX = faceX + faceSize - eyeSpacing - 2;
+    const eyeSize = 2;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(leftEyeX, eyeY, eyeSize, eyeSize);
+    ctx.fillRect(rightEyeX, eyeY, eyeSize, eyeSize);
+    
+    // Mouth
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(faceX + 4, faceY + faceSize - 4);
+    ctx.lineTo(faceX + faceSize - 4, faceY + faceSize - 4);
+    ctx.stroke();
+  }
   
   // Highlight
   ctx.fillStyle = 'rgba(255,255,255,0.2)';
@@ -792,7 +1028,8 @@ function draw() {
           ctx.fillText('OWNED', x + cubeBoxSize / 2, y + 90);
         }
       } else {
-        if (skinData.currency === 'challenge') {
+        const currency = skinData.currency || 'coins';
+        if (currency === 'challenge') {
           if ((playerData.challenge_points || 0) >= skinData.challengePrice) {
             ctx.fillStyle = '#ffd700';
             ctx.font = 'bold 11px Silkscreen';
