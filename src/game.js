@@ -36,6 +36,27 @@ function loadPlayerData() {
   }
 }
 
+// Global error reporting for browser deploy debugging
+window.addEventListener('error', event => {
+  console.error('Global error:', event.message, 'at', event.filename + ':' + event.lineno + ':' + event.colno, event.error);
+  if (!document.getElementById('pixelDashError')) {
+    const div = document.createElement('div');
+    div.id = 'pixelDashError';
+    div.style.position = 'fixed';
+    div.style.left = '0';
+    div.style.right = '0';
+    div.style.top = '0';
+    div.style.padding = '15px';
+    div.style.background = '#b91c1c';
+    div.style.color = '#fff';
+    div.style.zIndex = '9999';
+    div.style.fontFamily = 'monospace';
+    div.style.fontSize = '13px';
+    div.innerText = `PixelDash Error: ${event.message} (check console)`;
+    document.body.appendChild(div);
+  }
+});
+
 function savePlayerData() {
   localStorage.setItem('pixelDashPlayer', JSON.stringify(playerData));
 }
@@ -900,7 +921,13 @@ function drawCube(x, y, skinKey) {
   ctx.fillRect(x + 1, y + 1, 6, 6);
 }
 
+let drawFrameCount = 0;
 function draw() {
+  if (drawFrameCount === 0) {
+    console.log('Pixel Dash draw() called, initial state:', state); 
+  }
+  drawFrameCount++;
+
   const W = canvas.width, H = canvas.height;
   const bg = config.background_color || defaultConfig.background_color;
   const surf = config.surface_color || defaultConfig.surface_color;
