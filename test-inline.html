@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <title>Debug Test</title>
+  <style>
+    body { background: black; color: white; font-family: monospace; padding: 20px; }
+    #log { white-space: pre-wrap; word-wrap: break-word; }
+  </style>
+</head>
+<body>
+  <h1>Pixel Dash Diagnostics</h1>
+  <div id="log"></div>
+  <canvas id="game" style="border: 1px solid white; width: 100%; height: 400px;"></canvas>
+  
+  <script>
+    const logDiv = document.getElementById('log');
+    function log(msg) {
+      logDiv.textContent += msg + '\n';
+      console.log(msg);
+    }
+    
+    log('Page loaded');
+    log('Canvas found: ' + (!!document.getElementById('game')));
+    log('Loading game-logic.js...');
+  </script>
+  <script src="src/game-logic.js"></script>
+  <script>
+    log('game-logic.js loaded');
+    log('CUBE_SKINS defined: ' + (typeof CUBE_SKINS !== 'undefined'));
+    if (typeof CUBE_SKINS !== 'undefined') {
+      log('CUBE_SKINS count: ' + Object.keys(CUBE_SKINS).length);
+    }
+    log('Loading game.js...');
+  </script>
+  <script src="src/game.js"></script>
+  <script>
+    log('game.js loaded');
+    log('Canvas: ' + (!!canvas));
+    log('ctx: ' + (!!ctx));
+    log('state: ' + state);
+    log('playerData: ' + (typeof playerData !== 'undefined'));
+    log('INITIAL_LEVELS: ' + (typeof INITIAL_LEVELS !== 'undefined'));
+    if (typeof INITIAL_LEVELS !== 'undefined') {
+      log('INITIAL_LEVELS count: ' + INITIAL_LEVELS.length);
+    }
+    log('');
+    log('Game should be running now...');
+  </script>
+</body>
+</html>
