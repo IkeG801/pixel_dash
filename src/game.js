@@ -491,14 +491,6 @@ function rectCollide(a, b) {
 function update() {
   // Menu navigation
   if (state === 'menu') {
-    // Button click detection (approximate regions)
-    const levelButtonX = W / 2 - 130;
-    const levelButtonY = H / 2 + 220;
-    const shopButtonX = W / 2 + 30;
-    const shopButtonY = H / 2 + 220;
-    const buttonW = 100;
-    const buttonH = 40;
-
     if (keys['l'] || keys['L']) {
       keys['l'] = false;
       state = 'levelselect';
