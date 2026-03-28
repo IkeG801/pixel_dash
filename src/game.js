@@ -259,6 +259,35 @@ function createAutoLevel(levelIndex) {
     type: 0
   };
 
+  // Level 7 special case: prevent impossible jump by making platform spacing conservative
+  if (levelIndex === 6) {
+    const safePlatforms = [
+      spawnPlatform,
+      { x: 220, y: 500, w: 120, h: 20, type: 4 },
+      { x: 380, y: 470, w: 120, h: 20, type: 5 },
+      { x: 540, y: 450, w: 130, h: 20, type: 4 },
+      { x: 700, y: 430, w: 140, h: 20, type: 0 },
+      { x: 860, y: 410, w: 180, h: 40, type: 0 }
+    ];
+
+    const spikes = [
+      { x: 180, y: 520, w: 40, h: 16, type: 0 },
+      { x: 420, y: 490, w: 40, h: 16, type: 0 }
+    ];
+
+    const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
+    const powerups = [{ x: 860, y: 370, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+
+    return {
+      name: 'Level 7 - Safe Ascent',
+      platforms: safePlatforms,
+      spikes,
+      coins,
+      obstacles: [],
+      powerups
+    };
+  }
+
   const platforms = [ ...[spawnPlatform] ];
   for (let j = 0; j < platformCount; j++) {
     const x = j * gapX + horizontalShift + 220;
