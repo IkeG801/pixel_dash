@@ -118,6 +118,55 @@ pixel_dash/
 - Particle system with lifecycle management
 - Minimal memory footprint
 
+## Testing
+
+The game includes a comprehensive test suite to ensure reliability and prevent regressions.
+
+### Running Tests
+
+```bash
+# Install dependencies (first time only)
+npm install
+
+# Run all tests
+npm test
+
+# Run tests in watch mode (recommended for development)
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### Test Coverage
+
+- **100+ Unit Tests**: Core game mechanics (physics, collision, state management)
+- **Integration Tests**: Player data persistence, game flow, level progression
+- **CI/CD Pipeline**: Automated testing on every push, auto-deployment on success
+
+### Test Suite Stats
+
+- **Game Constants & Physics**: 20+ tests
+- **Collision Detection**: 10+ tests
+- **Player Movement & Jumping**: 30+ tests  
+- **Level Progression**: 15+ tests
+- **Data Persistence**: 20+ tests
+- **Integration Scenarios**: 25+ tests
+
+### Documentation
+
+- **[SETUP.md](./SETUP.md)** - Quick start guide for running tests
+- **[TESTING.md](./TESTING.md)** - Comprehensive testing documentation
+- **[.github/workflows/test-and-deploy.yml](./.github/workflows/test-and-deploy.yml)** - CI/CD configuration
+
+### Continuous Integration
+
+Every push to the repository triggers:
+1. ✅ Automated test suite (Node.js 16.x, 18.x, 20.x)
+2. ✅ Code coverage analysis
+3. ✅ Automatic deployment to GitHub Pages (on passing tests)
+4. ✅ Verification of deployed game
+
 ## Development
 
 ### Adding New Levels
