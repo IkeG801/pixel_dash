@@ -259,24 +259,24 @@ function createAutoLevel(levelIndex) {
     type: 0
   };
 
-  // Level 3 safe layout
+  // Level 3 safe layout - conservative horizontal (<=130px) and vertical (<=15px drop) gaps
   if (levelIndex === 2) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 230, y: 495, w: 110, h: 20, type: 4 },
-      { x: 390, y: 465, w: 110, h: 20, type: 5 },
-      { x: 550, y: 440, w: 120, h: 20, type: 4 },
-      { x: 710, y: 415, w: 120, h: 20, type: 0 },
-      { x: 870, y: 390, w: 180, h: 40, type: 0 }
+      { x: 210, y: 510, w: 110, h: 20, type: 4 },
+      { x: 330, y: 500, w: 110, h: 20, type: 5 },
+      { x: 450, y: 490, w: 110, h: 20, type: 4 },
+      { x: 570, y: 480, w: 120, h: 20, type: 0 },
+      { x: 690, y: 470, w: 120, h: 20, type: 5 },
+      { x: 810, y: 460, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 190, y: 515, w: 40, h: 16, type: 0 },
-      { x: 450, y: 485, w: 40, h: 16, type: 0 }
+      { x: 260, y: 530, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 870, y: 350, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 810, y: 420, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 3 - First Challenge',
@@ -292,19 +292,20 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 3) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 220, y: 500, w: 110, h: 20, type: 5 },
-      { x: 375, y: 475, w: 110, h: 20, type: 4 },
-      { x: 530, y: 450, w: 120, h: 20, type: 0 },
-      { x: 690, y: 425, w: 180, h: 40, type: 0 }
+      { x: 200, y: 512, w: 110, h: 20, type: 5 },
+      { x: 320, y: 503, w: 110, h: 20, type: 4 },
+      { x: 440, y: 494, w: 110, h: 20, type: 5 },
+      { x: 560, y: 485, w: 120, h: 20, type: 4 },
+      { x: 680, y: 476, w: 120, h: 20, type: 0 },
+      { x: 800, y: 467, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 170, y: 520, w: 40, h: 16, type: 0 },
-      { x: 430, y: 495, w: 40, h: 16, type: 0 }
+      { x: 240, y: 532, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 690, y: 385, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 800, y: 427, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 4 - Rising Action',
@@ -320,21 +321,21 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 4) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 225, y: 498, w: 115, h: 20, type: 4 },
-      { x: 385, y: 472, w: 115, h: 20, type: 5 },
-      { x: 545, y: 446, w: 120, h: 20, type: 4 },
-      { x: 705, y: 420, w: 120, h: 20, type: 0 },
-      { x: 865, y: 395, w: 180, h: 40, type: 0 }
+      { x: 210, y: 511, w: 110, h: 20, type: 4 },
+      { x: 330, y: 502, w: 110, h: 20, type: 5 },
+      { x: 450, y: 493, w: 110, h: 20, type: 4 },
+      { x: 570, y: 484, w: 120, h: 20, type: 5 },
+      { x: 690, y: 475, w: 120, h: 20, type: 0 },
+      { x: 810, y: 466, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 180, y: 518, w: 40, h: 16, type: 0 },
-      { x: 440, y: 492, w: 40, h: 16, type: 0 },
-      { x: 600, y: 466, w: 40, h: 16, type: 0 }
+      { x: 260, y: 531, w: 40, h: 16, type: 0 },
+      { x: 400, y: 513, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 865, y: 355, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 810, y: 426, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 5 - Tower Ascent',
@@ -350,21 +351,21 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 5) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 215, y: 502, w: 115, h: 20, type: 5 },
-      { x: 375, y: 477, w: 115, h: 20, type: 4 },
-      { x: 535, y: 452, w: 120, h: 20, type: 5 },
-      { x: 695, y: 427, w: 120, h: 20, type: 0 },
-      { x: 855, y: 402, w: 180, h: 40, type: 0 }
+      { x: 205, y: 512, w: 110, h: 20, type: 5 },
+      { x: 325, y: 503, w: 110, h: 20, type: 4 },
+      { x: 445, y: 494, w: 110, h: 20, type: 5 },
+      { x: 565, y: 485, w: 120, h: 20, type: 4 },
+      { x: 685, y: 476, w: 120, h: 20, type: 5 },
+      { x: 805, y: 467, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 160, y: 522, w: 40, h: 16, type: 0 },
-      { x: 420, y: 497, w: 40, h: 16, type: 0 },
-      { x: 590, y: 472, w: 40, h: 16, type: 0 }
+      { x: 250, y: 532, w: 40, h: 16, type: 0 },
+      { x: 380, y: 523, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 855, y: 362, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 805, y: 427, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 6 - Mountain Trail',
@@ -376,24 +377,25 @@ function createAutoLevel(levelIndex) {
     };
   }
 
-  // Level 7 special case: prevent impossible jump by making platform spacing conservative
+  // Level 7 safe ascent - conservative spacing
   if (levelIndex === 6) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 220, y: 500, w: 120, h: 20, type: 4 },
-      { x: 380, y: 470, w: 120, h: 20, type: 5 },
-      { x: 540, y: 450, w: 130, h: 20, type: 4 },
-      { x: 700, y: 430, w: 140, h: 20, type: 0 },
-      { x: 860, y: 410, w: 180, h: 40, type: 0 }
+      { x: 210, y: 511, w: 110, h: 20, type: 4 },
+      { x: 330, y: 502, w: 110, h: 20, type: 5 },
+      { x: 450, y: 493, w: 110, h: 20, type: 4 },
+      { x: 570, y: 484, w: 120, h: 20, type: 0 },
+      { x: 690, y: 475, w: 120, h: 20, type: 5 },
+      { x: 810, y: 466, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 180, y: 520, w: 40, h: 16, type: 0 },
-      { x: 420, y: 490, w: 40, h: 16, type: 0 }
+      { x: 260, y: 531, w: 40, h: 16, type: 0 },
+      { x: 400, y: 513, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 860, y: 370, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 810, y: 426, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 7 - Safe Ascent',
@@ -409,22 +411,21 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 7) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 210, y: 505, w: 110, h: 20, type: 5 },
-      { x: 360, y: 480, w: 110, h: 20, type: 4 },
-      { x: 510, y: 460, w: 120, h: 20, type: 0 },
-      { x: 650, y: 440, w: 110, h: 20, type: 4 },
-      { x: 800, y: 420, w: 120, h: 20, type: 5 },
-      { x: 950, y: 400, w: 180, h: 40, type: 0 }
+      { x: 215, y: 510, w: 110, h: 20, type: 5 },
+      { x: 335, y: 501, w: 110, h: 20, type: 4 },
+      { x: 455, y: 492, w: 110, h: 20, type: 5 },
+      { x: 575, y: 483, w: 120, h: 20, type: 4 },
+      { x: 695, y: 474, w: 120, h: 20, type: 0 },
+      { x: 815, y: 465, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 160, y: 525, w: 40, h: 16, type: 0 },
-      { x: 450, y: 500, w: 40, h: 16, type: 0 },
-      { x: 560, y: 480, w: 40, h: 16, type: 0 }
+      { x: 265, y: 530, w: 40, h: 16, type: 0 },
+      { x: 405, y: 512, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 950, y: 360, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 815, y: 425, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 8 - Steady Climb',
@@ -440,22 +441,21 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 8) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 200, y: 505, w: 120, h: 20, type: 4 },
-      { x: 355, y: 485, w: 115, h: 20, type: 5 },
-      { x: 505, y: 465, w: 115, h: 20, type: 4 },
-      { x: 660, y: 445, w: 120, h: 20, type: 0 },
-      { x: 810, y: 425, w: 120, h: 20, type: 5 },
-      { x: 960, y: 405, w: 180, h: 40, type: 0 }
+      { x: 220, y: 509, w: 110, h: 20, type: 4 },
+      { x: 340, y: 500, w: 110, h: 20, type: 5 },
+      { x: 460, y: 491, w: 110, h: 20, type: 4 },
+      { x: 580, y: 482, w: 120, h: 20, type: 5 },
+      { x: 700, y: 473, w: 120, h: 20, type: 0 },
+      { x: 820, y: 464, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 150, y: 525, w: 40, h: 16, type: 0 },
-      { x: 430, y: 505, w: 40, h: 16, type: 0 },
-      { x: 610, y: 485, w: 40, h: 16, type: 0 }
+      { x: 270, y: 529, w: 40, h: 16, type: 0 },
+      { x: 410, y: 511, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 960, y: 365, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 820, y: 424, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 9 - Precision Path',
@@ -471,23 +471,22 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 9) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 195, y: 508, w: 115, h: 20, type: 5 },
-      { x: 345, y: 490, w: 115, h: 20, type: 4 },
-      { x: 495, y: 470, w: 120, h: 20, type: 5 },
-      { x: 650, y: 450, w: 115, h: 20, type: 4 },
-      { x: 800, y: 430, w: 115, h: 20, type: 0 },
-      { x: 950, y: 410, w: 180, h: 40, type: 0 }
+      { x: 210, y: 510, w: 110, h: 20, type: 5 },
+      { x: 330, y: 501, w: 110, h: 20, type: 4 },
+      { x: 450, y: 492, w: 110, h: 20, type: 5 },
+      { x: 570, y: 483, w: 120, h: 20, type: 4 },
+      { x: 690, y: 474, w: 120, h: 20, type: 0 },
+      { x: 810, y: 465, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 140, y: 528, w: 40, h: 16, type: 0 },
-      { x: 410, y: 510, w: 40, h: 16, type: 0 },
-      { x: 580, y: 490, w: 40, h: 16, type: 0 },
-      { x: 740, y: 470, w: 40, h: 16, type: 0 }
+      { x: 260, y: 530, w: 40, h: 16, type: 0 },
+      { x: 400, y: 512, w: 40, h: 16, type: 0 },
+      { x: 540, y: 503, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 950, y: 370, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 810, y: 425, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 10 - Gauntlet Challenge',
@@ -503,23 +502,22 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 10) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 190, y: 510, w: 120, h: 20, type: 4 },
-      { x: 340, y: 492, w: 120, h: 20, type: 5 },
-      { x: 490, y: 474, w: 120, h: 20, type: 4 },
-      { x: 640, y: 456, w: 120, h: 20, type: 0 },
-      { x: 790, y: 438, w: 120, h: 20, type: 5 },
-      { x: 940, y: 420, w: 180, h: 40, type: 0 }
+      { x: 215, y: 509, w: 110, h: 20, type: 4 },
+      { x: 335, y: 500, w: 110, h: 20, type: 5 },
+      { x: 455, y: 491, w: 110, h: 20, type: 4 },
+      { x: 575, y: 482, w: 120, h: 20, type: 5 },
+      { x: 695, y: 473, w: 120, h: 20, type: 0 },
+      { x: 815, y: 464, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 130, y: 530, w: 40, h: 16, type: 0 },
-      { x: 390, y: 512, w: 40, h: 16, type: 0 },
-      { x: 550, y: 494, w: 40, h: 16, type: 0 },
-      { x: 710, y: 476, w: 40, h: 16, type: 0 }
+      { x: 265, y: 529, w: 40, h: 16, type: 0 },
+      { x: 405, y: 511, w: 40, h: 16, type: 0 },
+      { x: 535, y: 502, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 940, y: 380, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 815, y: 424, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 11 - Sky Bridge',
@@ -535,23 +533,22 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 11) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 185, y: 512, w: 120, h: 20, type: 5 },
-      { x: 335, y: 495, w: 120, h: 20, type: 4 },
-      { x: 485, y: 478, w: 120, h: 20, type: 5 },
-      { x: 635, y: 461, w: 120, h: 20, type: 4 },
-      { x: 785, y: 444, w: 120, h: 20, type: 0 },
-      { x: 935, y: 427, w: 180, h: 40, type: 0 }
+      { x: 220, y: 508, w: 110, h: 20, type: 5 },
+      { x: 340, y: 499, w: 110, h: 20, type: 4 },
+      { x: 460, y: 490, w: 110, h: 20, type: 5 },
+      { x: 580, y: 481, w: 120, h: 20, type: 4 },
+      { x: 700, y: 472, w: 120, h: 20, type: 0 },
+      { x: 820, y: 463, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 120, y: 532, w: 40, h: 16, type: 0 },
-      { x: 370, y: 515, w: 40, h: 16, type: 0 },
-      { x: 530, y: 498, w: 40, h: 16, type: 0 },
-      { x: 680, y: 481, w: 40, h: 16, type: 0 }
+      { x: 270, y: 528, w: 40, h: 16, type: 0 },
+      { x: 410, y: 510, w: 40, h: 16, type: 0 },
+      { x: 550, y: 501, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 935, y: 387, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 820, y: 423, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 12 - Ascending Peak',
@@ -559,7 +556,7 @@ function createAutoLevel(levelIndex) {
       spikes,
       coins,
       obstacles: [
-        { x: 450, y: 455, w: 26, h: 26, vx: 1.5, minX: 420, maxX: 560, type: 'spike' }
+        { x: 400, y: 470, w: 26, h: 26, vx: 1.5, minX: 370, maxX: 500, type: 'spike' }
       ],
       powerups
     };
@@ -569,23 +566,22 @@ function createAutoLevel(levelIndex) {
   if (levelIndex === 12) {
     const safePlatforms = [
       spawnPlatform,
-      { x: 180, y: 514, w: 125, h: 20, type: 4 },
-      { x: 330, y: 497, w: 125, h: 20, type: 5 },
-      { x: 480, y: 480, w: 125, h: 20, type: 4 },
-      { x: 630, y: 463, w: 125, h: 20, type: 5 },
-      { x: 780, y: 446, w: 125, h: 20, type: 4 },
-      { x: 930, y: 429, w: 180, h: 40, type: 0 }
+      { x: 210, y: 508, w: 110, h: 20, type: 4 },
+      { x: 330, y: 499, w: 110, h: 20, type: 5 },
+      { x: 450, y: 490, w: 110, h: 20, type: 4 },
+      { x: 570, y: 481, w: 120, h: 20, type: 5 },
+      { x: 690, y: 472, w: 120, h: 20, type: 0 },
+      { x: 810, y: 463, w: 180, h: 40, type: 0 }
     ];
 
     const spikes = [
-      { x: 110, y: 534, w: 40, h: 16, type: 0 },
-      { x: 350, y: 517, w: 40, h: 16, type: 0 },
-      { x: 510, y: 500, w: 40, h: 16, type: 0 },
-      { x: 670, y: 483, w: 40, h: 16, type: 0 }
+      { x: 260, y: 528, w: 40, h: 16, type: 0 },
+      { x: 400, y: 510, w: 40, h: 16, type: 0 },
+      { x: 540, y: 501, w: 40, h: 16, type: 0 }
     ];
 
     const coins = safePlatforms.slice(1).map((p) => ({ x: p.x + p.w / 2 - 8, y: p.y - 36, w: 16, h: 16, collected: false }));
-    const powerups = [{ x: 930, y: 389, w: 14, h: 14, collected: false, type: 'jumpboost' }];
+    const powerups = [{ x: 810, y: 423, w: 14, h: 14, collected: false, type: 'jumpboost' }];
 
     return {
       name: 'Level 13 - Final Summit',
@@ -593,7 +589,7 @@ function createAutoLevel(levelIndex) {
       spikes,
       coins,
       obstacles: [
-        { x: 450, y: 457, w: 26, h: 26, vx: 2, minX: 420, maxX: 580, type: 'spike' }
+        { x: 410, y: 470, w: 26, h: 26, vx: 2, minX: 380, maxX: 520, type: 'spike' }
       ],
       powerups
     };
