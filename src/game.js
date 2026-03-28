@@ -213,9 +213,17 @@ function createAutoLevel(levelIndex) {
   const gapX = 170;
   const platformCount = 4 + (levelIndex % 3);
 
-  const platforms = [];
+  const spawnPlatform = {
+    x: 30,
+    y: 520,
+    w: 160,
+    h: 20,
+    type: 0
+  };
+
+  const platforms = [ ...[spawnPlatform] ];
   for (let j = 0; j < platformCount; j++) {
-    const x = j * gapX + horizontalShift;
+    const x = j * gapX + horizontalShift + 220;
     const y = baseY - j * 40 - Math.max(0, levelIndex - 2) * 4;
     platforms.push({ x, y, w: 100 + (j % 3) * 30, h: 20, type: (j % 4 === 0 ? 0 : (j % 4 === 1 ? 4 : (j % 4 === 2 ? 5 : 4))) });
   }
