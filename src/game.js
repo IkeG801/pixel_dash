@@ -290,11 +290,11 @@ for (let i = INITIAL_LEVELS.length; i < 13; i++) {
   const spring = (i - INITIAL_LEVELS.length) * 8;
   const level = {
     name: template.name,
-    platforms: template.platforms.map(p => ({ ...p, x: p.x + spring, y: p.y - spring })),
-    spikes: template.spikes.map(s => ({ ...s, x: s.x + spring, y: s.y - spring })),
-    coins: template.coins.map(c => ({ ...c, x: c.x + spring, y: c.y - spring })),
-    obstacles: template.obstacles.map(o => ({ ...o, x: o.x + spring, y: o.y - spring })),
-    powerups: template.powerups.map(u => ({ ...u, x: u.x + spring, y: u.y - spring }))
+    platforms: (template.platforms || []).map(p => ({ ...p, x: p.x + spring, y: p.y - spring })),
+    spikes: (template.spikes || []).map(s => ({ ...s, x: s.x + spring, y: s.y - spring })),
+    coins: (template.coins || []).map(c => ({ ...c, x: c.x + spring, y: c.y - spring })),
+    obstacles: (template.obstacles || []).map(o => ({ ...o, x: o.x + spring, y: o.y - spring })),
+    powerups: (template.powerups || []).map(u => ({ ...u, x: u.x + spring, y: u.y - spring }))
   };
   INITIAL_LEVELS.push(level);
 }
