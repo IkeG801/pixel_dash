@@ -97,12 +97,12 @@ function hexToRgb(hex) {
   } : { r: 0, g: 0, b: 0 };
 }
 
-// Game constants
-const TILE = 32;
-const GRAVITY = 0.6;
-const JUMP_FORCE = -12;
-const MOVE_SPEED = 4.5;
-const FRICTION = 0.85;
+// Game constants (declared in game-logic.js and available globally)
+// const TILE = 32;              // from game-logic.js
+// const GRAVITY = 0.6;          // from game-logic.js
+// const JUMP_FORCE = -12;       // from game-logic.js
+// const MOVE_SPEED = 4.5;       // from game-logic.js
+// const FRICTION = 0.85;        // from game-logic.js
 
 // Generate level - just returns from INITIAL_LEVELS
 function generateLevel(levelNum) {
