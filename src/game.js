@@ -265,7 +265,7 @@ const AUTO_LEVEL_TEMPLATES = [
 ];
 
 for (let i = INITIAL_LEVELS.length; i < 13; i++) {
-  const template = AUTO_LEVEL_TEMPLATES[i - INITIAL_LEVELS.length];
+  const template = AUTO_LEVEL_TEMPLATES[(i - INITIAL_LEVELS.length) % AUTO_LEVEL_TEMPLATES.length];
   const spring = (i - INITIAL_LEVELS.length) * 8;
   const level = {
     name: template.name,
