@@ -822,7 +822,7 @@ function draw() {
     ctx.fillText(title, W / 2, H / 2 - 100);
 
     ctx.fillStyle = txt;
-    ctx.font = ''14px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Arrow keys or WASD to move', W / 2, H / 2 + 50);
     ctx.fillText('Up / W / Space to jump', W / 2, H / 2 + 80);
@@ -842,7 +842,7 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText('LEVELS', W / 2 - 80, H / 2 + 245);
     ctx.fillStyle = txt;
-    ctx.font = ''10px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.fillText('[L]', W / 2 - 80, H / 2 + 265);
 
     ctx.fillStyle = accent;
@@ -852,7 +852,7 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText('SHOP', W / 2 + 80, H / 2 + 245);
     ctx.fillStyle = txt;
-    ctx.font = ''10px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.fillText('[S]', W / 2 + 80, H / 2 + 265);
 
     return;
@@ -910,7 +910,7 @@ function draw() {
 
       // Draw level name below
       ctx.fillStyle = txt;
-      ctx.font = ''11px Silkscreen' Arial, sans-serif';
+      ctx.font = '14px Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(levelData.name, lx + levelSize / 2, ly + levelSize + 20);
     }
@@ -919,7 +919,7 @@ function draw() {
 
     // Navigation info
     ctx.fillStyle = txt;
-    ctx.font = ''12px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Arrow keys or scroll to browse • Space to play', W / 2, H - 60);
 
@@ -947,11 +947,11 @@ function draw() {
     ctx.fillText('CUBE SHOP', W / 2, 60);
 
     ctx.fillStyle = txt;
-    ctx.font = ''14px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.fillText(`Your Coins: ${playerData.total_coins}`, W / 2, 100);
 
     ctx.fillStyle = '#ffd700';
-    ctx.font = ''12px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.fillText(`Challenge Points: ${playerData.challenge_points || 0}`, W / 2, 118);
 
     // Create clip region for scrollable area
@@ -1124,7 +1124,7 @@ function draw() {
 
     // HUD
     ctx.fillStyle = txt;
-    ctx.font = ''14px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(`Coins: ${playerData.total_coins}`, 20, 35);
   }
@@ -1136,7 +1136,7 @@ function draw() {
     ctx.fillText('GAME OVER', W / 2, H / 2 - 30);
 
     ctx.fillStyle = surf;
-    ctx.font = ''16px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
     ctx.globalAlpha = pulse;
     ctx.fillText('[ PRESS SPACE OR TAP TO RETRY ]', W / 2, H / 2 + 70);
@@ -1156,11 +1156,11 @@ function draw() {
     ctx.fillText('LEVEL COMPLETE!', W / 2, H / 2 - 30);
 
     ctx.fillStyle = txt;
-    ctx.font = ''18px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     ctx.fillText(`Time: ${Math.floor(time / 60)}s`, W / 2, H / 2 + 10);
 
     ctx.fillStyle = surf;
-    ctx.font = ''16px Silkscreen' Arial, sans-serif';
+    ctx.font = '14px Arial, sans-serif';
     const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
     ctx.globalAlpha = pulse;
     ctx.fillText('[ SPACE TO NEXT LEVEL ]', W / 2, H / 2 + 70);
