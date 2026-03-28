@@ -180,6 +180,32 @@ const INITIAL_LEVELS = [
   }
 ];
 
+// Add placeholder levels 3..13 if not provided by original data
+for (let i = INITIAL_LEVELS.length + 1; i <= 13; i++) {
+  const baseX = (i - 3) * 30;
+  INITIAL_LEVELS.push({
+    name: `Level ${i}`,
+    platforms: [
+      { x: 0 + baseX, y: 520, w: 160, h: 20, type: 0 },
+      { x: 180 + baseX, y: 470 - i * 2, w: 100, h: 20, type: 4 },
+      { x: 320 + baseX, y: 430 - i * 2, w: 100, h: 20, type: 5 },
+      { x: 460 + baseX, y: 390 - i * 2, w: 100, h: 20, type: 4 },
+      { x: 620 + baseX, y: 340 - i * 2, w: 240, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 120 + baseX, y: 540, w: 40, h: 16, type: 0 },
+      { x: 420 + baseX, y: 410 - i * 2, w: 40, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 190 + baseX, y: 450 - i * 2, w: 16, h: 16, collected: false },
+      { x: 340 + baseX, y: 410 - i * 2, w: 16, h: 16, collected: false },
+      { x: 620 + baseX, y: 300 - i * 2, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [],
+    powerups: [{ x: 540 + baseX, y: 330 - i * 2, w: 14, h: 14, collected: false, type: 'jumpboost' }]
+  });
+}
+
 // Particle system
 let particles = [];
 function spawnParticles(x, y, color, count) {
@@ -818,11 +844,11 @@ function draw() {
   if (state === 'menu') {
     ctx.textAlign = 'center';
     ctx.fillStyle = surf;
-    ctx.font = 'bold 48px Arial, sans-serif';
+    ctx.font = 'bold 48px Silkscreen, Arial, sans-serif';
     ctx.fillText(title, W / 2, H / 2 - 100);
 
     ctx.fillStyle = txt;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Arrow keys or WASD to move', W / 2, H / 2 + 50);
     ctx.fillText('Up / W / Space to jump', W / 2, H / 2 + 80);
@@ -842,7 +868,7 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText('LEVELS', W / 2 - 80, H / 2 + 245);
     ctx.fillStyle = txt;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.fillText('[L]', W / 2 - 80, H / 2 + 265);
 
     ctx.fillStyle = accent;
@@ -852,7 +878,7 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText('SHOP', W / 2 + 80, H / 2 + 245);
     ctx.fillStyle = txt;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.fillText('[S]', W / 2 + 80, H / 2 + 265);
 
     return;
@@ -910,7 +936,7 @@ function draw() {
 
       // Draw level name below
       ctx.fillStyle = txt;
-      ctx.font = '14px Arial, sans-serif';
+      ctx.font = '14px Silkscreen, Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(levelData.name, lx + levelSize / 2, ly + levelSize + 20);
     }
@@ -919,7 +945,7 @@ function draw() {
 
     // Navigation info
     ctx.fillStyle = txt;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Arrow keys or scroll to browse • Space to play', W / 2, H - 60);
 
@@ -947,11 +973,11 @@ function draw() {
     ctx.fillText('CUBE SHOP', W / 2, 60);
 
     ctx.fillStyle = txt;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.fillText(`Your Coins: ${playerData.total_coins}`, W / 2, 100);
 
     ctx.fillStyle = '#ffd700';
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.fillText(`Challenge Points: ${playerData.challenge_points || 0}`, W / 2, 118);
 
     // Create clip region for scrollable area
@@ -1124,7 +1150,7 @@ function draw() {
 
     // HUD
     ctx.fillStyle = txt;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(`Coins: ${playerData.total_coins}`, 20, 35);
   }
@@ -1136,7 +1162,7 @@ function draw() {
     ctx.fillText('GAME OVER', W / 2, H / 2 - 30);
 
     ctx.fillStyle = surf;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
     ctx.globalAlpha = pulse;
     ctx.fillText('[ PRESS SPACE OR TAP TO RETRY ]', W / 2, H / 2 + 70);
@@ -1156,11 +1182,11 @@ function draw() {
     ctx.fillText('LEVEL COMPLETE!', W / 2, H / 2 - 30);
 
     ctx.fillStyle = txt;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.fillText(`Time: ${Math.floor(time / 60)}s`, W / 2, H / 2 + 10);
 
     ctx.fillStyle = surf;
-    ctx.font = '14px Arial, sans-serif';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
     const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
     ctx.globalAlpha = pulse;
     ctx.fillText('[ SPACE TO NEXT LEVEL ]', W / 2, H / 2 + 70);
