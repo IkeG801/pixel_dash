@@ -256,4 +256,29 @@ if (typeof module !== 'undefined' && module.exports) {
     isValidPlayerData,
     hexToRgb,
   };
+} else if (typeof window !== 'undefined') {
+  // Browser context - make constants and functions globally available
+  window.TILE = TILE;
+  window.GRAVITY = GRAVITY;
+  window.JUMP_FORCE = JUMP_FORCE;
+  window.MOVE_SPEED = MOVE_SPEED;
+  window.FRICTION = FRICTION;
+  window.rectCollide = rectCollide;
+  window.initPlayer = initPlayer;
+  window.initCamera = initCamera;
+  window.isValidPlayer = isValidPlayer;
+  window.isPlayerDead = isPlayerDead;
+  window.applyGravity = applyGravity;
+  window.applyMovement = applyMovement;
+  window.updateCoyoteTime = updateCoyoteTime;
+  window.updateJumpBuffer = updateJumpBuffer;
+  window.applyJump = applyJump;
+  window.collectCoins = collectCoins;
+  window.checkLevelCompletion = checkLevelCompletion;
+  window.resolveHorizontalCollision = resolveHorizontalCollision;
+  window.resolveVerticalCollision = resolveVerticalCollision;
+  window.isValidLevel = isValidLevel;
+  window.calculateLevelScore = calculateLevelScore;
+  window.isValidPlayerData = isValidPlayerData;
+  window.hexToRgb = hexToRgb;
 }
