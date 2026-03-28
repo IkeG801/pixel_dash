@@ -12,6 +12,21 @@ const defaultConfig = {
 
 let config = { ...defaultConfig };
 
+// Initialize player data early (before loadPlayerData is called)
+let playerData = { 
+  player_name: 'Player', 
+  total_coins: 0, 
+  challenge_points: 0, 
+  selected_cube: 'classic', 
+  owned_cubes: 'classic', 
+  level_completed: 0, 
+  best_score: 0, 
+  daily_score: 0, 
+  daily_date: '', 
+  unlockedAchievements: '', 
+  deathStreak: 0 
+};
+
 // Initialize player data from localStorage
 function loadPlayerData() {
   const saved = localStorage.getItem('pixelDashPlayer');
@@ -462,19 +477,6 @@ function playJumpSound() {
 // Game state
 let state = 'menu';
 let player, platforms, coins, spikes, camera, score, time, deathY, currentLevel, obstacles, powerups;
-let playerData = { 
-  player_name: 'Player', 
-  total_coins: 0, 
-  challenge_points: 0, 
-  selected_cube: 'classic', 
-  owned_cubes: 'classic', 
-  level_completed: 0, 
-  best_score: 0, 
-  daily_score: 0, 
-  daily_date: '', 
-  unlockedAchievements: '', 
-  deathStreak: 0 
-};
 
 // Menu navigation state
 let selectedLevel = 0;
