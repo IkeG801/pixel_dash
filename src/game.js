@@ -187,7 +187,7 @@ function generateLevel(levelNum) {
   return ensureSpawnPlatform(clonedLevel);
 }
 
-// Level definitions - initial curated levels (abbreviated - see original file for full list)
+// Level definitions - curated levels from Canva
 const INITIAL_LEVELS = [
   {
     name: "Getting Started",
@@ -236,151 +236,395 @@ const INITIAL_LEVELS = [
     powerups: [
       { x: 720, y: 200, w: 14, h: 14, collected: false, type: 'jumpboost' }
     ]
+  },
+  {
+    name: "Crumbling Path",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 2 },
+      { x: 350, y: 400, w: 100, h: 20, type: 2 },
+      { x: 500, y: 350, w: 100, h: 20, type: 2 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 350, w: 100, h: 20, type: 2 },
+      { x: 950, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 900, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+      { x: 800, y: 230, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 350, y: 320, w: 14, h: 14, collected: false, type: 'jumpboost' },
+      { x: 650, y: 260, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    name: "Spike Gauntlet",
+    platforms: [
+      { x: 0, y: 500, w: 100, h: 20, type: 0 },
+      { x: 150, y: 450, w: 100, h: 20, type: 0 },
+      { x: 300, y: 400, w: 100, h: 20, type: 0 },
+      { x: 450, y: 350, w: 100, h: 20, type: 3, fanForce: 0.3 },
+      { x: 600, y: 300, w: 100, h: 20, type: 0 },
+      { x: 750, y: 380, w: 100, h: 20, type: 0 },
+      { x: 900, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 120, y: 520, w: 40, h: 16, type: 0 },
+      { x: 270, y: 420, w: 40, h: 16, type: 0 },
+      { x: 420, y: 370, w: 40, h: 16, type: 0 },
+      { x: 570, y: 320, w: 40, h: 16, type: 0 },
+      { x: 720, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 150, y: 380, w: 16, h: 16, collected: false },
+      { x: 450, y: 280, w: 16, h: 16, collected: false },
+      { x: 750, y: 310, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 300, y: 330, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    name: "Narrow Escape",
+    platforms: [
+      { x: 0, y: 500, w: 120, h: 20, type: 0 },
+      { x: 180, y: 480, w: 80, h: 20, type: 0 },
+      { x: 320, y: 460, w: 80, h: 20, type: 0 },
+      { x: 460, y: 440, w: 80, h: 20, type: 0 },
+      { x: 600, y: 420, w: 80, h: 20, type: 0 },
+      { x: 740, y: 400, w: 80, h: 20, type: 0 },
+      { x: 880, y: 380, w: 80, h: 20, type: 0 },
+      { x: 1020, y: 300, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 100, y: 520, w: 80, h: 16, type: 0 },
+      { x: 240, y: 500, w: 80, h: 16, type: 0 },
+      { x: 380, y: 480, w: 80, h: 16, type: 0 },
+      { x: 520, y: 460, w: 80, h: 16, type: 0 },
+      { x: 660, y: 440, w: 80, h: 16, type: 0 },
+      { x: 800, y: 420, w: 80, h: 16, type: 0 },
+      { x: 940, y: 400, w: 80, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 180, y: 410, w: 16, h: 16, collected: false },
+      { x: 460, y: 370, w: 16, h: 16, collected: false },
+      { x: 740, y: 330, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: []
+  },
+  {
+    name: "Mixed Terrain",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 480, w: 100, h: 20, type: 2 },
+      { x: 350, y: 420, w: 150, h: 20, type: 0 },
+      { x: 550, y: 400, w: 80, h: 20, type: 2 },
+      { x: 680, y: 380, w: 80, h: 20, type: 2 },
+      { x: 810, y: 340, w: 150, h: 20, type: 0 },
+      { x: 1000, y: 280, w: 180, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 440, w: 40, h: 16, type: 0 },
+      { x: 500, y: 420, w: 40, h: 16, type: 0 },
+      { x: 750, y: 400, w: 40, h: 16, type: 0 },
+      { x: 950, y: 360, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 410, w: 16, h: 16, collected: false },
+      { x: 350, y: 350, w: 16, h: 16, collected: false },
+      { x: 550, y: 330, w: 16, h: 16, collected: false },
+      { x: 810, y: 270, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 680, y: 310, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    name: "Bouncy Platforms",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 3, fanForce: 0.5 },
+      { x: 350, y: 400, w: 100, h: 20, type: 3, fanForce: 0.5 },
+      { x: 500, y: 350, w: 100, h: 20, type: 3, fanForce: 0.5 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 250, w: 150, h: 20, type: 0 },
+      { x: 1000, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 420, w: 40, h: 16, type: 0 },
+      { x: 600, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+      { x: 800, y: 180, w: 16, h: 16, collected: false },
+      { x: 1000, y: 150, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 350, y: 320, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    name: "Gravity Rush",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 420, w: 80, h: 20, type: 0 },
+      { x: 320, y: 360, w: 80, h: 20, type: 0 },
+      { x: 440, y: 300, w: 80, h: 20, type: 0 },
+      { x: 560, y: 280, w: 100, h: 20, type: 3, fanForce: 0.8 },
+      { x: 700, y: 320, w: 80, h: 20, type: 0 },
+      { x: 820, y: 380, w: 100, h: 20, type: 2 },
+      { x: 950, y: 250, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 380, y: 380, w: 40, h: 16, type: 0 },
+      { x: 650, y: 320, w: 40, h: 16, type: 0 },
+      { x: 900, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 350, w: 16, h: 16, collected: false },
+      { x: 440, y: 230, w: 16, h: 16, collected: false },
+      { x: 700, y: 250, w: 16, h: 16, collected: false },
+      { x: 950, y: 180, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 200, y: 340, w: 14, h: 14, collected: false, type: 'jumpboost' },
+      { x: 560, y: 210, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    name: "Platform Chain",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 170, y: 460, w: 70, h: 20, type: 0 },
+      { x: 270, y: 420, w: 70, h: 20, type: 0 },
+      { x: 370, y: 380, w: 70, h: 20, type: 2 },
+      { x: 470, y: 340, w: 70, h: 20, type: 2 },
+      { x: 570, y: 300, w: 70, h: 20, type: 0 },
+      { x: 670, y: 360, w: 70, h: 20, type: 0 },
+      { x: 770, y: 320, w: 70, h: 20, type: 0 },
+      { x: 870, y: 280, w: 70, h: 20, type: 2 },
+      { x: 1000, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 120, y: 520, w: 40, h: 16, type: 0 },
+      { x: 220, y: 440, w: 40, h: 16, type: 0 },
+      { x: 420, y: 400, w: 40, h: 16, type: 0 },
+      { x: 620, y: 320, w: 40, h: 16, type: 0 },
+      { x: 820, y: 340, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 170, y: 390, w: 16, h: 16, collected: false },
+      { x: 370, y: 310, w: 16, h: 16, collected: false },
+      { x: 570, y: 230, w: 16, h: 16, collected: false },
+      { x: 770, y: 250, w: 16, h: 16, collected: false },
+      { x: 1000, y: 150, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 470, y: 270, w: 14, h: 14, collected: false, type: 'flymode' },
+      { x: 870, y: 210, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    name: "Double Jump Dash",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 440, w: 100, h: 20, type: 0 },
+      { x: 350, y: 380, w: 100, h: 20, type: 0 },
+      { x: 500, y: 320, w: 100, h: 20, type: 0 },
+      { x: 650, y: 380, w: 100, h: 20, type: 0 },
+      { x: 800, y: 440, w: 100, h: 20, type: 0 },
+      { x: 950, y: 350, w: 100, h: 20, type: 0 },
+      { x: 1100, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 400, w: 40, h: 16, type: 0 },
+      { x: 450, y: 340, w: 40, h: 16, type: 0 },
+      { x: 600, y: 400, w: 40, h: 16, type: 0 },
+      { x: 750, y: 460, w: 40, h: 16, type: 0 },
+      { x: 900, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 370, w: 16, h: 16, collected: false },
+      { x: 500, y: 250, w: 16, h: 16, collected: false },
+      { x: 800, y: 370, w: 16, h: 16, collected: false },
+      { x: 950, y: 280, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 400, y: 360, w: 24, h: 24, vx: 2, minX: 350, maxX: 450, type: 'spike' },
+      { x: 700, y: 360, w: 24, h: 24, vx: -2, minX: 650, maxX: 750, type: 'spike' }
+    ],
+    powerups: [
+      { x: 650, y: 310, w: 14, h: 14, collected: false, type: 'coinmultiplier' },
+      { x: 1100, y: 210, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    name: "Zigzag Master",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 220, y: 450, w: 90, h: 20, type: 0 },
+      { x: 380, y: 500, w: 90, h: 20, type: 0 },
+      { x: 540, y: 400, w: 90, h: 20, type: 0 },
+      { x: 700, y: 450, w: 90, h: 20, type: 2 },
+      { x: 860, y: 350, w: 90, h: 20, type: 0 },
+      { x: 1020, y: 450, w: 90, h: 20, type: 0 },
+      { x: 1180, y: 300, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 330, y: 520, w: 40, h: 16, type: 0 },
+      { x: 490, y: 420, w: 40, h: 16, type: 0 },
+      { x: 810, y: 470, w: 40, h: 16, type: 0 },
+      { x: 970, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 220, y: 380, w: 16, h: 16, collected: false },
+      { x: 380, y: 430, w: 16, h: 16, collected: false },
+      { x: 540, y: 330, w: 16, h: 16, collected: false },
+      { x: 860, y: 280, w: 16, h: 16, collected: false },
+      { x: 1020, y: 380, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 450, y: 380, w: 24, h: 24, vx: 2.5, minX: 380, maxX: 540, type: 'spike' }
+    ],
+    powerups: []
+  },
+  {
+    name: "Ice Cavern",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 480, w: 100, h: 20, type: 4 },
+      { x: 350, y: 450, w: 100, h: 20, type: 4 },
+      { x: 500, y: 420, w: 100, h: 20, type: 4 },
+      { x: 650, y: 390, w: 100, h: 20, type: 4 },
+      { x: 800, y: 360, w: 100, h: 20, type: 4 },
+      { x: 950, y: 300, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 500, w: 40, h: 16, type: 0 },
+      { x: 450, y: 470, w: 40, h: 16, type: 0 },
+      { x: 600, y: 440, w: 40, h: 16, type: 0 },
+      { x: 750, y: 410, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 410, w: 16, h: 16, collected: false },
+      { x: 500, y: 350, w: 16, h: 16, collected: false },
+      { x: 800, y: 290, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: []
+  },
+  {
+    name: "Slime Bounce",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 430, w: 100, h: 20, type: 5 },
+      { x: 350, y: 380, w: 100, h: 20, type: 5 },
+      { x: 500, y: 330, w: 100, h: 20, type: 5 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 250, w: 150, h: 20, type: 0 },
+      { x: 1000, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 400, w: 40, h: 16, type: 0 },
+      { x: 600, y: 350, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 360, w: 16, h: 16, collected: false },
+      { x: 500, y: 260, w: 16, h: 16, collected: false },
+      { x: 800, y: 180, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: []
+  },
+  {
+    name: "Sky Tower",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 430, w: 100, h: 20, type: 0 },
+      { x: 300, y: 360, w: 100, h: 20, type: 0 },
+      { x: 400, y: 290, w: 100, h: 20, type: 0 },
+      { x: 500, y: 220, w: 100, h: 20, type: 0 },
+      { x: 600, y: 320, w: 100, h: 20, type: 4 },
+      { x: 700, y: 240, w: 100, h: 20, type: 0 },
+      { x: 850, y: 350, w: 100, h: 20, type: 2 },
+      { x: 1000, y: 150, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 250, y: 380, w: 40, h: 16, type: 0 },
+      { x: 350, y: 310, w: 40, h: 16, type: 0 },
+      { x: 550, y: 240, w: 40, h: 16, type: 0 },
+      { x: 800, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 360, w: 16, h: 16, collected: false },
+      { x: 400, y: 220, w: 16, h: 16, collected: false },
+      { x: 600, y: 250, w: 16, h: 16, collected: false },
+      { x: 700, y: 170, w: 16, h: 16, collected: false },
+      { x: 1000, y: 100, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 350, y: 300, w: 24, h: 24, vx: 1.5, minX: 300, maxX: 400, type: 'spike' }
+    ],
+    powerups: [
+      { x: 500, y: 140, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    name: "Obstacle Course",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 420, w: 100, h: 20, type: 0 },
+      { x: 350, y: 380, w: 100, h: 20, type: 0 },
+      { x: 500, y: 340, w: 100, h: 20, type: 0 },
+      { x: 650, y: 380, w: 100, h: 20, type: 0 },
+      { x: 800, y: 320, w: 100, h: 20, type: 0 },
+      { x: 950, y: 380, w: 100, h: 20, type: 0 },
+      { x: 1100, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 400, w: 40, h: 16, type: 0 },
+      { x: 450, y: 360, w: 40, h: 16, type: 0 },
+      { x: 750, y: 340, w: 40, h: 16, type: 0 },
+      { x: 900, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 350, w: 16, h: 16, collected: false },
+      { x: 500, y: 270, w: 16, h: 16, collected: false },
+      { x: 800, y: 250, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 350, y: 300, w: 24, h: 24, vx: 2, minX: 300, maxX: 400, type: 'spike' },
+      { x: 650, y: 300, w: 24, h: 24, vx: -2, minX: 600, maxX: 700, type: 'spike' }
+    ],
+    powerups: [
+      { x: 350, y: 310, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
   }
 ];
 
-// Add placeholder levels 3..13 if not provided by original data
-typeof Array.prototype.fill === 'function';
-
-// Simple seeded random for deterministic variation per level
-function seededRandom(seed) {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-}
-
-function createAutoLevel(levelIndex) {
-  const levelNum = levelIndex + 1;
-  const seed = levelIndex * 123.456;  // Deterministic seed based on level
-  
-  // Random helper function that uses seed
-  const rand = (min, max, n) => min + ((seededRandom(seed + n) * (max - min)));
-
-  const spawnPlatform = {
-    x: 30,
-    y: 520,
-    w: 160,
-    h: 20,
-    type: 0
-  };
-
-  // Generate platforms with random variation, difficulty scales with level
-  const platforms = [spawnPlatform];
-  const platformCount = 5 + Math.floor(rand(0, levelIndex / 2, levelIndex * 1));  // 5+ platforms, more on higher levels
-  
-  let currentX = 210;
-  let currentY = 520;
-  
-  // Difficulty scaling: make later levels harder (reaches peak by level 10)
-  const difficultyFactor = Math.min(levelIndex / 10, 1);  // Scales 0->1 faster
-  const minGap = 100 + Math.floor(difficultyFactor * 50);  // 100-150px gap
-  const maxGap = 140 + Math.floor(difficultyFactor * 80);  // 140-220px gap (extreme on late levels)
-  const minDrop = 8 + Math.floor(difficultyFactor * 24);   // 8-32px drop
-  const maxDrop = 20 + Math.floor(difficultyFactor * 40);  // 20-60px drop
-  
-  for (let j = 0; j < platformCount; j++) {
-    // Random gap - harder on later levels
-    const gapX = minGap + rand(0, maxGap - minGap, seed + j * 2);
-    // Random drop - harder on later levels
-    const dropY = minDrop + rand(0, maxDrop - minDrop, seed + j * 2.5);
-    
-    currentX += gapX;
-    currentY -= dropY;
-    
-    // Clamp to keep level navigable but allow more vertical spread
-    currentY = Math.max(currentY, 320);
-    
-    // Reduce platform width on later levels for tighter margins
-    const platformWidthRange = 100 - Math.floor(difficultyFactor * 20);  // 100px early, 80px late
-    const platformWidth = platformWidthRange + rand(0, 30 - Math.floor(difficultyFactor * 10), seed + j * 3);
-    const platformType = [0, 4, 5][Math.floor(rand(0, 3, seed + j * 4))];
-    
-    platforms.push({
-      x: currentX,
-      y: currentY,
-      w: platformWidth,
-      h: 20,
-      type: platformType
-    });
-  }
-
-  // Generate spikes on platforms (guaranteed hazard every platform for challenge, more on higher levels)
-  const spikes = [];
-  for (let j = 1; j < platforms.length - 1; j++) {
-    // Spike frequency increases with level: 70% early, 100% late
-    const spikeChance = Math.min(0.7 + (levelIndex / 50), 1.0);
-    const shouldSpike = j % 2 === 0 || rand(0, 1, seed + j * 17) < spikeChance;
-    
-    if (shouldSpike) {
-      const p = platforms[j];
-      spikes.push({
-        x: p.x + 10 + rand(0, Math.max(p.w - 50, 10), seed + j * 18),
-        y: p.y - 16,
-        w: 40,
-        h: 16,
-        type: 0
-      });
-    }
-  }
-
-  // Generate coins on platforms
-  const coins = platforms.slice(1).map((p, idx) => ({
-    x: p.x + p.w / 2 - 8,
-    y: p.y - 36,
-    w: 16,
-    h: 16,
-    collected: false
-  }));
-
-  // Add powerup on final platform
-  const finalPlatform = platforms[platforms.length - 1];
-  const powerups = [{
-    x: finalPlatform.x + finalPlatform.w / 2 - 7,
-    y: finalPlatform.y - 36,
-    w: 14,
-    h: 14,
-    collected: false,
-    type: 'jumpboost'
-  }];
-
-  // Randomly add obstacles starting from level 3, much more frequent on higher levels
-  const obstacles = [];
-  const obstacleChance = levelIndex >= 3 ? Math.min(0.4 + ((levelIndex - 3) / 15), 1.0) : 0;
-  
-  if (rand(0, 1, seed + 999) < obstacleChance) {
-    const numObstacles = 1 + Math.floor(rand(0, Math.floor(levelIndex / 10), seed + 1001));
-    for (let i = 0; i < numObstacles && i < platforms.length - 2; i++) {
-      const obsLevel = Math.min(5 + (levelIndex - 5) * 0.5, platforms.length - 2);
-      const obsIdx = Math.min(Math.floor(obsLevel / 2 + i), platforms.length - 2);
-      const midPlatform = platforms[obsIdx];
-      obstacles.push({
-        x: midPlatform.x + midPlatform.w / 2 - 13,
-        y: midPlatform.y - 50,
-        w: 26,
-        h: 26,
-        vx: 1 + rand(0, 2, seed + 1000 + i),
-        minX: midPlatform.x,
-        maxX: midPlatform.x + 100,
-        type: 'spike'
-      });
-    }
-  }
-
-  return {
-    name: `Level ${levelNum} - Random Path`,
-    platforms,
-    spikes,
-    coins,
-    obstacles,
-    powerups
-  };
-}
-
-// Procedural generation generates random but playable levels 3-13
-// No additional hardcoded definitions needed
-
-for (let i = INITIAL_LEVELS.length; i < 13; i++) {
-  INITIAL_LEVELS.push(createAutoLevel(i));
-}
+// Procedural generation and autopopulation removed: we run exactly the curated INITIAL_LEVELS now.
 
 // Particle system
 let particles = [];
