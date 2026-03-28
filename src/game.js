@@ -270,12 +270,12 @@ function createAutoLevel(levelIndex) {
   let currentX = 210;
   let currentY = 520;
   
-  // Difficulty scaling: make later levels harder
-  const difficultyFactor = Math.min(levelIndex / 15, 1);  // Scales 0->1 as level increases
-  const minGap = 90 + Math.floor(difficultyFactor * 30);  // 90-120px gap
-  const maxGap = 120 + Math.floor(difficultyFactor * 40);  // 120-160px gap
-  const minDrop = 5 + Math.floor(difficultyFactor * 10);   // 5-15px drop
-  const maxDrop = 16 + Math.floor(difficultyFactor * 20);  // 16-36px drop
+  // Difficulty scaling: make later levels harder (reaches peak by level 10)
+  const difficultyFactor = Math.min(levelIndex / 10, 1);  // Scales 0->1 faster
+  const minGap = 100 + Math.floor(difficultyFactor * 50);  // 100-150px gap
+  const maxGap = 140 + Math.floor(difficultyFactor * 80);  // 140-220px gap (extreme on late levels)
+  const minDrop = 8 + Math.floor(difficultyFactor * 24);   // 8-32px drop
+  const maxDrop = 20 + Math.floor(difficultyFactor * 40);  // 20-60px drop
   
   for (let j = 0; j < platformCount; j++) {
     // Random gap - harder on later levels
@@ -289,7 +289,9 @@ function createAutoLevel(levelIndex) {
     // Clamp to keep level navigable but allow more vertical spread
     currentY = Math.max(currentY, 320);
     
-    const platformWidth = 100 + rand(0, 40, seed + j * 3);  // 100-140px width
+    // Reduce platform width on later levels for tighter margins
+    const platformWidthRange = 100 - Math.floor(difficultyFactor * 20);  // 100px early, 80px late
+    const platformWidth = platformWidthRange + rand(0, 30 - Math.floor(difficultyFactor * 10), seed + j * 3);
     const platformType = [0, 4, 5][Math.floor(rand(0, 3, seed + j * 4))];
     
     platforms.push({
@@ -304,15 +306,15 @@ function createAutoLevel(levelIndex) {
   // Generate spikes on platforms (guaranteed hazard every platform for challenge, more on higher levels)
   const spikes = [];
   for (let j = 1; j < platforms.length - 1; j++) {
-    // Spike frequency increases with level: every 2nd platform early on, every platform late
-    const spikeChance = Math.min(0.5 + (levelIndex / 30), 1.0);
+    // Spike frequency increases with level: 70% early, 100% late
+    const spikeChance = Math.min(0.7 + (levelIndex / 50), 1.0);
     const shouldSpike = j % 2 === 0 || rand(0, 1, seed + j * 17) < spikeChance;
     
     if (shouldSpike) {
       const p = platforms[j];
       spikes.push({
         x: p.x + 10 + rand(0, Math.max(p.w - 50, 10), seed + j * 18),
-        y: p.y + 20,
+        y: p.y - 16,
         w: 40,
         h: 16,
         type: 0
@@ -340,9 +342,9 @@ function createAutoLevel(levelIndex) {
     type: 'jumpboost'
   }];
 
-  // Randomly add obstacles starting from level 5, more frequent on higher levels
+  // Randomly add obstacles starting from level 3, much more frequent on higher levels
   const obstacles = [];
-  const obstacleChance = levelIndex >= 5 ? Math.min(0.3 + ((levelIndex - 5) / 20), 1.0) : 0;
+  const obstacleChance = levelIndex >= 3 ? Math.min(0.4 + ((levelIndex - 3) / 15), 1.0) : 0;
   
   if (rand(0, 1, seed + 999) < obstacleChance) {
     const numObstacles = 1 + Math.floor(rand(0, Math.floor(levelIndex / 10), seed + 1001));
