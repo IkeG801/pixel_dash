@@ -263,26 +263,33 @@ function createAutoLevel(levelIndex) {
     type: 0
   };
 
-  // Generate platforms with random variation but safe spacing
+  // Generate platforms with random variation, difficulty scales with level
   const platforms = [spawnPlatform];
-  const platformCount = 5 + Math.floor(rand(0, 3, levelIndex * 1));  // 5-7 platforms
+  const platformCount = 5 + Math.floor(rand(0, levelIndex / 2, levelIndex * 1));  // 5+ platforms, more on higher levels
   
   let currentX = 210;
   let currentY = 520;
   
+  // Difficulty scaling: make later levels harder
+  const difficultyFactor = Math.min(levelIndex / 15, 1);  // Scales 0->1 as level increases
+  const minGap = 90 + Math.floor(difficultyFactor * 30);  // 90-120px gap
+  const maxGap = 120 + Math.floor(difficultyFactor * 40);  // 120-160px gap
+  const minDrop = 5 + Math.floor(difficultyFactor * 10);   // 5-15px drop
+  const maxDrop = 16 + Math.floor(difficultyFactor * 20);  // 16-36px drop
+  
   for (let j = 0; j < platformCount; j++) {
-    // Random gap between 100-120px (safe jump distance)
-    const gapX = 100 + rand(0, 20, seed + j * 2);
-    // Random drop 8-12px per step (safe fall distance)
-    const dropY = 8 + rand(0, 4, seed + j * 2.5);
+    // Random gap - harder on later levels
+    const gapX = minGap + rand(0, maxGap - minGap, seed + j * 2);
+    // Random drop - harder on later levels
+    const dropY = minDrop + rand(0, maxDrop - minDrop, seed + j * 2.5);
     
     currentX += gapX;
     currentY -= dropY;
     
-    // Clamp to keep level navigable
-    currentY = Math.max(currentY, 380);
+    // Clamp to keep level navigable but allow more vertical spread
+    currentY = Math.max(currentY, 320);
     
-    const platformWidth = 110 + rand(0, 20, seed + j * 3);
+    const platformWidth = 100 + rand(0, 40, seed + j * 3);  // 100-140px width
     const platformType = [0, 4, 5][Math.floor(rand(0, 3, seed + j * 4))];
     
     platforms.push({
@@ -294,11 +301,14 @@ function createAutoLevel(levelIndex) {
     });
   }
 
-  // Generate spikes on platforms (guaranteed hazard every 1-2 platforms for challenge)
+  // Generate spikes on platforms (guaranteed hazard every platform for challenge, more on higher levels)
   const spikes = [];
   for (let j = 1; j < platforms.length - 1; j++) {
-    // Place spike on every 1-2 platforms with randomness
-    if (j % 2 === 0 || rand(0, 1, seed + j * 17) > 0.5) {
+    // Spike frequency increases with level: every 2nd platform early on, every platform late
+    const spikeChance = Math.min(0.5 + (levelIndex / 30), 1.0);
+    const shouldSpike = j % 2 === 0 || rand(0, 1, seed + j * 17) < spikeChance;
+    
+    if (shouldSpike) {
       const p = platforms[j];
       spikes.push({
         x: p.x + 10 + rand(0, Math.max(p.w - 50, 10), seed + j * 18),
@@ -330,21 +340,27 @@ function createAutoLevel(levelIndex) {
     type: 'jumpboost'
   }];
 
-  // Randomly add obstacles on higher levels
+  // Randomly add obstacles starting from level 5, more frequent on higher levels
   const obstacles = [];
-  if (levelIndex >= 10 && rand(0, 1, seed + 999) > 0.4) {
-    const midIdx = Math.floor(platforms.length / 2);
-    const midPlatform = platforms[midIdx];
-    obstacles.push({
-      x: midPlatform.x + midPlatform.w / 2 - 13,
-      y: midPlatform.y - 50,
-      w: 26,
-      h: 26,
-      vx: 1 + rand(0, 2, seed + 1000),
-      minX: midPlatform.x,
-      maxX: midPlatform.x + 100,
-      type: 'spike'
-    });
+  const obstacleChance = levelIndex >= 5 ? Math.min(0.3 + ((levelIndex - 5) / 20), 1.0) : 0;
+  
+  if (rand(0, 1, seed + 999) < obstacleChance) {
+    const numObstacles = 1 + Math.floor(rand(0, Math.floor(levelIndex / 10), seed + 1001));
+    for (let i = 0; i < numObstacles && i < platforms.length - 2; i++) {
+      const obsLevel = Math.min(5 + (levelIndex - 5) * 0.5, platforms.length - 2);
+      const obsIdx = Math.min(Math.floor(obsLevel / 2 + i), platforms.length - 2);
+      const midPlatform = platforms[obsIdx];
+      obstacles.push({
+        x: midPlatform.x + midPlatform.w / 2 - 13,
+        y: midPlatform.y - 50,
+        w: 26,
+        h: 26,
+        vx: 1 + rand(0, 2, seed + 1000 + i),
+        minX: midPlatform.x,
+        maxX: midPlatform.x + 100,
+        type: 'spike'
+      });
+    }
   }
 
   return {
@@ -1290,6 +1306,30 @@ function draw() {
           }
         }
       }
+    });
+
+    // Spikes
+    spikes.forEach(spike => {
+      ctx.fillStyle = '#ff4444';
+      // Draw spike as triangle/hazard
+      ctx.beginPath();
+      ctx.moveTo(spike.x + spike.w / 2, spike.y);
+      ctx.lineTo(spike.x + spike.w, spike.y + spike.h);
+      ctx.lineTo(spike.x, spike.y + spike.h);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#cc0000';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Obstacles
+    obstacles.forEach(ob => {
+      ctx.fillStyle = '#ff8c00';
+      ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
+      ctx.strokeStyle = '#ff6600';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(ob.x, ob.y, ob.w, ob.h);
     });
 
     // Player
