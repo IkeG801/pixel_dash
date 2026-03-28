@@ -294,13 +294,14 @@ function createAutoLevel(levelIndex) {
     });
   }
 
-  // Generate spikes randomly on every other platform (skip spawn and last)
+  // Generate spikes on platforms (guaranteed hazard every 1-2 platforms for challenge)
   const spikes = [];
-  for (let j = 1; j < Math.min(platforms.length - 1, 4); j += 2) {
-    if (rand(0, 1, seed + j * 10) > 0.3) {  // 70% chance
+  for (let j = 1; j < platforms.length - 1; j++) {
+    // Place spike on every 1-2 platforms with randomness
+    if (j % 2 === 0 || rand(0, 1, seed + j * 17) > 0.5) {
       const p = platforms[j];
       spikes.push({
-        x: p.x + p.w / 2 - 20 + rand(-20, 20, seed + j * 11),
+        x: p.x + 10 + rand(0, Math.max(p.w - 50, 10), seed + j * 18),
         y: p.y + 20,
         w: 40,
         h: 16,
