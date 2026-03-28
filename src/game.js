@@ -181,29 +181,101 @@ const INITIAL_LEVELS = [
 ];
 
 // Add placeholder levels 3..13 if not provided by original data
-for (let i = INITIAL_LEVELS.length + 1; i <= 13; i++) {
-  const baseX = (i - 3) * 30;
-  INITIAL_LEVELS.push({
-    name: `Level ${i}`,
+const AUTO_LEVEL_TEMPLATES = [
+  {
+    name: 'Sky Patrol',
     platforms: [
-      { x: 0 + baseX, y: 520, w: 160, h: 20, type: 0 },
-      { x: 180 + baseX, y: 470 - i * 2, w: 100, h: 20, type: 4 },
-      { x: 320 + baseX, y: 430 - i * 2, w: 100, h: 20, type: 5 },
-      { x: 460 + baseX, y: 390 - i * 2, w: 100, h: 20, type: 4 },
-      { x: 620 + baseX, y: 340 - i * 2, w: 240, h: 40, type: 0 }
+      { x: 0, y: 520, w: 150, h: 20, type: 0 },
+      { x: 220, y: 470, w: 90, h: 20, type: 4 },
+      { x: 410, y: 430, w: 100, h: 20, type: 5 },
+      { x: 590, y: 390, w: 120, h: 20, type: 4 },
+      { x: 760, y: 340, w: 220, h: 40, type: 0 }
     ],
     spikes: [
-      { x: 120 + baseX, y: 540, w: 40, h: 16, type: 0 },
-      { x: 420 + baseX, y: 410 - i * 2, w: 40, h: 16, type: 0 }
+      { x: 160, y: 540, w: 40, h: 16, type: 0 },
+      { x: 520, y: 410, w: 40, h: 16, type: 0 }
     ],
     coins: [
-      { x: 190 + baseX, y: 450 - i * 2, w: 16, h: 16, collected: false },
-      { x: 340 + baseX, y: 410 - i * 2, w: 16, h: 16, collected: false },
-      { x: 620 + baseX, y: 300 - i * 2, w: 16, h: 16, collected: false }
+      { x: 225, y: 450, w: 16, h: 16, collected: false },
+      { x: 420, y: 410, w: 16, h: 16, collected: false },
+      { x: 760, y: 300, w: 16, h: 16, collected: false }
     ],
-    obstacles: [],
-    powerups: [{ x: 540 + baseX, y: 330 - i * 2, w: 14, h: 14, collected: false, type: 'jumpboost' }]
-  });
+    powerups: [{ x: 700, y: 330, w: 14, h: 14, collected: false, type: 'jumpboost' }]
+  },
+  {
+    name: 'Cave Descent',
+    platforms: [
+      { x: 0, y: 520, w: 140, h: 20, type: 0 },
+      { x: 180, y: 480, w: 110, h: 20, type: 5 },
+      { x: 360, y: 440, w: 90, h: 20, type: 4 },
+      { x: 520, y: 400, w: 130, h: 20, type: 0 },
+      { x: 700, y: 360, w: 190, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 90, y: 540, w: 40, h: 16, type: 0 },
+      { x: 470, y: 420, w: 40, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 200, y: 460, w: 16, h: 16, collected: false },
+      { x: 400, y: 430, w: 16, h: 16, collected: false },
+      { x: 690, y: 340, w: 16, h: 16, collected: false }
+    ],
+    powerups: [{ x: 560, y: 380, w: 14, h: 14, collected: false, type: 'jumpboost' }]
+  },
+  {
+    name: 'Forest Rush',
+    platforms: [
+      { x: 0, y: 520, w: 160, h: 20, type: 0 },
+      { x: 240, y: 470, w: 100, h: 20, type: 4 },
+      { x: 440, y: 430, w: 110, h: 20, type: 5 },
+      { x: 620, y: 390, w: 90, h: 20, type: 4 },
+      { x: 760, y: 340, w: 210, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 150, y: 540, w: 40, h: 16, type: 0 },
+      { x: 520, y: 420, w: 40, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 250, y: 450, w: 16, h: 16, collected: false },
+      { x: 470, y: 410, w: 16, h: 16, collected: false },
+      { x: 760, y: 300, w: 16, h: 16, collected: false }
+    ],
+    powerups: [{ x: 700, y: 330, w: 14, h: 14, collected: false, type: 'jumpboost' }]
+  },
+  {
+    name: 'Lava Vault',
+    platforms: [
+      { x: 0, y: 520, w: 150, h: 20, type: 0 },
+      { x: 210, y: 470, w: 120, h: 20, type: 5 },
+      { x: 410, y: 430, w: 100, h: 20, type: 4 },
+      { x: 600, y: 390, w: 110, h: 20, type: 5 },
+      { x: 780, y: 340, w: 180, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 120, y: 540, w: 40, h: 16, type: 0 },
+      { x: 520, y: 410, w: 40, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 230, y: 460, w: 16, h: 16, collected: false },
+      { x: 420, y: 420, w: 16, h: 16, collected: false },
+      { x: 760, y: 305, w: 16, h: 16, collected: false }
+    ],
+    powerups: [{ x: 550, y: 380, w: 14, h: 14, collected: false, type: 'jumpboost' }]
+  }
+];
+
+for (let i = INITIAL_LEVELS.length; i < 13; i++) {
+  const template = AUTO_LEVEL_TEMPLATES[i - INITIAL_LEVELS.length];
+  const spring = (i - INITIAL_LEVELS.length) * 8;
+  const level = {
+    name: template.name,
+    platforms: template.platforms.map(p => ({ ...p, x: p.x + spring, y: p.y - spring })),
+    spikes: template.spikes.map(s => ({ ...s, x: s.x + spring, y: s.y - spring })),
+    coins: template.coins.map(c => ({ ...c, x: c.x + spring, y: c.y - spring })),
+    obstacles: template.obstacles.map(o => ({ ...o, x: o.x + spring, y: o.y - spring })),
+    powerups: template.powerups.map(u => ({ ...u, x: u.x + spring, y: u.y - spring }))
+  };
+  INITIAL_LEVELS.push(level);
 }
 
 // Particle system
