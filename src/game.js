@@ -140,13 +140,51 @@ function hexToRgb(hex) {
 // const MOVE_SPEED = 4.5;       // from game-logic.js
 // const FRICTION = 0.85;        // from game-logic.js
 
+// Ensure spawn safety: guarantee a ground platform below the player start
+function ensureSpawnPlatform(level) {
+  const spawnX = 50;
+  const spawnY = 440;
+  const playerWidth = 20;
+  const playerHeight = 28;
+  const requiredRect = {
+    x: spawnX - 10,
+    y: spawnY + playerHeight,
+    w: playerWidth + 20,
+    h: 60
+  };
+
+  const intersects = (a, b) => {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  };
+
+  const hasSpawnPlatform = (level.platforms || []).some(p => {
+    return intersects(requiredRect, { x: p.x, y: p.y, w: p.w, h: p.h });
+  });
+
+  if (!hasSpawnPlatform) {
+    (level.platforms ||= []).push({ x: 30, y: 520, w: 160, h: 20, type: 0 });
+  }
+
+  return level;
+}
+
 // Generate level - just returns from INITIAL_LEVELS
 function generateLevel(levelNum) {
-  if (levelNum < INITIAL_LEVELS.length) {
-    return INITIAL_LEVELS[levelNum];
-  }
-  // If we run out of levels, just loop back to start
-  return INITIAL_LEVELS[levelNum % INITIAL_LEVELS.length];
+  const baseLevel = levelNum < INITIAL_LEVELS.length
+    ? INITIAL_LEVELS[levelNum]
+    : INITIAL_LEVELS[levelNum % INITIAL_LEVELS.length];
+
+  // clone so modification does not mutate original definitions
+  const clonedLevel = {
+    ...baseLevel,
+    platforms: (baseLevel.platforms || []).map(p => ({ ...p })),
+    coins: (baseLevel.coins || []).map(c => ({ ...c })),
+    spikes: (baseLevel.spikes || []).map(s => ({ ...s })),
+    obstacles: (baseLevel.obstacles || []).map(o => ({ ...o })),
+    powerups: (baseLevel.powerups || []).map(u => ({ ...u }))
+  };
+
+  return ensureSpawnPlatform(clonedLevel);
 }
 
 // Level definitions - initial curated levels (abbreviated - see original file for full list)
