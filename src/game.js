@@ -1084,7 +1084,17 @@ function update() {
 
   // Movement
   p.vx += moveX * 1.2;
-  p.vx *= FRICTION;
+  
+  // Check if player is on ice platform for reduced friction
+  let onIcePlatform = false;
+  platforms.forEach(pl => {
+    if (pl.type === 4 && pl.visible && rectCollide(p, pl)) {
+      onIcePlatform = true;
+    }
+  });
+  
+  // Apply friction (less on ice)
+  p.vx *= onIcePlatform ? 0.92 : FRICTION;
   if (Math.abs(p.vx) > MOVE_SPEED) p.vx = MOVE_SPEED * Math.sign(p.vx);
   if (Math.abs(p.vx) < 0.1) p.vx = 0;
   if (moveX !== 0) p.facing = moveX;
@@ -1136,7 +1146,18 @@ function update() {
       if (wasAbove && p.vy >= 0) {
         p.y = pl.y - p.h;
         p.grounded = true;
-        p.vy = 0;
+        
+        if (pl.type === 5) {
+          // Slime bounce - super bounce!
+          p.vy = JUMP_FORCE * 1.3;
+          spawnParticles(p.x + p.w / 2, p.y + p.h, '#00ff00', 8);
+        } else if (pl.type === 3) {
+          // Fan platform boost
+          p.vy = JUMP_FORCE * (1 + (pl.fanForce || 0.3));
+          spawnParticles(p.x + p.w / 2, p.y + p.h, '#e0b0ff', 6);
+        } else {
+          p.vy = 0;
+        }
         
         if (pl.type === 2 && !pl.crumbling) {
           pl.crumbling = true;
@@ -1241,6 +1262,21 @@ function update() {
   camera.x += (p.x - canvas.width / 3 - camera.x) * 0.08;
   camera.y += (p.y - canvas.height / 2 - camera.y) * 0.05;
   if (camera.x < 0) camera.x = 0;
+
+  // Update crumbling platform mechanics
+  platforms.forEach(pl => {
+    if (pl.type === 2 && pl.crumbling) {
+      pl.crumbleTimer++;
+      if (pl.crumbleTimer > 30) {
+        pl.visible = false; // Disappear after 0.5 seconds
+      }
+      if (pl.crumbleTimer > 150) {
+        pl.visible = true; // Respawn after 2.5 seconds
+        pl.crumbling = false;
+        pl.crumbleTimer = 0;
+      }
+    }
+  });
 
   // Particles
   particles.forEach(pt => { pt.x += pt.vx; pt.y += pt.vy; pt.vy += 0.15; pt.life--; });
@@ -1599,14 +1635,113 @@ function draw() {
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
 
-    // Platforms
+    // Platforms with type-specific rendering
     platforms.forEach(pl => {
       if (!pl.visible) return;
-      ctx.fillStyle = '#a78baf';
-      ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
-      ctx.strokeStyle = '#8b7b9f';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+      
+      if (pl.type === 2) {
+        // Crumbling platforms - purple stone with cracks
+        if (pl.crumbling) {
+          ctx.globalAlpha = 1 - pl.crumbleTimer / 30;
+        }
+        ctx.fillStyle = '#a78baf';
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        // Stone texture with vertical lines
+        for (let i = 0; i < pl.w; i += 8) {
+          ctx.fillStyle = '#8b7b9f';
+          ctx.fillRect(pl.x + i, pl.y, 1, pl.h);
+        }
+        // Jagged cracks
+        ctx.strokeStyle = '#5a4a6f';
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 3; i++) {
+          const startX = pl.x + Math.random() * pl.w;
+          const endX = pl.x + Math.random() * pl.w;
+          ctx.beginPath();
+          ctx.moveTo(startX, pl.y);
+          ctx.lineTo(endX, pl.y + pl.h);
+          ctx.stroke();
+        }
+        // Moss/grass on top
+        ctx.fillStyle = '#7cb342';
+        for (let i = 0; i < pl.w; i += 4) {
+          const grassHeight = 2 + Math.sin(i * 0.1) * 1;
+          ctx.fillRect(pl.x + i, pl.y - grassHeight, 3, grassHeight);
+        }
+        if (pl.crumbling) {
+          ctx.globalAlpha = 1;
+        }
+      } else if (pl.type === 3) {
+        // Fan/bouncy platforms - purple-blue with fan design
+        ctx.fillStyle = '#9c6ba8';
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.strokeStyle = '#7a4a88';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+        // Draw spinning fan blades
+        const centerX = pl.x + pl.w / 2;
+        const centerY = pl.y + pl.h / 2;
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate((time * 0.1) % (Math.PI * 2));
+        ctx.strokeStyle = '#e0b0ff';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i++) {
+          const angle = (i / 3) * Math.PI * 2;
+          const x1 = Math.cos(angle) * 10;
+          const y1 = Math.sin(angle) * 10;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(x1, y1);
+          ctx.stroke();
+        }
+        ctx.restore();
+      } else if (pl.type === 4) {
+        // Ice platforms - cyan blue with cracks and shine
+        ctx.fillStyle = '#b3e5fc';
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        // Ice cracks
+        ctx.strokeStyle = '#80deea';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+          const startX = pl.x + Math.random() * pl.w;
+          const endX = pl.x + Math.random() * pl.w;
+          ctx.beginPath();
+          ctx.moveTo(startX, pl.y);
+          ctx.lineTo(endX, pl.y + pl.h);
+          ctx.stroke();
+        }
+        // Ice shine effect
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.fillRect(pl.x + 2, pl.y + 2, pl.w - 4, 4);
+      } else if (pl.type === 5) {
+        // Slime platforms - lime green, bouncy and wavy
+        ctx.fillStyle = '#76ff03';
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.strokeStyle = '#64dd17';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+        // Wavy slime texture
+        ctx.strokeStyle = '#558b2f';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < pl.w; i += 8) {
+          const waveHeight = Math.sin(i * 0.15 + time * 0.05) * 2;
+          ctx.beginPath();
+          ctx.moveTo(pl.x + i, pl.y);
+          ctx.lineTo(pl.x + i + 4, pl.y - waveHeight);
+          ctx.stroke();
+        }
+        // Slime shine
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.fillRect(pl.x + 2, pl.y + 2, pl.w - 4, 3);
+      } else {
+        // Default/normal platforms (type 0)
+        ctx.fillStyle = '#a78baf';
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.strokeStyle = '#8b7b9f';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+      }
     });
 
     // Finish flag
