@@ -920,9 +920,20 @@ function playJumpSound() {
   setTimeout(() => playTone(600, 0.08, 'square', 0.12), 50);
 }
 
+function playPowerupSound() {
+  playTone(800, 0.1, 'sine', 0.2);
+  setTimeout(() => playTone(1000, 0.08, 'sine', 0.15), 50);
+}
+
 // Game state
 let state = 'menu';
 let player, platforms, coins, spikes, camera, score, time, deathY, currentLevel, obstacles, powerups;
+let jumpBoostActive = false;
+let jumpBoostTimer = 0;
+let coinMultiplierActive = false;
+let coinMultiplierTimer = 0;
+let flyMode = false;
+let flyModeTimer = 0;
 
 // Menu navigation state
 let selectedLevel = 0;
@@ -1091,6 +1102,7 @@ function update() {
 
   if (p.jumpBuffer > 0 && p.coyoteTime > 0) {
     p.vy = JUMP_FORCE;
+    if (jumpBoostActive) p.vy *= 1.5; // 50% higher jump
     playJumpSound();
     p.jumpBuffer = 0;
     p.coyoteTime = 0;
@@ -1141,8 +1153,73 @@ function update() {
   coins.forEach(c => {
     if (!c.collected && rectCollide(p, c)) {
       c.collected = true;
-      playerData.total_coins += 10;
+      const coinValue = coinMultiplierActive ? 20 : 10;
+      playerData.total_coins += coinValue;
       spawnParticles(c.x + 8, c.y + 8, config.primary_action, 8);
+    }
+  });
+
+  // Power-ups
+  powerups.forEach(pw => {
+    if (!pw.collected && rectCollide(p, pw)) {
+      pw.collected = true;
+      playPowerupSound();
+      
+      if (pw.type === 'jumpboost') {
+        jumpBoostActive = true;
+        jumpBoostTimer = 360;
+        spawnParticles(pw.x + 7, pw.y + 7, '#00ff00', 12);
+      } else if (pw.type === 'coinmultiplier') {
+        coinMultiplierActive = true;
+        coinMultiplierTimer = 300;
+        spawnParticles(pw.x + 7, pw.y + 7, '#ffd700', 15);
+      } else if (pw.type === 'flymode') {
+        flyMode = true;
+        flyModeTimer = 360;
+        spawnParticles(pw.x + 7, pw.y + 7, '#00ccff', 15);
+      }
+    }
+  });
+
+  // Update power-up timers
+  if (jumpBoostActive) {
+    jumpBoostTimer--;
+    if (jumpBoostTimer <= 0) jumpBoostActive = false;
+  }
+  if (coinMultiplierActive) {
+    coinMultiplierTimer--;
+    if (coinMultiplierTimer <= 0) coinMultiplierActive = false;
+  }
+  if (flyMode) {
+    if (jumpPressed) {
+      p.vy = -8;
+      spawnParticles(p.x + p.w / 2, p.y + p.h, '#00ccff', 3);
+    }
+    flyModeTimer--;
+    if (flyModeTimer <= 0) flyMode = false;
+  }
+
+  // Spike collision detection (instant death)
+  for (let i = 0; i < spikes.length; i++) {
+    if (rectCollide(p, spikes[i])) {
+      state = 'dead';
+      break;
+    }
+  }
+
+  // Obstacle collision detection (instant death from saw blades)
+  for (let i = 0; i < obstacles.length; i++) {
+    if (rectCollide(p, obstacles[i])) {
+      state = 'dead';
+      break;
+    }
+  }
+  
+  // Update obstacle positions (horizontal movement with bounce)
+  obstacles.forEach(obs => {
+    obs.x += obs.vx;
+    if (obs.x <= obs.minX || obs.x >= obs.maxX) {
+      obs.vx *= -1;
     }
   });
 
@@ -1155,7 +1232,7 @@ function update() {
     }
   }
 
-  // Death
+  // Death by falling
   if (p.y > deathY) {
     state = 'dead';
   }
@@ -1554,28 +1631,94 @@ function draw() {
       }
     });
 
-    // Spikes
-    spikes.forEach(spike => {
-      ctx.fillStyle = '#ff4444';
-      // Draw spike as triangle/hazard
-      ctx.beginPath();
-      ctx.moveTo(spike.x + spike.w / 2, spike.y);
-      ctx.lineTo(spike.x + spike.w, spike.y + spike.h);
-      ctx.lineTo(spike.x, spike.y + spike.h);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#cc0000';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+    // Spikes - repeating pattern with serrated edges
+    spikes.forEach(s => {
+      ctx.fillStyle = '#7a5c3d';
+      const spikeWidth = 10;
+      for (let i = 0; i < s.w; i += spikeWidth) {
+        const sx = s.x + i;
+        ctx.beginPath();
+        ctx.moveTo(sx + spikeWidth / 2, s.y);
+        ctx.lineTo(sx + spikeWidth, s.y + s.h);
+        ctx.lineTo(sx, s.y + s.h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#6b5535';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sx + spikeWidth / 2, s.y);
+        ctx.lineTo(sx + spikeWidth / 2, s.y + s.h);
+        ctx.stroke();
+      }
     });
 
-    // Obstacles
-    obstacles.forEach(ob => {
-      ctx.fillStyle = '#ff8c00';
-      ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
-      ctx.strokeStyle = '#ff6600';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(ob.x, ob.y, ob.w, ob.h);
+    // Obstacles (spinning saw blades)
+    obstacles.forEach(obs => {
+      const centerX = obs.x + obs.w / 2;
+      const centerY = obs.y + obs.h / 2;
+      
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate((time * 0.15) % (Math.PI * 2));
+      
+      ctx.fillStyle = '#ff3333';
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const x = Math.cos(angle) * 10;
+        const y = Math.sin(angle) * 10;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(x, y);
+        ctx.lineTo(Math.cos(angle + 0.3) * 6, Math.sin(angle + 0.3) * 6);
+        ctx.closePath();
+        ctx.fill();
+      }
+      
+      ctx.fillStyle = '#cc0000';
+      ctx.fillRect(-4, -4, 8, 8);
+      
+      ctx.restore();
+    });
+
+    // Power-ups (rotating boxes with effects)
+    powerups.forEach(pw => {
+      if (pw.collected) return;
+      
+      const bob = Math.sin(time * 0.05 + pw.x) * 4;
+      ctx.save();
+      ctx.translate(pw.x + pw.w / 2, pw.y + pw.w / 2 + bob);
+      ctx.rotate((time * 0.1) % (Math.PI * 2));
+      
+      let fillColor, strokeColor, accentColor;
+      if (pw.type === 'jumpboost') {
+        fillColor = '#0066ff';
+        strokeColor = '#0044aa';
+        accentColor = '#00ccff';
+      } else if (pw.type === 'coinmultiplier') {
+        fillColor = '#ffff00';
+        strokeColor = '#ffaa00';
+        accentColor = '#ffdd00';
+      } else if (pw.type === 'flymode') {
+        fillColor = '#ff0088';
+        strokeColor = '#cc0066';
+        accentColor = '#ff44bb';
+      }
+      
+      ctx.fillStyle = fillColor;
+      ctx.fillRect(-pw.w / 2, -pw.w / 2, pw.w, pw.w);
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(-pw.w / 2, -pw.w / 2, pw.w, pw.w);
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-3, 0);
+      ctx.lineTo(3, 0);
+      ctx.moveTo(0, -3);
+      ctx.lineTo(0, 3);
+      ctx.stroke();
+      
+      ctx.restore();
     });
 
     // Player
@@ -1603,6 +1746,68 @@ function draw() {
     ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(`Coins: ${playerData.total_coins}`, 20, 35);
+
+    // Power-up indicator bars
+    if (jumpBoostActive) {
+      ctx.fillStyle = '#00ff00';
+      ctx.font = 'bold 12px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡ BOOST ⚡', W / 2, 55);
+      
+      const barWidth = 80;
+      const barHeight = 8;
+      const barX = W / 2 - barWidth / 2;
+      const barY = 65;
+      const boostPercent = jumpBoostTimer / 360;
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(barX, barY, barWidth, barHeight);
+      ctx.fillStyle = '#00ff00';
+      ctx.fillRect(barX, barY, barWidth * boostPercent, barHeight);
+      ctx.strokeStyle = '#00aa00';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(barX, barY, barWidth, barHeight);
+    }
+    if (coinMultiplierActive) {
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 12px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText('2x COINS', W / 2, 55);
+      
+      const barWidth = 80;
+      const barHeight = 8;
+      const barX = W / 2 - barWidth / 2;
+      const barY = 65;
+      const multPercent = coinMultiplierTimer / 300;
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(barX, barY, barWidth, barHeight);
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(barX, barY, barWidth * multPercent, barHeight);
+      ctx.strokeStyle = '#ffaa00';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(barX, barY, barWidth, barHeight);
+    }
+    if (flyMode) {
+      ctx.fillStyle = '#00ccff';
+      ctx.font = 'bold 12px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText('FLY MODE', W / 2, 55);
+      
+      const barWidth = 80;
+      const barHeight = 8;
+      const barX = W / 2 - barWidth / 2;
+      const barY = 65;
+      const flyPercent = flyModeTimer / 360;
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(barX, barY, barWidth, barHeight);
+      ctx.fillStyle = '#00ccff';
+      ctx.fillRect(barX, barY, barWidth * flyPercent, barHeight);
+      ctx.strokeStyle = '#0088ff';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(barX, barY, barWidth, barHeight);
+    }
   }
 
   if (state === 'dead') {
@@ -1673,6 +1878,12 @@ function initGame(levelNum = 0) {
   time = 0;
   deathY = 700;
   particles = [];
+  jumpBoostActive = false;
+  jumpBoostTimer = 0;
+  coinMultiplierActive = false;
+  coinMultiplierTimer = 0;
+  flyMode = false;
+  flyModeTimer = 0;
   state = 'playing';
 }
 
