@@ -1747,17 +1747,22 @@ function draw() {
     ctx.textAlign = 'left';
     ctx.fillText(`Coins: ${playerData.total_coins}`, 20, 35);
 
-    // Power-up indicator bars
+    // Power-up indicator bars (stacked vertically)
+    let powerupRowOffset = 0;
+    const powerupRowHeight = 30;
+    
     if (jumpBoostActive) {
+      const textY = 55 + powerupRowOffset * powerupRowHeight;
+      const barY = 65 + powerupRowOffset * powerupRowHeight;
+      
       ctx.fillStyle = '#00ff00';
       ctx.font = 'bold 12px Silkscreen';
       ctx.textAlign = 'center';
-      ctx.fillText('⚡ BOOST ⚡', W / 2, 55);
+      ctx.fillText('⚡ BOOST ⚡', W / 2, textY);
       
       const barWidth = 80;
       const barHeight = 8;
       const barX = W / 2 - barWidth / 2;
-      const barY = 65;
       const boostPercent = jumpBoostTimer / 360;
       
       ctx.fillStyle = '#333';
@@ -1767,17 +1772,21 @@ function draw() {
       ctx.strokeStyle = '#00aa00';
       ctx.lineWidth = 1;
       ctx.strokeRect(barX, barY, barWidth, barHeight);
+      
+      powerupRowOffset++;
     }
     if (coinMultiplierActive) {
+      const textY = 55 + powerupRowOffset * powerupRowHeight;
+      const barY = 65 + powerupRowOffset * powerupRowHeight;
+      
       ctx.fillStyle = '#ffd700';
       ctx.font = 'bold 12px Silkscreen';
       ctx.textAlign = 'center';
-      ctx.fillText('2x COINS', W / 2, 55);
+      ctx.fillText('2x COINS', W / 2, textY);
       
       const barWidth = 80;
       const barHeight = 8;
       const barX = W / 2 - barWidth / 2;
-      const barY = 65;
       const multPercent = coinMultiplierTimer / 300;
       
       ctx.fillStyle = '#333';
@@ -1787,17 +1796,21 @@ function draw() {
       ctx.strokeStyle = '#ffaa00';
       ctx.lineWidth = 1;
       ctx.strokeRect(barX, barY, barWidth, barHeight);
+      
+      powerupRowOffset++;
     }
     if (flyMode) {
+      const textY = 55 + powerupRowOffset * powerupRowHeight;
+      const barY = 65 + powerupRowOffset * powerupRowHeight;
+      
       ctx.fillStyle = '#00ccff';
       ctx.font = 'bold 12px Silkscreen';
       ctx.textAlign = 'center';
-      ctx.fillText('FLY MODE', W / 2, 55);
+      ctx.fillText('FLY MODE', W / 2, textY);
       
       const barWidth = 80;
       const barHeight = 8;
       const barX = W / 2 - barWidth / 2;
-      const barY = 65;
       const flyPercent = flyModeTimer / 360;
       
       ctx.fillStyle = '#333';
