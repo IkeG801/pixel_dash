@@ -1552,7 +1552,7 @@ function draw() {
   const title = config.game_title || defaultConfig.game_title;
   
   // Update home icon bounds to bottom left corner
-  homeIconBounds = { x: 16, y: H - 48, w: 40, h: 40 };
+  homeIconBounds = { x: 14, y: H - 62, w: 56, h: 56 };
   resetUiButtons();
 
   ctx.clearRect(0, 0, W, H);
@@ -2160,7 +2160,7 @@ function draw() {
     }
 
     // Draw home icon for playing state
-    drawHomeIcon(homeIconBounds.x + 8, homeIconBounds.y + 8, 24, txt);
+    drawHomeIcon(homeIconBounds.x + 10, homeIconBounds.y + 10, 36, txt);
   }
 
   if (state === 'dead') {
@@ -2183,7 +2183,7 @@ function draw() {
     }
         
     // Draw home icon for dead state
-    drawHomeIcon(homeIconBounds.x + 8, homeIconBounds.y + 8, 24, txt);
+    drawHomeIcon(homeIconBounds.x + 10, homeIconBounds.y + 10, 36, txt);
   }
 
   if (state === 'levelcomplete') {
@@ -2220,7 +2220,7 @@ function draw() {
     }
     
     // Draw home icon for levelcomplete state
-    drawHomeIcon(homeIconBounds.x + 8, homeIconBounds.y + 8, 24, txt);
+    drawHomeIcon(homeIconBounds.x + 10, homeIconBounds.y + 10, 36, txt);
     
   }
 }
