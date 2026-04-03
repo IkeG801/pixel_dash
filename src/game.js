@@ -1426,7 +1426,7 @@ function update() {
   particles = particles.filter(pt => pt.life > 0);
 }
 
-function drawCube(x, y, skinKey) {
+function drawCube(x, y, skinKey, eyeState = {}) {
   const skin = CUBE_SKINS[skinKey] || CUBE_SKINS['classic'];
   const cubeSize = 20;
   
@@ -1480,15 +1480,34 @@ function drawCube(x, y, skinKey) {
     ctx.lineWidth = 1;
     ctx.stroke();
   } else {
-    // Eyes
+    // Eyes track direction only while the player is actively moving with input.
     const eyeY = faceY + 5;
     const eyeSpacing = 5;
     const leftEyeX = faceX + eyeSpacing;
     const rightEyeX = faceX + faceSize - eyeSpacing - 2;
     const eyeSize = 2;
+    const isJumping = !!eyeState.isJumping;
+    const inputDir = typeof eyeState.inputDir === 'number' ? eyeState.inputDir : 0;
+    const isMovingHorizontally = !!eyeState.isMovingHorizontally;
+
     ctx.fillStyle = '#000';
-    ctx.fillRect(leftEyeX, eyeY, eyeSize, eyeSize);
-    ctx.fillRect(rightEyeX, eyeY, eyeSize, eyeSize);
+    if (isJumping) {
+      // Eyes look up when jumping
+      ctx.fillRect(leftEyeX + 1, eyeY - 3, eyeSize, eyeSize);
+      ctx.fillRect(rightEyeX + 1, eyeY - 3, eyeSize, eyeSize);
+    } else if (inputDir > 0 && isMovingHorizontally) {
+      // Eyes look right
+      ctx.fillRect(leftEyeX + 3, eyeY, eyeSize, eyeSize);
+      ctx.fillRect(rightEyeX + 3, eyeY, eyeSize, eyeSize);
+    } else if (inputDir < 0 && isMovingHorizontally) {
+      // Eyes look left
+      ctx.fillRect(leftEyeX - 1, eyeY, eyeSize, eyeSize);
+      ctx.fillRect(rightEyeX - 1, eyeY, eyeSize, eyeSize);
+    } else {
+      // Center eyes when idle or when no directional input is active
+      ctx.fillRect(leftEyeX + 1, eyeY, eyeSize, eyeSize);
+      ctx.fillRect(rightEyeX + 1, eyeY, eyeSize, eyeSize);
+    }
     
     // Mouth
     ctx.strokeStyle = '#000';
@@ -2066,7 +2085,15 @@ function draw() {
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
     ctx.fillRect(p.x, p.y + p.h - 2, p.w, 2);
     
-    drawCube(p.x, cubeY, playerData.selected_cube);
+    const leftInput = keys['ArrowLeft'] || keys['a'] || touchLeft;
+    const rightInput = keys['ArrowRight'] || keys['d'] || touchRight;
+    const inputDir = leftInput && !rightInput ? -1 : rightInput && !leftInput ? 1 : 0;
+
+    drawCube(p.x, cubeY, playerData.selected_cube, {
+      inputDir,
+      isJumping: !p.grounded && p.vy < 0,
+      isMovingHorizontally: Math.abs(p.vx) > 0.2
+    });
 
     // Particles
     particles.forEach(pt => {
