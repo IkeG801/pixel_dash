@@ -82,6 +82,7 @@ function savePlayerData() {
 
 // Load on startup
 loadPlayerData();
+playerData.challenge_points = (playerData.challenge_points || 0);
 
 if (window.elementSdk) {
   window.elementSdk.init({
@@ -206,6 +207,37 @@ function ensureSpawnPlatform(level) {
   return level;
 }
 
+// Smooth out extreme platform gaps/heights so jumps remain possible.
+function ensurePlayableJumps(level) {
+  const maxHorizontalGap = 155;
+  const maxUpwardStep = 175;
+  const maxDownwardStep = 230;
+
+  const orderedPlatforms = (level.platforms || []).slice().sort((a, b) => a.x - b.x);
+  for (let i = 1; i < orderedPlatforms.length; i++) {
+    const prev = orderedPlatforms[i - 1];
+    const curr = orderedPlatforms[i];
+
+    const prevRight = prev.x + prev.w;
+    const gap = curr.x - prevRight;
+    if (gap > maxHorizontalGap) {
+      curr.x = prevRight + maxHorizontalGap;
+    }
+
+    const rise = prev.y - curr.y; // positive means next platform is higher
+    if (rise > maxUpwardStep) {
+      curr.y = prev.y - maxUpwardStep;
+    }
+
+    const drop = curr.y - prev.y; // positive means next platform is lower
+    if (drop > maxDownwardStep) {
+      curr.y = prev.y + maxDownwardStep;
+    }
+  }
+
+  return level;
+}
+
 // Generate level - just returns from INITIAL_LEVELS
 // Validate INITIAL_LEVELS structure
 function validateLevels(levels) {
@@ -238,14 +270,121 @@ function generateLevel(levelNum) {
   // clone so modification does not mutate original definitions
   const clonedLevel = {
     ...baseLevel,
-    platforms: (baseLevel.platforms || []).map(p => ({ ...p })),
+    // Fan platforms removed globally: convert type 3 to normal platforms.
+    platforms: (baseLevel.platforms || []).map(p => {
+      const normalized = { ...p, type: p.type === 3 ? 0 : p.type };
+      if (Object.prototype.hasOwnProperty.call(normalized, 'fanForce')) {
+        delete normalized.fanForce;
+      }
+      return normalized;
+    }),
     coins: (baseLevel.coins || []).map(c => ({ ...c })),
     spikes: (baseLevel.spikes || []).map(s => ({ ...s })),
     obstacles: (baseLevel.obstacles || []).map(o => ({ ...o })),
     powerups: (baseLevel.powerups || []).map(u => ({ ...u }))
   };
 
-  return ensureSpawnPlatform(clonedLevel);
+  return ensureSpawnPlatform(ensurePlayableJumps(clonedLevel));
+}
+
+// Daily Challenge Functions
+function getTodayDate() {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+}
+
+function getDailyChallengeSeed() {
+  const date = getTodayDate();
+  let hash = 0;
+  for (let i = 0; i < date.length; i++) {
+    const char = date.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+
+function generateDailyLevel(seed) {
+  let state = seed;
+  const rng = () => {
+    state = (state * 9301 + 49297) % 233280;
+    return state / 233280;
+  };
+
+  const platformCount = 14 + Math.floor(rng() * 3);
+  const platforms = [{ x: 0, y: 500, w: 150, h: 20, type: 0 }];
+
+  let currentX = 180;
+  let currentY = 450;
+  for (let i = 1; i < platformCount; i++) {
+    const platformWidth = 70 + Math.floor(rng() * 50);
+    const yOffset = -15 - Math.floor(rng() * 15);
+    const xOffset = 80 + Math.floor(rng() * 80);
+    currentY = Math.max(180, Math.min(480, currentY + yOffset));
+    currentX += xOffset;
+
+    const typeRoll = rng();
+    let type = 0;
+    if (typeRoll > 0.75) type = 5;
+    else if (typeRoll > 0.5) type = 2;
+    else if (typeRoll > 0.25) type = 4;
+
+    platforms.push({ x: currentX, y: currentY, w: platformWidth, h: 20, type });
+  }
+
+  const finalY = currentY - 80;
+  platforms.push({ x: currentX + 120, y: finalY, w: 200, h: 40, type: 0 });
+
+  const coins = [];
+  for (let i = 0; i < platforms.length - 1; i++) {
+    if (rng() > 0.5) {
+      coins.push({
+        x: platforms[i].x + platforms[i].w / 2 - 8,
+        y: platforms[i].y - 35,
+        w: 16,
+        h: 16,
+        collected: false
+      });
+    }
+  }
+
+  const spikes = [];
+  for (let i = 1; i < platforms.length - 2; i++) {
+    if (rng() > 0.75) {
+      const gapX = (platforms[i].x + platforms[i + 1].x) / 2;
+      spikes.push({
+        x: gapX - 20,
+        y: Math.max(platforms[i].y, platforms[i + 1].y) + 30,
+        w: 40,
+        h: 16,
+        type: 0
+      });
+    }
+  }
+
+  const powerups = [];
+  if (rng() > 0.5) {
+    const pwIdx = 3 + Math.floor(rng() * (platforms.length - 6));
+    powerups.push({
+      x: platforms[pwIdx].x + platforms[pwIdx].w / 2 - 7,
+      y: platforms[pwIdx].y - 40,
+      w: 14,
+      h: 14,
+      collected: false,
+      type: 'jumpboost'
+    });
+  }
+
+  const rawLevel = {
+    name: 'Daily Challenge ' + getTodayDate(),
+    platforms,
+    coins,
+    spikes,
+    obstacles: [],
+    powerups
+  };
+
+  return ensureSpawnPlatform(ensurePlayableJumps(rawLevel));
 }
 
 // Level definitions - curated levels from Canva
@@ -330,7 +469,7 @@ const INITIAL_LEVELS = [
       { x: 0, y: 500, w: 100, h: 20, type: 0 },
       { x: 150, y: 450, w: 100, h: 20, type: 0 },
       { x: 300, y: 400, w: 100, h: 20, type: 0 },
-      { x: 450, y: 350, w: 100, h: 20, type: 3, fanForce: 0.3 },
+      { x: 450, y: 350, w: 100, h: 20, type: 0 },
       { x: 600, y: 300, w: 100, h: 20, type: 0 },
       { x: 750, y: 380, w: 100, h: 20, type: 0 },
       { x: 900, y: 280, w: 200, h: 40, type: 0 },
@@ -414,9 +553,9 @@ const INITIAL_LEVELS = [
     name: "Bouncy Platforms",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
-      { x: 200, y: 450, w: 100, h: 20, type: 3, fanForce: 0.5 },
-      { x: 350, y: 400, w: 100, h: 20, type: 3, fanForce: 0.5 },
-      { x: 500, y: 350, w: 100, h: 20, type: 3, fanForce: 0.5 },
+      { x: 200, y: 450, w: 100, h: 20, type: 0 },
+      { x: 350, y: 400, w: 100, h: 20, type: 0 },
+      { x: 500, y: 350, w: 100, h: 20, type: 0 },
       { x: 650, y: 300, w: 100, h: 20, type: 0 },
       { x: 800, y: 250, w: 150, h: 20, type: 0 },
       { x: 1000, y: 200, w: 200, h: 40, type: 0 },
@@ -444,7 +583,7 @@ const INITIAL_LEVELS = [
       { x: 200, y: 420, w: 80, h: 20, type: 0 },
       { x: 320, y: 360, w: 80, h: 20, type: 0 },
       { x: 440, y: 300, w: 80, h: 20, type: 0 },
-      { x: 560, y: 280, w: 100, h: 20, type: 3, fanForce: 0.8 },
+      { x: 560, y: 280, w: 100, h: 20, type: 0 },
       { x: 700, y: 320, w: 80, h: 20, type: 0 },
       { x: 820, y: 380, w: 100, h: 20, type: 2 },
       { x: 950, y: 250, w: 200, h: 40, type: 0 },
@@ -1001,6 +1140,10 @@ function playPowerupSound() {
   setTimeout(() => playTone(1000, 0.08, 'sine', 0.15), 50);
 }
 
+function playClickSound() {
+  playTone(520, 0.05, 'square', 0.1);
+}
+
 // Game state
 let state = 'menu';
 let player, platforms, coins, spikes, camera, score, time, deathY, currentLevel, obstacles, powerups;
@@ -1010,6 +1153,33 @@ let coinMultiplierActive = false;
 let coinMultiplierTimer = 0;
 let flyMode = false;
 let flyModeTimer = 0;
+let inDailyChallenge = false;
+let bounceCount = 0;
+let maxHeightReached = 440;
+let levelDeathStreak = 0;
+let achievementToast = null;
+
+const ACHIEVEMENTS = {
+  firstWin: { name: 'First Victory' },
+  coinHunter: { name: 'Coin Hunter' },
+  flawless: { name: 'Flawless Run' }
+};
+
+function unlockAchievement(achievementId) {
+  const unlockedList = playerData.unlockedAchievements
+    ? playerData.unlockedAchievements.split(',').map(a => a.trim()).filter(Boolean)
+    : [];
+  if (!unlockedList.includes(achievementId)) {
+    unlockedList.push(achievementId);
+    playerData.unlockedAchievements = unlockedList.join(', ');
+    const ach = ACHIEVEMENTS[achievementId] || { name: achievementId };
+    achievementToast = { text: `🏆 ${ach.name}!`, timer: 180, y: 0 };
+    playerData.challenge_points = (playerData.challenge_points || 0) + 10;
+    savePlayerData();
+    return true;
+  }
+  return false;
+}
 
 // Menu navigation state
 let selectedLevel = 0;
@@ -1115,6 +1285,11 @@ function update() {
       keys['s'] = false;
       state = 'shop';
       shopScrollY = 0;
+    }
+    if (keys['d'] || keys['D']) {
+      keys['d'] = false;
+      keys['D'] = false;
+      startDailyChallenge();
     }
     return;
   }
@@ -1294,10 +1469,6 @@ function update() {
           // Slime bounce - super bounce!
           p.vy = JUMP_FORCE * 1.3;
           spawnParticles(p.x + p.w / 2, p.y + p.h, '#00ff00', 8);
-        } else if (pl.type === 3) {
-          // Fan platform boost
-          p.vy = JUMP_FORCE * (1 + (pl.fanForce || 0.3));
-          spawnParticles(p.x + p.w / 2, p.y + p.h, '#e0b0ff', 6);
         } else {
           p.vy = 0;
         }
@@ -1628,6 +1799,25 @@ function draw() {
       shopScrollY = 0;
     });
 
+    ctx.fillStyle = accent;
+    ctx.fillRect(W / 2 - 50, H / 2 + 285, 100, 40);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px Silkscreen';
+    ctx.fillText('DAILY', W / 2, H / 2 + 310);
+    ctx.fillStyle = txt;
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
+    ctx.fillText('[D]', W / 2, H / 2 + 330);
+    registerUiButton(W / 2 - 50, H / 2 + 285, 100, 40, () => {
+      startDailyChallenge();
+    });
+
+    ctx.fillStyle = txt;
+    ctx.font = '12px Silkscreen, Arial, sans-serif';
+    const todayDate = getTodayDate();
+    const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
+    const bestText = bestDaily > 0 ? `${bestDaily}s` : '--';
+    ctx.fillText(`Daily Best: ${bestText}`, W / 2, H / 2 + 360);
+
     return;
   }
 
@@ -1872,17 +2062,20 @@ function draw() {
           ctx.fillStyle = '#8b7b9f';
           ctx.fillRect(pl.x + i, pl.y, 1, pl.h);
         }
-        // Jagged cracks
-        ctx.strokeStyle = '#5a4a6f';
-        ctx.lineWidth = 1.5;
-        for (let i = 0; i < 3; i++) {
-          const startX = pl.x + platformVisualRng.next() * pl.w;
-          const endX = pl.x + platformVisualRng.next() * pl.w;
+        // Jagged cracks (high contrast so they stay visible)
+        ctx.strokeStyle = '#3f3350';
+        ctx.lineWidth = 2;
+        const crackPoints = [0.18, 0.38, 0.62, 0.82];
+        crackPoints.forEach((t, idx) => {
+          const x0 = pl.x + pl.w * t;
+          const x1 = x0 + (idx % 2 === 0 ? -6 : 6);
+          const x2 = x1 + (idx % 2 === 0 ? 8 : -8);
           ctx.beginPath();
-          ctx.moveTo(startX, pl.y);
-          ctx.lineTo(endX, pl.y + pl.h);
+          ctx.moveTo(x0, pl.y + 1);
+          ctx.lineTo(x1, pl.y + pl.h * 0.45);
+          ctx.lineTo(x2, pl.y + pl.h - 1);
           ctx.stroke();
-        }
+        });
         // Moss/grass on top
         ctx.fillStyle = '#7cb342';
         for (let i = 0; i < pl.w; i += 4) {
@@ -1892,31 +2085,6 @@ function draw() {
         if (pl.crumbling) {
           ctx.globalAlpha = 1;
         }
-      } else if (pl.type === 3) {
-        // Fan/bouncy platforms - purple-blue with fan design
-        ctx.fillStyle = '#9c6ba8';
-        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
-        ctx.strokeStyle = '#7a4a88';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
-        // Draw spinning fan blades
-        const centerX = pl.x + pl.w / 2;
-        const centerY = pl.y + pl.h / 2;
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate((time * 0.1) % (Math.PI * 2));
-        ctx.strokeStyle = '#e0b0ff';
-        ctx.lineWidth = 2;
-        for (let i = 0; i < 3; i++) {
-          const angle = (i / 3) * Math.PI * 2;
-          const x1 = Math.cos(angle) * 10;
-          const y1 = Math.sin(angle) * 10;
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(x1, y1);
-          ctx.stroke();
-        }
-        ctx.restore();
       } else if (pl.type === 4) {
         // Ice platforms - cyan blue with cracks and shine
         ctx.fillStyle = '#b3e5fc';
@@ -1956,12 +2124,18 @@ function draw() {
         ctx.fillStyle = 'rgba(255,255,255,0.3)';
         ctx.fillRect(pl.x + 2, pl.y + 2, pl.w - 4, 3);
       } else {
-        // Default/normal platforms (type 0)
+        // Default/normal platforms (type 0): same stone style as crumbling, but no cracks.
         ctx.fillStyle = '#a78baf';
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
-        ctx.strokeStyle = '#8b7b9f';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+        for (let i = 0; i < pl.w; i += 8) {
+          ctx.fillStyle = '#8b7b9f';
+          ctx.fillRect(pl.x + i, pl.y, 1, pl.h);
+        }
+        ctx.fillStyle = '#7cb342';
+        for (let i = 0; i < pl.w; i += 4) {
+          const grassHeight = 2 + Math.sin(i * 0.1) * 1;
+          ctx.fillRect(pl.x + i, pl.y - grassHeight, 3, grassHeight);
+        }
       }
     });
 
@@ -2206,7 +2380,11 @@ function draw() {
     if (keys[' '] || keys['Enter'] || touchJump) {
       keys[' '] = false;
       touchJump = false;
-      initGame(currentLevel);
+      if (inDailyChallenge) {
+        startDailyChallenge(true);
+      } else {
+        initGame(currentLevel);
+      }
     }
         
     // Draw home icon for dead state
@@ -2234,6 +2412,21 @@ function draw() {
       keys[' '] = false;
       keys['Enter'] = false;
       touchJump = false;
+
+      if (inDailyChallenge) {
+        const todayDate = getTodayDate();
+        const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
+        const currentTime = Math.floor(time / 60);
+        if (currentTime < bestDaily || bestDaily === 0) {
+          playerData.daily_score = currentTime;
+          playerData.daily_date = todayDate;
+        }
+        playerData.challenge_points = (playerData.challenge_points || 0) + 20;
+        inDailyChallenge = false;
+        savePlayerData();
+        state = 'menu';
+        return;
+      }
       
       playerData.total_coins += coins.filter(c => c.collected).length;
       playerData.level_completed = currentLevel + 1;
@@ -2253,6 +2446,7 @@ function draw() {
 }
 
 function initGame(levelNum = 0) {
+  inDailyChallenge = false;
   currentLevel = levelNum;
   const levelData = generateLevel(levelNum);
   platforms = levelData.platforms.map(p => ({...p, oy: p.y, crumbleTimer: 0, crumbling: false, visible: true}));
@@ -2271,6 +2465,34 @@ function initGame(levelNum = 0) {
   coinMultiplierTimer = 0;
   flyMode = false;
   flyModeTimer = 0;
+  state = 'playing';
+}
+
+function startDailyChallenge(silent = false) {
+  if (!silent) playClickSound();
+  inDailyChallenge = true;
+  const seed = getDailyChallengeSeed();
+  const levelData = generateDailyLevel(seed);
+  platforms = levelData.platforms.map(p => ({ ...p, oy: p.y, crumbleTimer: 0, crumbling: false, visible: true, iceSliding: false }));
+  coins = levelData.coins ? levelData.coins.map(c => ({ ...c })) : [];
+  spikes = levelData.spikes ? levelData.spikes.map(s => ({ ...s })) : [];
+  obstacles = levelData.obstacles ? levelData.obstacles.map(o => ({ ...o })) : [];
+  powerups = levelData.powerups ? levelData.powerups.map(p => ({ ...p })) : [];
+  player = { x: 50, y: 440, w: 20, h: 28, vx: 0, vy: 0, grounded: false, facing: 1, jumpBuffer: 0, coyoteTime: 0 };
+  camera = { x: 0, y: 0 };
+  time = 0;
+  deathY = 700;
+  particles = [];
+  jumpBoostActive = false;
+  jumpBoostTimer = 0;
+  coinMultiplierActive = false;
+  coinMultiplierTimer = 0;
+  flyMode = false;
+  flyModeTimer = 0;
+  bounceCount = 0;
+  maxHeightReached = 440;
+  levelDeathStreak = 0;
+  achievementToast = null;
   state = 'playing';
 }
 

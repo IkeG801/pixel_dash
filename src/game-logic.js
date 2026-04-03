@@ -4,8 +4,8 @@
 // Game constants
 const TILE = 32;
 const GRAVITY = 0.6;
-const JUMP_FORCE = -12;
-const MOVE_SPEED = 4.5;
+const JUMP_FORCE = -13;
+const MOVE_SPEED = 5.0;
 const FRICTION = 0.85;
 
 // Collision detection
