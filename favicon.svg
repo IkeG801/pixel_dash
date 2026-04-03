@@ -1,18 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Classic skin colors from CUBE_SKINS.classic -->
-  <!-- Body -->
+  <!-- Classic cube skin, matching drawCube() style and palette -->
   <rect x="4" y="4" width="24" height="24" fill="#3b82f6" stroke="#1e40af" stroke-width="2"/>
 
-  <!-- Face panel -->
   <rect x="7" y="7" width="18" height="18" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/>
 
-  <!-- Eyes -->
   <rect x="11" y="12" width="2" height="2" fill="#000"/>
   <rect x="19" y="12" width="2" height="2" fill="#000"/>
 
-  <!-- Mouth -->
-  <rect x="12" y="18" width="8" height="1.5" fill="#000"/>
+  <path d="M11 21 H21" stroke="#000" stroke-width="1.5" stroke-linecap="square" fill="none"/>
 
-  <!-- Highlight -->
-  <rect x="6" y="6" width="5" height="5" fill="#fff" opacity="0.2"/>
+  <rect x="5" y="5" width="6" height="6" fill="#fff" opacity="0.2"/>
 </svg>
