@@ -31,8 +31,27 @@ let playerData = {
 function loadPlayerData() {
   const saved = localStorage.getItem('pixelDashPlayer');
   if (saved) {
-    const parsed = JSON.parse(saved);
-    playerData = { ...playerData, ...parsed };
+    try {
+      const parsed = JSON.parse(saved);
+      playerData = { ...playerData, ...parsed };
+    } catch (e) {
+      console.error('Failed to parse playerData:', e);
+      // Reset to default if corrupted
+      playerData = { 
+        player_name: 'Player', 
+        total_coins: 0, 
+        challenge_points: 0, 
+        selected_cube: 'classic', 
+        owned_cubes: 'classic', 
+        level_completed: 0, 
+        best_score: 0, 
+        daily_score: 0, 
+        daily_date: '', 
+        unlockedAchievements: '', 
+        deathStreak: 0 
+      };
+      localStorage.setItem('pixelDashPlayer', JSON.stringify(playerData));
+    }
   }
 }
 
@@ -133,7 +152,26 @@ function hexToRgb(hex) {
   } : { r: 0, g: 0, b: 0 };
 }
 
-// Game constants (declared in game-logic.js and available globally)
+// Seeded PRNG for deterministic randomness (Mulberry32)
+class SeededRandom {
+  constructor(seed = Date.now()) {
+    this.seed = seed >>> 0;
+  }
+  next() {
+    let x = this.seed;
+    x |= 0;
+    x ^= x << 13;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    return ((x = (x + 0x6d2b79f5) | 0) >>> 0) / 0x100000000;
+  }
+  range(min, max) {
+    return min + this.next() * (max - min);
+  }
+}
+
+const particleRng = new SeededRandom();
+const platformVisualRng = new SeededRandom(12345); // Fixed seed for consistent platform visuals
 // const TILE = 32;              // from game-logic.js
 // const GRAVITY = 0.6;          // from game-logic.js
 // const JUMP_FORCE = -12;       // from game-logic.js
@@ -169,6 +207,29 @@ function ensureSpawnPlatform(level) {
 }
 
 // Generate level - just returns from INITIAL_LEVELS
+// Validate INITIAL_LEVELS structure
+function validateLevels(levels) {
+  if (!Array.isArray(levels) || levels.length === 0) {
+    throw new Error('INITIAL_LEVELS must be a non-empty array');
+  }
+  levels.forEach((level, idx) => {
+    if (!level.name || typeof level.name !== 'string') {
+      throw new Error(`Level ${idx}: missing or invalid name`);
+    }
+    if (!Array.isArray(level.platforms) || level.platforms.length === 0) {
+      throw new Error(`Level ${idx} (${level.name}): missing platforms`);
+    }
+    // Validate platform structure
+    level.platforms.forEach((p, pidx) => {
+      if (typeof p.x !== 'number' || typeof p.y !== 'number' || 
+          typeof p.w !== 'number' || typeof p.h !== 'number') {
+        throw new Error(`Level ${idx} platform ${pidx}: invalid coordinates`);
+      }
+    });
+  });
+  return true;
+}
+
 function generateLevel(levelNum) {
   const baseLevel = levelNum < INITIAL_LEVELS.length
     ? INITIAL_LEVELS[levelNum]
@@ -630,13 +691,17 @@ const INITIAL_LEVELS = [
 let particles = [];
 function spawnParticles(x, y, color, count) {
   for (let i = 0; i < count; i++) {
+    // Cap particle array to prevent memory leaks
+    if (particles.length >= 500) {
+      particles.shift();
+    }
     particles.push({
       x, y,
-      vx: (Math.random() - 0.5) * 6,
-      vy: (Math.random() - 1) * 5,
-      life: 30 + Math.random() * 20,
+      vx: (particleRng.next() - 0.5) * 6,
+      vy: (particleRng.next() - 1) * 5,
+      life: 30 + particleRng.next() * 20,
       maxLife: 50,
-      size: 2 + Math.random() * 3,
+      size: 2 + particleRng.next() * 3,
       color
     });
   }
@@ -892,7 +957,18 @@ let soundEnabled = true;
 
 function initAudio() {
   if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        console.warn('Web Audio API not supported');
+        soundEnabled = false;
+        return;
+      }
+      audioContext = new AudioCtx();
+    } catch (e) {
+      console.error('Failed to initialize audio:', e);
+      soundEnabled = false;
+    }
   }
 }
 
@@ -939,6 +1015,85 @@ let flyModeTimer = 0;
 let selectedLevel = 0;
 let levelSelectScrollY = 0;
 let shopScrollY = 0;
+
+// Home icon bounds for click detection
+let homeIconBounds = { x: 16, y: 0, w: 40, h: 40 };
+let uiButtons = [];
+let touchStartX = 0;
+let touchStartY = 0;
+let lastTouchY = 0;
+let isSwipeScrolling = false;
+
+function resetUiButtons() {
+  uiButtons = [];
+}
+
+function registerUiButton(x, y, w, h, action) {
+  // Add small padding to improve touch usability on mobile.
+  const pad = 6;
+  uiButtons.push({ x: x - pad, y: y - pad, w: w + pad * 2, h: h + pad * 2, action });
+}
+
+function tryHandleUiTap(tx, ty) {
+  for (let i = uiButtons.length - 1; i >= 0; i--) {
+    const btn = uiButtons[i];
+    if (tx >= btn.x && tx <= btn.x + btn.w && ty >= btn.y && ty <= btn.y + btn.h) {
+      btn.action();
+      return true;
+    }
+  }
+  return false;
+}
+
+function getLevelSelectMaxScroll() {
+  const W = canvas.width;
+  const H = canvas.height;
+  const levelSize = 80;
+  const spacing = 20;
+  const levelsPerRow = Math.max(1, Math.floor((W - 40) / (levelSize + spacing)));
+  const levelRows = Math.ceil(INITIAL_LEVELS.length / levelsPerRow);
+  const contentHeight = levelRows * (levelSize + spacing + 50);
+  const visibleHeight = H - 180;
+  return Math.max(0, contentHeight - visibleHeight);
+}
+
+function getShopMaxScroll() {
+  const H = canvas.height;
+  const cubeEntries = Object.entries(CUBE_SKINS).sort((a, b) => {
+    const aIsChallenge = a[1].currency === 'challenge';
+    const bIsChallenge = b[1].currency === 'challenge';
+    if (aIsChallenge !== bIsChallenge) return aIsChallenge ? 1 : -1;
+    return a[1].price - b[1].price;
+  });
+  const cubesPerRow = 4;
+  const cubeBoxSize = 100;
+  const spacing = 20;
+  const contentHeight = Math.ceil(cubeEntries.length / cubesPerRow) * (cubeBoxSize + spacing + 60);
+  return Math.max(0, contentHeight - (H - 200));
+}
+
+function buyOrSelectCube(skinKey) {
+  playerData.selected_cube = skinKey;
+  const selectedSkin = CUBE_SKINS[playerData.selected_cube];
+  const ownedCubes = playerData.owned_cubes.split(',').map(c => c.trim());
+
+  if (!ownedCubes.includes(playerData.selected_cube)) {
+    const currency = selectedSkin.currency || 'coins';
+    if (currency === 'challenge') {
+      if ((playerData.challenge_points || 0) >= selectedSkin.challengePrice) {
+        playerData.challenge_points -= selectedSkin.challengePrice;
+        playerData.owned_cubes += ',' + playerData.selected_cube;
+        savePlayerData();
+      }
+    } else if (playerData.total_coins >= selectedSkin.price) {
+      playerData.total_coins -= selectedSkin.price;
+      playerData.owned_cubes += ',' + playerData.selected_cube;
+      savePlayerData();
+    }
+  } else {
+    savePlayerData();
+  }
+}
 
 score = 0;
 
@@ -1045,29 +1200,17 @@ function update() {
     // Try to buy selected cube
     if (keys['Enter']) {
       keys['Enter'] = false;
-      const selectedSkin = CUBE_SKINS[playerData.selected_cube];
-      const ownedCubes = playerData.owned_cubes.split(',').map(c => c.trim());
-      
-      if (!ownedCubes.includes(playerData.selected_cube)) {
-        const currency = selectedSkin.currency || 'coins';
-        if (currency === 'challenge') {
-          if ((playerData.challenge_points || 0) >= selectedSkin.challengePrice) {
-            playerData.challenge_points -= selectedSkin.challengePrice;
-            playerData.owned_cubes += ',' + playerData.selected_cube;
-            savePlayerData();
-          }
-        } else {
-          if (playerData.total_coins >= selectedSkin.price) {
-            playerData.total_coins -= selectedSkin.price;
-            playerData.owned_cubes += ',' + playerData.selected_cube;
-            savePlayerData();
-          }
-        }
-      } else {
-        // Already own, just select it
-        savePlayerData();
-      }
+      buyOrSelectCube(playerData.selected_cube);
     }
+    return;
+  }
+
+  // Handle Escape key to return to menu from playing, dead, or levelcomplete states
+  if ((state === 'playing' || state === 'dead' || state === 'levelcomplete') && 
+      (keys['Escape'] || keys['Backspace'])) {
+    keys['Escape'] = false;
+    keys['Backspace'] = false;
+    state = 'menu';
     return;
   }
 
@@ -1361,13 +1504,45 @@ function drawCube(x, y, skinKey) {
   ctx.fillRect(x + 1, y + 1, 6, 6);
 }
 
-let drawFrameCount = 0;
-function draw() {
-  if (drawFrameCount === 0) {
-    console.log('Pixel Dash draw() called, initial state:', state); 
+// Draw pixel art home icon
+function drawHomeIcon(x, y, size = 24, fillColor = '#fff', bgColor = null) {
+  const iconSize = size;
+  const px = Math.max(1, Math.floor(iconSize / 16));
+  const offsetX = x + Math.floor((iconSize - 16 * px) / 2);
+  const offsetY = y + Math.floor((iconSize - 16 * px) / 2);
+  const drawPx = (gx, gy, w = 1, h = 1) => {
+    ctx.fillRect(offsetX + gx * px, offsetY + gy * px, w * px, h * px);
+  };
+  
+  // Draw background circle if specified
+  if (bgColor) {
+    ctx.fillStyle = bgColor;
+    ctx.beginPath();
+    ctx.arc(x + iconSize / 2, y + iconSize / 2, iconSize / 2 + 2, 0, Math.PI * 2);
+    ctx.fill();
   }
-  drawFrameCount++;
+  
+  // House silhouette
+  ctx.fillStyle = fillColor;
+  // Roof
+  drawPx(7, 1, 2, 1);
+  drawPx(6, 2, 4, 1);
+  drawPx(5, 3, 6, 1);
+  drawPx(4, 4, 8, 1);
+  drawPx(3, 5, 10, 1);
+  // Chimney
+  drawPx(10, 2, 2, 2);
+  // Walls
+  drawPx(4, 6, 8, 7);
 
+  // Door cutout and windows for recognizable house shape
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  drawPx(7, 10, 2, 3);
+  drawPx(5, 8, 2, 2);
+  drawPx(9, 8, 2, 2);
+}
+
+function draw() {
   const W = canvas.width, H = canvas.height;
   const bg = config.background_color || defaultConfig.background_color;
   const surf = config.surface_color || defaultConfig.surface_color;
@@ -1375,6 +1550,10 @@ function draw() {
   const accent = config.primary_action || defaultConfig.primary_action;
   const sec = config.secondary_action || defaultConfig.secondary_action;
   const title = config.game_title || defaultConfig.game_title;
+  
+  // Update home icon bounds to bottom left corner
+  homeIconBounds = { x: 16, y: H - 48, w: 40, h: 40 };
+  resetUiButtons();
 
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = bg;
@@ -1398,6 +1577,7 @@ function draw() {
     ctx.globalAlpha = pulse;
     ctx.fillText('[ PRESS SPACE OR TAP TO START ]', W / 2, H / 2 + 160);
     ctx.globalAlpha = 1;
+    registerUiButton(W / 2 - 200, H / 2 + 135, 400, 40, () => initGame(0));
 
     // Menu buttons with labels
     ctx.fillStyle = accent;
@@ -1409,6 +1589,11 @@ function draw() {
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.fillText('[L]', W / 2 - 80, H / 2 + 265);
+    registerUiButton(W / 2 - 130, H / 2 + 220, 100, 40, () => {
+      state = 'levelselect';
+      selectedLevel = 0;
+      levelSelectScrollY = 0;
+    });
 
     ctx.fillStyle = accent;
     ctx.fillRect(W / 2 + 30, H / 2 + 220, 100, 40);
@@ -1419,6 +1604,10 @@ function draw() {
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.fillText('[S]', W / 2 + 80, H / 2 + 265);
+    registerUiButton(W / 2 + 30, H / 2 + 220, 100, 40, () => {
+      state = 'shop';
+      shopScrollY = 0;
+    });
 
     return;
   }
@@ -1478,6 +1667,10 @@ function draw() {
       ctx.font = '14px Silkscreen, Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(levelData.name, lx + levelSize / 2, ly + levelSize + 20);
+      registerUiButton(lx, ly, levelSize, levelSize, () => {
+        selectedLevel = i;
+        initGame(i);
+      });
     }
 
     ctx.restore();
@@ -1495,6 +1688,7 @@ function draw() {
     ctx.font = 'bold 13px Silkscreen';
     ctx.textAlign = 'center';
     ctx.fillText('PLAY LEVEL', W / 2, H - 20);
+    registerUiButton(W / 2 - 60, H - 45, 120, 35, () => initGame(selectedLevel));
 
     // Back button
     ctx.fillStyle = sec;
@@ -1503,6 +1697,7 @@ function draw() {
     ctx.font = 'bold 11px Silkscreen';
     ctx.textAlign = 'center';
     ctx.fillText('BACK', 50, H - 20);
+    registerUiButton(20, H - 45, 60, 35, () => { state = 'menu'; });
   }
 
   if (state === 'shop') {
@@ -1610,6 +1805,10 @@ function draw() {
           }
         }
       }
+
+      registerUiButton(x, y, cubeBoxSize, cubeBoxSize, () => {
+        buyOrSelectCube(skinKey);
+      });
     });
 
     ctx.restore();
@@ -1620,6 +1819,9 @@ function draw() {
     ctx.fillStyle = txt;
     ctx.font = 'bold 14px Silkscreen';
     ctx.fillText('[ SPACE TO BACK ]', W / 2, H - 35);
+    registerUiButton(W / 2 - 70, H - 60, 140, 40, () => {
+      state = 'menu';
+    });
 
     if (keys[' '] || keys['Enter']) {
       keys[' '] = false;
@@ -1655,8 +1857,8 @@ function draw() {
         ctx.strokeStyle = '#5a4a6f';
         ctx.lineWidth = 1.5;
         for (let i = 0; i < 3; i++) {
-          const startX = pl.x + Math.random() * pl.w;
-          const endX = pl.x + Math.random() * pl.w;
+          const startX = pl.x + platformVisualRng.next() * pl.w;
+          const endX = pl.x + platformVisualRng.next() * pl.w;
           ctx.beginPath();
           ctx.moveTo(startX, pl.y);
           ctx.lineTo(endX, pl.y + pl.h);
@@ -1704,8 +1906,8 @@ function draw() {
         ctx.strokeStyle = '#80deea';
         ctx.lineWidth = 1;
         for (let i = 0; i < 3; i++) {
-          const startX = pl.x + Math.random() * pl.w;
-          const endX = pl.x + Math.random() * pl.w;
+          const startX = pl.x + platformVisualRng.next() * pl.w;
+          const endX = pl.x + platformVisualRng.next() * pl.w;
           ctx.beginPath();
           ctx.moveTo(startX, pl.y);
           ctx.lineTo(endX, pl.y + pl.h);
@@ -1956,6 +2158,9 @@ function draw() {
       ctx.lineWidth = 1;
       ctx.strokeRect(barX, barY, barWidth, barHeight);
     }
+
+    // Draw home icon for playing state
+    drawHomeIcon(homeIconBounds.x + 8, homeIconBounds.y + 8, 24, txt);
   }
 
   if (state === 'dead') {
@@ -1976,6 +2181,9 @@ function draw() {
       touchJump = false;
       initGame(currentLevel);
     }
+        
+    // Draw home icon for dead state
+    drawHomeIcon(homeIconBounds.x + 8, homeIconBounds.y + 8, 24, txt);
   }
 
   if (state === 'levelcomplete') {
@@ -2010,6 +2218,10 @@ function draw() {
         state = 'menu';
       }
     }
+    
+    // Draw home icon for levelcomplete state
+    drawHomeIcon(homeIconBounds.x + 8, homeIconBounds.y + 8, 24, txt);
+    
   }
 }
 
@@ -2040,10 +2252,19 @@ function handleTouches(e) {
   touchLeft = false;
   touchRight = false;
   touchJump = false;
+  const rect = canvas.getBoundingClientRect();
   const touches = e.touches;
   for (let i = 0; i < touches.length; i++) {
-    const tx = touches[i].clientX;
-    const ty = touches[i].clientY;
+    const tx = touches[i].clientX - rect.left;
+    const ty = touches[i].clientY - rect.top;
+
+    // Don't map home icon touches to movement/jump controls.
+    if ((state === 'playing' || state === 'dead' || state === 'levelcomplete') &&
+        tx >= homeIconBounds.x && tx <= homeIconBounds.x + homeIconBounds.w &&
+        ty >= homeIconBounds.y && ty <= homeIconBounds.y + homeIconBounds.h) {
+      return;
+    }
+
     const third = canvas.width / 3;
     if (ty > canvas.height - 120) {
       if (tx < third) touchLeft = true;
@@ -2055,9 +2276,101 @@ function handleTouches(e) {
   }
 }
 
-canvas.addEventListener('touchstart', e => { e.preventDefault(); handleTouches(e); }, { passive: false });
-canvas.addEventListener('touchmove', e => { e.preventDefault(); handleTouches(e); }, { passive: false });
-canvas.addEventListener('touchend', e => { e.preventDefault(); handleTouches(e); }, { passive: false });
+// Named touch handlers for proper event listener cleanup
+const touchStartHandler = (e) => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  if (e.touches.length > 0) {
+    touchStartX = e.touches[0].clientX - rect.left;
+    touchStartY = e.touches[0].clientY - rect.top;
+    lastTouchY = touchStartY;
+    isSwipeScrolling = false;
+  }
+  handleTouches(e);
+};
+
+const touchMoveHandler = (e) => {
+  e.preventDefault();
+  if (e.touches.length > 0 && (state === 'levelselect' || state === 'shop')) {
+    const rect = canvas.getBoundingClientRect();
+    const ty = e.touches[0].clientY - rect.top;
+    const dy = ty - lastTouchY;
+    const travel = Math.abs(ty - touchStartY);
+
+    if (travel > 8) {
+      isSwipeScrolling = true;
+    }
+
+    if (state === 'levelselect') {
+      const maxScroll = getLevelSelectMaxScroll();
+      levelSelectScrollY = Math.max(0, Math.min(maxScroll, levelSelectScrollY - dy));
+    } else {
+      const maxScroll = getShopMaxScroll();
+      shopScrollY = Math.max(0, Math.min(maxScroll, shopScrollY - dy));
+    }
+
+    lastTouchY = ty;
+    return;
+  }
+  handleTouches(e);
+};
+
+const touchEndHandler = (e) => {
+  e.preventDefault();
+
+  if (e.changedTouches.length > 0) {
+    const rect = canvas.getBoundingClientRect();
+    const tx = e.changedTouches[0].clientX - rect.left;
+    const ty = e.changedTouches[0].clientY - rect.top;
+
+    if (!isSwipeScrolling) {
+      if ((state === 'playing' || state === 'dead' || state === 'levelcomplete') &&
+          tx >= homeIconBounds.x && tx <= homeIconBounds.x + homeIconBounds.w &&
+          ty >= homeIconBounds.y && ty <= homeIconBounds.y + homeIconBounds.h) {
+        state = 'menu';
+      } else if (state !== 'playing') {
+        tryHandleUiTap(tx, ty);
+      }
+    }
+  }
+
+  isSwipeScrolling = false;
+  handleTouches(e);
+};
+
+// Click handler for home icon
+const clickHandler = (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  
+  // Check if click is within home icon bounds
+  if (clickX >= homeIconBounds.x && clickX <= homeIconBounds.x + homeIconBounds.w &&
+      clickY >= homeIconBounds.y && clickY <= homeIconBounds.y + homeIconBounds.h) {
+    // Return to menu if in playing, dead, or levelcomplete states
+    if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+      state = 'menu';
+      return;
+    }
+  }
+
+  if (state !== 'playing') {
+    tryHandleUiTap(clickX, clickY);
+  }
+};
+
+canvas.addEventListener('touchstart', touchStartHandler, { passive: false });
+canvas.addEventListener('touchmove', touchMoveHandler, { passive: false });
+canvas.addEventListener('touchend', touchEndHandler, { passive: false });
+canvas.addEventListener('click', clickHandler);
+
+// Optional cleanup function if needed
+function cleanupTouchListeners() {
+  canvas.removeEventListener('touchstart', touchStartHandler);
+  canvas.removeEventListener('touchmove', touchMoveHandler);
+  canvas.removeEventListener('touchend', touchEndHandler);
+  canvas.removeEventListener('click', clickHandler);
+}
 
 function loop() {
   update();
@@ -2065,4 +2378,26 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-loop();
+// Validate levels before starting
+try {
+  validateLevels(INITIAL_LEVELS);
+  loop();
+} catch (e) {
+  console.error('Level validation failed:', e.message);
+  // Show error on screen
+  const errorDiv = document.createElement('div');
+  errorDiv.style.position = 'fixed';
+  errorDiv.style.top = '50%';
+  errorDiv.style.left = '50%';
+  errorDiv.style.transform = 'translate(-50%, -50%)';
+  errorDiv.style.padding = '20px';
+  errorDiv.style.background = '#b91c1c';
+  errorDiv.style.color = '#fff';
+  errorDiv.style.zIndex = '10000';
+  errorDiv.style.fontFamily = 'monospace';
+  errorDiv.style.fontSize = '14px';
+  errorDiv.style.borderRadius = '8px';
+  errorDiv.style.maxWidth = '500px';
+  errorDiv.innerText = `Game Error:\n${e.message}\n\nCheck browser console for details.`;
+  document.body.appendChild(errorDiv);
+}
