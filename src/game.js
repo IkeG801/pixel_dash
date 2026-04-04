@@ -1121,6 +1121,7 @@ function initAudio() {
 function playTone(frequency, duration, type = 'square', gain = 0.1) {
   if (!soundEnabled) return;
   initAudio();
+  if (!audioContext) return;
   
   const osc = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
@@ -1137,14 +1138,63 @@ function playTone(frequency, duration, type = 'square', gain = 0.1) {
   osc.stop(audioContext.currentTime + duration);
 }
 
-function playJumpSound() {
-  playTone(400, 0.1, 'square', 0.15);
-  setTimeout(() => playTone(600, 0.08, 'square', 0.12), 50);
+function playNoteSequence(notes) {
+  notes.forEach(note => {
+    const [frequency, duration, type, gain, delay] = note;
+    setTimeout(() => playTone(frequency, duration, type, gain), delay);
+  });
+}
+
+function playJumpSound(surfaceType = 0, boosted = false) {
+  const jumpSounds = {
+    4: [
+      [880, 0.07, 'square', 0.12, 0],
+      [1175, 0.08, 'triangle', 0.1, 50]
+    ],
+    5: [
+      [220, 0.08, 'sine', 0.14, 0],
+      [330, 0.08, 'square', 0.12, 45],
+      [440, 0.09, 'triangle', 0.12, 90]
+    ],
+    default: [
+      [400, 0.1, 'square', 0.15, 0],
+      [600, 0.08, 'square', 0.12, 50]
+    ]
+  };
+
+  const selectedNotes = jumpSounds[surfaceType] || jumpSounds.default;
+  playNoteSequence(selectedNotes);
+
+  if (boosted) {
+    playNoteSequence([
+      [selectedNotes[selectedNotes.length - 1][0] + 180, 0.06, 'sine', 0.08, 90]
+    ]);
+  }
 }
 
 function playPowerupSound() {
-  playTone(800, 0.1, 'sine', 0.2);
-  setTimeout(() => playTone(1000, 0.08, 'sine', 0.15), 50);
+  playNoteSequence([
+    [784, 0.09, 'sine', 0.18, 0],
+    [988, 0.08, 'triangle', 0.14, 70],
+    [1175, 0.12, 'sine', 0.12, 140]
+  ]);
+}
+
+function playDeathJingle() {
+  playNoteSequence([
+    [220, 0.12, 'sawtooth', 0.18, 0],
+    [174, 0.12, 'sawtooth', 0.16, 120],
+    [146, 0.16, 'square', 0.14, 240]
+  ]);
+}
+
+function playLevelCompleteJingle() {
+  playNoteSequence([
+    [523.25, 0.08, 'triangle', 0.14, 0],
+    [659.25, 0.08, 'triangle', 0.14, 110],
+    [783.99, 0.1, 'square', 0.16, 220],
+    [1046.5, 0.14, 'sine', 0.14, 340]
+  ]);
 }
 
 function playClickSound() {
@@ -1165,6 +1215,7 @@ let bounceCount = 0;
 let maxHeightReached = 440;
 let levelDeathStreak = 0;
 let achievementToast = null;
+let lastGroundSurfaceType = 0;
 
 const ACHIEVEMENTS = {
   firstWin: { name: 'First Victory' },
@@ -1438,7 +1489,7 @@ function update() {
   if (p.jumpBuffer > 0 && p.coyoteTime > 0) {
     p.vy = JUMP_FORCE;
     if (jumpBoostActive) p.vy *= 1.5; // 50% higher jump
-    playJumpSound();
+    playJumpSound(lastGroundSurfaceType, jumpBoostActive);
     p.jumpBuffer = 0;
     p.coyoteTime = 0;
     spawnParticles(p.x + p.w / 2, p.y + p.h, config.surface_color, 5);
@@ -1471,10 +1522,12 @@ function update() {
       if (wasAbove && p.vy >= 0) {
         p.y = pl.y - p.h;
         p.grounded = true;
+        lastGroundSurfaceType = pl.type;
         
         if (pl.type === 5) {
           // Slime bounce - super bounce!
           p.vy = JUMP_FORCE * 1.3;
+          playJumpSound(5);
           spawnParticles(p.x + p.w / 2, p.y + p.h, '#00ff00', 8);
         } else {
           p.vy = 0;
@@ -1544,6 +1597,7 @@ function update() {
   // Spike collision detection (instant death)
   for (let i = 0; i < spikes.length; i++) {
     if (rectCollide(p, spikes[i])) {
+      if (state !== 'dead') playDeathJingle();
       state = 'dead';
       break;
     }
@@ -1552,6 +1606,7 @@ function update() {
   // Obstacle collision detection (instant death from saw blades)
   for (let i = 0; i < obstacles.length; i++) {
     if (rectCollide(p, obstacles[i])) {
+      if (state !== 'dead') playDeathJingle();
       state = 'dead';
       break;
     }
@@ -1569,6 +1624,7 @@ function update() {
   if (state === 'playing') {
     const finish = platforms[platforms.length - 1];
     if (rectCollide(p, { x: finish.x, y: finish.y - 40, w: finish.w, h: 40 })) {
+      playLevelCompleteJingle();
       state = 'levelcomplete';
       spawnParticles(p.x + p.w / 2, p.y + p.h / 2, config.primary_action, 30);
     }
@@ -1576,6 +1632,7 @@ function update() {
 
   // Death by falling
   if (p.y > deathY) {
+    if (state !== 'dead') playDeathJingle();
     state = 'dead';
   }
 
@@ -2466,6 +2523,7 @@ function initGame(levelNum = 0) {
   time = 0;
   deathY = 700;
   particles = [];
+  lastGroundSurfaceType = 0;
   jumpBoostActive = false;
   jumpBoostTimer = 0;
   coinMultiplierActive = false;
@@ -2490,6 +2548,7 @@ function startDailyChallenge(silent = false) {
   time = 0;
   deathY = 700;
   particles = [];
+  lastGroundSurfaceType = 0;
   jumpBoostActive = false;
   jumpBoostTimer = 0;
   coinMultiplierActive = false;
