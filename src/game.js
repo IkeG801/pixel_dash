@@ -2514,12 +2514,21 @@ function handleTouches(e) {
       return;
     }
 
-    const third = canvas.width / 3;
-    if (ty > canvas.height - 120) {
-      if (tx < third) touchLeft = true;
-      else if (tx < third * 2) touchRight = true;
-      else touchJump = true;
-    } else {
+    // Gameplay controls use three full-screen zones: left, center, right.
+    if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+      const third = canvas.width / 3;
+      if (tx < third) {
+        touchLeft = true;
+      } else if (tx < third * 2) {
+        touchJump = true;
+      } else {
+        touchRight = true;
+      }
+      continue;
+    }
+
+    // Non-gameplay screens handle taps through buttons; keep a center tap fallback.
+    if (ty <= canvas.height) {
       touchJump = true;
     }
   }
