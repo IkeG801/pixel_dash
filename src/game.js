@@ -1787,6 +1787,349 @@ const INITIAL_LEVELS = [
     powerups: [
       { x: 710, y: 250, w: 14, h: 14, collected: false, type: 'jumpboost' }
     ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Ash Stair',
+    platforms: [
+      { x: 0, y: 500, w: 170, h: 20, type: 0 },
+      { x: 210, y: 455, w: 100, h: 20, type: 2 },
+      { x: 360, y: 415, w: 100, h: 20, type: 0 },
+      { x: 510, y: 375, w: 100, h: 20, type: 6 },
+      { x: 660, y: 335, w: 100, h: 20, type: 0 },
+      { x: 820, y: 300, w: 100, h: 20, type: 2 },
+      { x: 980, y: 250, w: 240, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 180, y: 520, w: 30, h: 16, type: 0 },
+      { x: 485, y: 395, w: 30, h: 16, type: 0 },
+      { x: 790, y: 320, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 220, y: 395, w: 16, h: 16, collected: false },
+      { x: 520, y: 315, w: 16, h: 16, collected: false },
+      { x: 830, y: 240, w: 16, h: 16, collected: false },
+      { x: 1010, y: 200, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 560, y: 345, w: 24, h: 24, vx: 2.1, minX: 520, maxX: 620, type: 'spike' }
+    ],
+    powerups: [
+      { x: 680, y: 295, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Cinder Steps',
+    platforms: [
+      { x: 0, y: 500, w: 160, h: 20, type: 0 },
+      { x: 200, y: 470, w: 90, h: 20, type: 6 },
+      { x: 340, y: 430, w: 90, h: 20, type: 0 },
+      { x: 480, y: 400, w: 90, h: 20, type: 2 },
+      { x: 620, y: 360, w: 100, h: 20, type: 6 },
+      { x: 780, y: 325, w: 100, h: 20, type: 0 },
+      { x: 930, y: 285, w: 120, h: 20, type: 0 },
+      { x: 1090, y: 235, w: 230, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 170, y: 520, w: 30, h: 16, type: 0 },
+      { x: 450, y: 420, w: 30, h: 16, type: 0 },
+      { x: 740, y: 345, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 210, y: 410, w: 16, h: 16, collected: false },
+      { x: 490, y: 340, w: 16, h: 16, collected: false },
+      { x: 790, y: 265, w: 16, h: 16, collected: false },
+      { x: 1110, y: 180, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 690, y: 330, w: 24, h: 24, vx: -2.0, minX: 640, maxX: 760, type: 'spike' }
+    ],
+    powerups: [
+      { x: 940, y: 245, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Ventline Drift',
+    platforms: [
+      { x: 0, y: 500, w: 155, h: 20, type: 0 },
+      { x: 200, y: 460, w: 100, h: 20, type: 6 },
+      { x: 350, y: 430, w: 90, h: 20, type: 6 },
+      { x: 500, y: 395, w: 100, h: 20, type: 0 },
+      { x: 650, y: 360, w: 100, h: 20, type: 6 },
+      { x: 810, y: 325, w: 100, h: 20, type: 2 },
+      { x: 970, y: 290, w: 120, h: 20, type: 6 },
+      { x: 1130, y: 240, w: 230, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 165, y: 520, w: 30, h: 16, type: 0 },
+      { x: 470, y: 415, w: 30, h: 16, type: 0 },
+      { x: 940, y: 310, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 210, y: 400, w: 16, h: 16, collected: false },
+      { x: 510, y: 335, w: 16, h: 16, collected: false },
+      { x: 820, y: 265, w: 16, h: 16, collected: false },
+      { x: 1155, y: 190, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 560, y: 345, w: 24, h: 24, vx: 2.3, minX: 520, maxX: 620, type: 'spike' }
+    ],
+    powerups: [
+      { x: 665, y: 318, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Basalt Bridges',
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 210, y: 455, w: 110, h: 20, type: 0 },
+      { x: 380, y: 420, w: 110, h: 20, type: 2 },
+      { x: 540, y: 380, w: 100, h: 20, type: 6 },
+      { x: 690, y: 340, w: 110, h: 20, type: 0 },
+      { x: 860, y: 305, w: 110, h: 20, type: 2 },
+      { x: 1030, y: 260, w: 240, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 160, y: 520, w: 35, h: 16, type: 0 },
+      { x: 510, y: 400, w: 30, h: 16, type: 0 },
+      { x: 830, y: 325, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 230, y: 395, w: 16, h: 16, collected: false },
+      { x: 555, y: 320, w: 16, h: 16, collected: false },
+      { x: 875, y: 245, w: 16, h: 16, collected: false },
+      { x: 1060, y: 210, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 720, y: 320, w: 24, h: 24, vx: -2.0, minX: 690, maxX: 790, type: 'spike' }
+    ],
+    powerups: [
+      { x: 705, y: 300, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Furnace Teeth',
+    platforms: [
+      { x: 0, y: 500, w: 155, h: 20, type: 0 },
+      { x: 205, y: 470, w: 95, h: 20, type: 6 },
+      { x: 350, y: 440, w: 95, h: 20, type: 0 },
+      { x: 500, y: 400, w: 95, h: 20, type: 6 },
+      { x: 650, y: 365, w: 95, h: 20, type: 0 },
+      { x: 800, y: 330, w: 95, h: 20, type: 6 },
+      { x: 960, y: 290, w: 100, h: 20, type: 2 },
+      { x: 1120, y: 235, w: 240, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 170, y: 520, w: 30, h: 16, type: 0 },
+      { x: 470, y: 420, w: 30, h: 16, type: 0 },
+      { x: 930, y: 310, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 215, y: 410, w: 16, h: 16, collected: false },
+      { x: 510, y: 335, w: 16, h: 16, collected: false },
+      { x: 810, y: 265, w: 16, h: 16, collected: false },
+      { x: 1140, y: 185, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 580, y: 340, w: 24, h: 24, vx: 2.4, minX: 530, maxX: 640, type: 'spike' },
+      { x: 1020, y: 260, w: 24, h: 24, vx: -2.2, minX: 970, maxX: 1080, type: 'spike' }
+    ],
+    powerups: [
+      { x: 965, y: 250, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Obsidian Switchback',
+    platforms: [
+      { x: 0, y: 500, w: 160, h: 20, type: 0 },
+      { x: 220, y: 455, w: 110, h: 20, type: 0 },
+      { x: 380, y: 410, w: 110, h: 20, type: 6 },
+      { x: 550, y: 445, w: 100, h: 20, type: 2 },
+      { x: 710, y: 370, w: 110, h: 20, type: 6 },
+      { x: 880, y: 325, w: 110, h: 20, type: 0 },
+      { x: 1050, y: 275, w: 250, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 170, y: 520, w: 30, h: 16, type: 0 },
+      { x: 520, y: 465, w: 30, h: 16, type: 0 },
+      { x: 850, y: 345, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 235, y: 395, w: 16, h: 16, collected: false },
+      { x: 560, y: 385, w: 16, h: 16, collected: false },
+      { x: 890, y: 265, w: 16, h: 16, collected: false },
+      { x: 1080, y: 225, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 760, y: 345, w: 24, h: 24, vx: -2.1, minX: 720, maxX: 830, type: 'spike' }
+    ],
+    powerups: [
+      { x: 390, y: 360, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Ashfall Corridor',
+    platforms: [
+      { x: 0, y: 500, w: 170, h: 20, type: 0 },
+      { x: 230, y: 460, w: 100, h: 20, type: 2 },
+      { x: 390, y: 430, w: 100, h: 20, type: 0 },
+      { x: 550, y: 395, w: 100, h: 20, type: 6 },
+      { x: 710, y: 360, w: 100, h: 20, type: 2 },
+      { x: 870, y: 325, w: 100, h: 20, type: 6 },
+      { x: 1030, y: 285, w: 250, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 190, y: 520, w: 30, h: 16, type: 0 },
+      { x: 520, y: 415, w: 30, h: 16, type: 0 },
+      { x: 840, y: 345, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 240, y: 400, w: 16, h: 16, collected: false },
+      { x: 560, y: 335, w: 16, h: 16, collected: false },
+      { x: 880, y: 265, w: 16, h: 16, collected: false },
+      { x: 1050, y: 235, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 760, y: 330, w: 24, h: 24, vx: 2.0, minX: 720, maxX: 820, type: 'spike' }
+    ],
+    powerups: [
+      { x: 720, y: 310, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Sulfur Climb',
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 210, y: 470, w: 95, h: 20, type: 6 },
+      { x: 360, y: 430, w: 100, h: 20, type: 0 },
+      { x: 520, y: 395, w: 100, h: 20, type: 6 },
+      { x: 680, y: 355, w: 100, h: 20, type: 0 },
+      { x: 840, y: 320, w: 110, h: 20, type: 2 },
+      { x: 1010, y: 270, w: 120, h: 20, type: 6 },
+      { x: 1170, y: 220, w: 250, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 160, y: 520, w: 30, h: 16, type: 0 },
+      { x: 490, y: 415, w: 30, h: 16, type: 0 },
+      { x: 980, y: 290, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 220, y: 410, w: 16, h: 16, collected: false },
+      { x: 530, y: 335, w: 16, h: 16, collected: false },
+      { x: 850, y: 260, w: 16, h: 16, collected: false },
+      { x: 1200, y: 170, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 705, y: 335, w: 24, h: 24, vx: -2.2, minX: 670, maxX: 770, type: 'spike' }
+    ],
+    powerups: [
+      { x: 1020, y: 230, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Core Traverse',
+    platforms: [
+      { x: 0, y: 500, w: 160, h: 20, type: 0 },
+      { x: 220, y: 460, w: 100, h: 20, type: 6 },
+      { x: 380, y: 420, w: 100, h: 20, type: 2 },
+      { x: 540, y: 385, w: 100, h: 20, type: 0 },
+      { x: 700, y: 350, w: 100, h: 20, type: 6 },
+      { x: 860, y: 315, w: 110, h: 20, type: 0 },
+      { x: 1030, y: 270, w: 110, h: 20, type: 2 },
+      { x: 1210, y: 215, w: 250, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 175, y: 520, w: 30, h: 16, type: 0 },
+      { x: 510, y: 405, w: 30, h: 16, type: 0 },
+      { x: 1000, y: 290, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 230, y: 400, w: 16, h: 16, collected: false },
+      { x: 550, y: 325, w: 16, h: 16, collected: false },
+      { x: 870, y: 255, w: 16, h: 16, collected: false },
+      { x: 1240, y: 165, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 735, y: 330, w: 24, h: 24, vx: 2.0, minX: 690, maxX: 800, type: 'spike' },
+      { x: 1120, y: 245, w: 24, h: 24, vx: -2.0, minX: 1060, maxX: 1190, type: 'spike' }
+    ],
+    powerups: [
+      { x: 390, y: 370, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Magma Marathon',
+    platforms: [
+      { x: 0, y: 500, w: 170, h: 20, type: 0 },
+      { x: 230, y: 465, w: 100, h: 20, type: 0 },
+      { x: 390, y: 430, w: 100, h: 20, type: 6 },
+      { x: 550, y: 390, w: 100, h: 20, type: 2 },
+      { x: 710, y: 355, w: 110, h: 20, type: 6 },
+      { x: 880, y: 320, w: 110, h: 20, type: 0 },
+      { x: 1050, y: 285, w: 110, h: 20, type: 6 },
+      { x: 1220, y: 245, w: 120, h: 20, type: 2 },
+      { x: 1410, y: 190, w: 260, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 180, y: 520, w: 30, h: 16, type: 0 },
+      { x: 520, y: 410, w: 30, h: 16, type: 0 },
+      { x: 1015, y: 305, w: 30, h: 16, type: 0 },
+      { x: 1380, y: 210, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 240, y: 405, w: 16, h: 16, collected: false },
+      { x: 560, y: 335, w: 16, h: 16, collected: false },
+      { x: 890, y: 260, w: 16, h: 16, collected: false },
+      { x: 1235, y: 190, w: 16, h: 16, collected: false },
+      { x: 1440, y: 140, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 760, y: 330, w: 24, h: 24, vx: -2.1, minX: 720, maxX: 830, type: 'spike' },
+      { x: 1290, y: 220, w: 24, h: 24, vx: 2.2, minX: 1240, maxX: 1360, type: 'spike' }
+    ],
+    powerups: [
+      { x: 1060, y: 245, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Obsidian Crown',
+    platforms: [
+      { x: 0, y: 500, w: 160, h: 20, type: 0 },
+      { x: 220, y: 470, w: 100, h: 20, type: 6 },
+      { x: 370, y: 435, w: 100, h: 20, type: 0 },
+      { x: 530, y: 400, w: 100, h: 20, type: 2 },
+      { x: 690, y: 360, w: 100, h: 20, type: 6 },
+      { x: 850, y: 325, w: 100, h: 20, type: 2 },
+      { x: 1010, y: 285, w: 110, h: 20, type: 6 },
+      { x: 1180, y: 235, w: 270, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 170, y: 520, w: 30, h: 16, type: 0 },
+      { x: 500, y: 420, w: 30, h: 16, type: 0 },
+      { x: 980, y: 305, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 230, y: 410, w: 16, h: 16, collected: false },
+      { x: 540, y: 340, w: 16, h: 16, collected: false },
+      { x: 860, y: 265, w: 16, h: 16, collected: false },
+      { x: 1210, y: 175, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 735, y: 340, w: 24, h: 24, vx: 2.2, minX: 700, maxX: 800, type: 'spike' }
+    ],
+    powerups: [
+      { x: 1020, y: 245, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
   }
 ];
 
@@ -3793,7 +4136,8 @@ function draw() {
           ctx.fillStyle = theme.dark;
           ctx.fillRect(pl.x + i, pl.y, 1, pl.h);
         }
-        ctx.strokeStyle = '#3f3350';
+        const crackColor = level.kingdom === 'magma' ? '#9ca3af' : '#3f3350';
+        ctx.strokeStyle = crackColor;
         ctx.lineWidth = 2;
         const crackPoints = [0.18, 0.38, 0.62, 0.82];
         crackPoints.forEach((t, idx) => {
