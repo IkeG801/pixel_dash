@@ -2823,6 +2823,139 @@ function drawHomeIcon(x, y, size = 24, fillColor = '#fff', bgColor = null) {
   drawPx(9, 8, 2, 2);
 }
 
+function drawPixelCloud(x, y, scale, color) {
+  ctx.fillStyle = color;
+  const blocks = [
+    [2, 0], [3, 0], [4, 0],
+    [1, 1], [2, 1], [3, 1], [4, 1], [5, 1],
+    [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2],
+    [1, 3], [2, 3], [3, 3], [4, 3], [5, 3],
+    [2, 4], [3, 4], [4, 4]
+  ];
+  blocks.forEach(([bx, by]) => ctx.fillRect(x + bx * scale, y + by * scale, scale, scale));
+}
+
+function drawPixelSun(x, y, scale, color) {
+  ctx.fillStyle = color;
+  const blocks = [
+    [2, 0], [3, 0],
+    [1, 1], [2, 1], [3, 1], [4, 1],
+    [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2],
+    [1, 3], [2, 3], [3, 3], [4, 3],
+    [2, 4], [3, 4]
+  ];
+  blocks.forEach(([bx, by]) => ctx.fillRect(x + bx * scale, y + by * scale, scale, scale));
+}
+
+function drawKingdomBackground(kingdom, W, H, t) {
+  if (kingdom === 'ice') {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillRect(0, 0, W, H * 0.55);
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(0, H * 0.18, W, H * 0.22);
+
+    const mountains = [
+      { x: 0, w: 260, h: 170, color: '#334155' },
+      { x: 190, w: 260, h: 210, color: '#475569' },
+      { x: 410, w: 300, h: 190, color: '#334155' },
+      { x: 650, w: 280, h: 230, color: '#475569' },
+      { x: 860, w: 320, h: 200, color: '#334155' }
+    ];
+    mountains.forEach(m => {
+      ctx.fillStyle = m.color;
+      const peakX = m.x + m.w / 2;
+      const baseY = H * 0.68;
+      for (let row = 0; row < m.h / 6; row++) {
+        const rowWidth = (row / (m.h / 6)) * m.w;
+        const startX = peakX - rowWidth / 2;
+        ctx.fillRect(startX, baseY - row * 6, rowWidth, 6);
+      }
+      ctx.fillStyle = '#f8fafc';
+      const snowWidth = m.w * 0.28;
+      ctx.fillRect(peakX - snowWidth / 2, baseY - m.h + 20, snowWidth, 10);
+      ctx.fillRect(peakX - snowWidth / 3, baseY - m.h + 30, snowWidth / 1.5, 8);
+      ctx.fillRect(peakX - snowWidth / 4, baseY - m.h + 38, snowWidth / 2, 6);
+    });
+
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 36; i++) {
+      const flakeX = (i * 97 + t * 0.7) % (W + 40) - 20;
+      const flakeY = (i * 53 + t * 1.4) % H;
+      ctx.fillRect(flakeX, flakeY, 2, 2);
+    }
+  } else if (kingdom === 'slime') {
+    ctx.fillStyle = '#14324a';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#0f766e';
+    ctx.fillRect(0, 0, W, H * 0.38);
+    ctx.fillStyle = '#134e4a';
+    ctx.fillRect(0, H * 0.38, W, H * 0.62);
+
+    const islandY = H * 0.42;
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(W * 0.18, islandY, W * 0.64, 34);
+    ctx.fillRect(W * 0.22, islandY - 18, W * 0.56, 18);
+    ctx.fillRect(W * 0.28, islandY - 30, W * 0.44, 12);
+    ctx.fillRect(W * 0.34, islandY - 40, W * 0.32, 10);
+
+    ctx.fillStyle = '#84cc16';
+    ctx.fillRect(W * 0.28, islandY - 18, W * 0.12, 8);
+    ctx.fillRect(W * 0.48, islandY - 26, W * 0.16, 8);
+    ctx.fillRect(W * 0.36, islandY - 6, W * 0.22, 8);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(W * 0.30, islandY - 10, W * 0.08, 4);
+    ctx.fillRect(W * 0.50, islandY - 18, W * 0.11, 4);
+
+    ctx.fillStyle = '#84cc16';
+    for (let i = 0; i < 8; i++) {
+      const dripX = W * 0.20 + i * W * 0.075;
+      const dripHeight = 20 + (i % 3) * 8;
+      ctx.fillRect(dripX, islandY + 34, 8, dripHeight);
+    }
+
+    ctx.fillStyle = '#bbf7d0';
+    for (let i = 0; i < 16; i++) {
+      const bubbleX = (i * 83 + t * 0.8) % (W + 30) - 15;
+      const bubbleY = (H * 0.55 + i * 19 + Math.sin((t + i) * 0.04) * 18) % H;
+      ctx.fillRect(bubbleX, bubbleY, 3, 3);
+    }
+  } else {
+    ctx.fillStyle = '#7dd3fc';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#bae6fd';
+    ctx.fillRect(0, H * 0.45, W, H * 0.55);
+
+    drawPixelSun(W - 140, 38, 6, '#fde047');
+    drawPixelCloud(60, 60, 6, '#ffffff');
+    drawPixelCloud(W * 0.32, 40, 7, '#f8fafc');
+    drawPixelCloud(W * 0.68, 82, 6, '#ffffff');
+
+    ctx.fillStyle = '#93c5fd';
+    ctx.fillRect(0, H * 0.66, W, H * 0.34);
+    ctx.fillStyle = '#60a5fa';
+    for (let i = 0; i < 6; i++) {
+      const hillX = i * (W / 6) - 30;
+      const hillW = W / 4;
+      ctx.fillRect(hillX, H * 0.72, hillW, 24);
+      ctx.fillRect(hillX + hillW * 0.18, H * 0.68, hillW * 0.28, 16);
+      ctx.fillRect(hillX + hillW * 0.46, H * 0.64, hillW * 0.22, 12);
+    }
+  }
+}
+
+function getDrawBackgroundKingdom() {
+  if (state === 'levelselect') {
+    return ['castle', 'ice', 'slime'][selectedKingdom] || 'castle';
+  }
+  if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+    const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
+    return (level && level.kingdom) || 'castle';
+  }
+  return 'castle';
+}
+
 function draw() {
   const W = canvas.width, H = canvas.height;
   const bg = config.background_color || defaultConfig.background_color;
@@ -2837,8 +2970,7 @@ function draw() {
   resetUiButtons();
 
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
+  drawKingdomBackground(getDrawBackgroundKingdom(), W, H, time);
 
   if (state === 'menu') {
     ctx.textAlign = 'center';
