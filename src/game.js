@@ -3574,6 +3574,7 @@ function drawKingdomBackground(kingdom, W, H, t) {
     // Volcano silhouette.
     const volcanoX = W * 0.62 - camera.x * 0.03;
     const volcanoY = H * 0.74;
+    const craterX = volcanoX - 10;
     ctx.fillStyle = '#1b0f10';
     ctx.beginPath();
     ctx.moveTo(volcanoX - 210, volcanoY);
@@ -3585,9 +3586,9 @@ function drawKingdomBackground(kingdom, W, H, t) {
     ctx.fill();
 
     ctx.fillStyle = '#ff7a18';
-    ctx.fillRect(volcanoX - 28, volcanoY - 210, 56, 8);
+    ctx.fillRect(craterX - 28, volcanoY - 210, 56, 8);
     ctx.fillStyle = '#ffb347';
-    ctx.fillRect(volcanoX - 18, volcanoY - 205, 36, 5);
+    ctx.fillRect(craterX - 18, volcanoY - 205, 36, 5);
 
     // Lava pool centered with the volcano base.
     ctx.fillStyle = '#5a1612';
@@ -3621,7 +3622,7 @@ function drawKingdomBackground(kingdom, W, H, t) {
     // Eruption sparks above the crater.
     ctx.fillStyle = '#ffcf66';
     for (let i = 0; i < 22; i++) {
-      const sparkX = volcanoX + ((i % 5) - 2) * 10 + Math.sin((t + i * 17) * 0.04) * 6;
+      const sparkX = craterX + ((i % 5) - 2) * 10 + Math.sin((t + i * 17) * 0.04) * 6;
       const sparkRise = (t * 1.2 + i * 14) % 110;
       const sparkY = volcanoY - 210 - sparkRise;
       if (sparkY > 0) {
