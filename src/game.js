@@ -3246,15 +3246,24 @@ function drawKingdomBackground(kingdom, W, H, t) {
     ctx.fillStyle = '#ffb347';
     ctx.fillRect(volcanoX - 18, volcanoY - 205, 36, 5);
 
-    // Lava rivers in the distance.
+    // Lava pool centered with the volcano base.
     ctx.fillStyle = '#5a1612';
     ctx.fillRect(0, H * 0.78, W, H * 0.22);
-    for (let i = -20; i < W + 20; i += 26) {
+    const poolW = Math.min(W * 0.56, 520);
+    const poolX = Math.max(-30, Math.min(W - poolW + 30, volcanoX - poolW / 2));
+    const poolY = H * 0.82;
+    const poolH = H * 0.12;
+    ctx.fillStyle = '#3f1511';
+    ctx.fillRect(poolX - 16, poolY - 6, poolW + 32, poolH + 12);
+    ctx.fillStyle = '#7a2116';
+    ctx.fillRect(poolX, poolY, poolW, poolH);
+    for (let i = -10; i < poolW + 10; i += 26) {
+      const px = poolX + i;
       const wave = Math.sin((i + t * 0.06) * 0.1) * 4;
       ctx.fillStyle = '#ff4f1c';
-      ctx.fillRect(i, H * 0.82 + wave, 18, 6);
+      ctx.fillRect(px, poolY + wave, 18, 6);
       ctx.fillStyle = '#ffb347';
-      ctx.fillRect(i + 3, H * 0.82 + wave + 1, 8, 2);
+      ctx.fillRect(px + 3, poolY + wave + 1, 8, 2);
     }
 
     // Falling ash.
