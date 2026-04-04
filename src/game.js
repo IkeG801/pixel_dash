@@ -2906,61 +2906,130 @@ function drawKingdomBackground(kingdom, W, H, t) {
       ctx.fillRect(flakeX, flakeY, 2, 2);
     }
   } else if (kingdom === 'slime') {
-    ctx.fillStyle = '#0b3d18';
-    ctx.fillRect(0, 0, W, H);
+    const skyTop = '#4a148c';
+    const skyMid = '#1b5e20';
+    const skyLow = '#143d18';
+    const slimeBase = '#4caf50';
+    const slimeDeep = '#1b5e20';
+    const toxicGlow = '#ccff00';
+    const vineDark = '#0b3d18';
 
-    // Dense swamp atmosphere with a darker top band and drifting mist.
-    ctx.fillStyle = '#134e4a';
-    ctx.fillRect(0, 0, W, H * 0.34);
-    ctx.fillStyle = '#1f6f2a';
-    ctx.fillRect(0, H * 0.34, W, H * 0.26);
+    // Atmospheric background with a dark-to-murky gradient.
+    ctx.fillStyle = skyTop;
+    ctx.fillRect(0, 0, W, H * 0.26);
+    ctx.fillStyle = skyMid;
+    ctx.fillRect(0, H * 0.26, W, H * 0.30);
+    ctx.fillStyle = skyLow;
+    ctx.fillRect(0, H * 0.56, W, H * 0.22);
 
-    // Floating island silhouette.
+    // Distant silhouettes to keep the scene dense and organic.
+    ctx.fillStyle = 'rgba(11,61,24,0.9)';
+    for (let i = 0; i < 6; i++) {
+      const hillX = -40 + i * (W / 5.2) + (camera.x * 0.025) % 70;
+      const hillW = 180 + (i % 3) * 50;
+      const hillH = 30 + (i % 4) * 14;
+      ctx.fillRect(hillX, H * 0.42, hillW, hillH);
+      ctx.fillRect(hillX + 18, H * 0.36, hillW * 0.5, 16);
+    }
+
+    // Floating island mass, drawn as a chunky silhouette.
     const islandY = H * 0.34;
-    ctx.fillStyle = '#374151';
-    ctx.fillRect(W * 0.14, islandY + 16, W * 0.72, 40);
-    ctx.fillRect(W * 0.20, islandY, W * 0.60, 20);
-    ctx.fillRect(W * 0.28, islandY - 18, W * 0.44, 18);
-    ctx.fillRect(W * 0.36, islandY - 32, W * 0.28, 14);
+    ctx.fillStyle = '#2f2f3a';
+    ctx.fillRect(W * 0.10, islandY + 18, W * 0.80, 34);
+    ctx.fillRect(W * 0.16, islandY + 2, W * 0.68, 20);
+    ctx.fillRect(W * 0.24, islandY - 14, W * 0.52, 16);
+    ctx.fillRect(W * 0.34, islandY - 28, W * 0.32, 12);
 
-    // Glowing toxic slime river with ripples near the bottom.
-    const riverY = H * 0.74;
-    ctx.fillStyle = '#32cd32';
-    ctx.fillRect(0, riverY, W, H - riverY);
-    ctx.fillStyle = '#1a7f2b';
-    ctx.fillRect(0, riverY + 8, W, 3);
-    ctx.fillRect(0, riverY + 18, W, 3);
-    ctx.fillRect(0, riverY + 28, W, 3);
-    ctx.fillStyle = '#0b3d18';
-    ctx.fillRect(0, riverY - 10, W, 14);
-
-    // Organic hanging vines and lily pads.
+    // Toxic flower silhouettes with purple blooms.
     ctx.fillStyle = '#913175';
-    for (let i = 0; i < 7; i++) {
-      const vineX = W * 0.18 + i * W * 0.1;
-      const vineLen = 18 + (i % 4) * 10;
-      ctx.fillRect(vineX, islandY - 10, 6, vineLen);
-      ctx.fillRect(vineX - 6, islandY + vineLen - 8, 18, 6);
+    for (let i = 0; i < 5; i++) {
+      const flowerX = W * 0.15 + i * W * 0.17;
+      ctx.fillRect(flowerX, islandY - 12, 5, 22);
+      ctx.fillRect(flowerX - 7, islandY - 18, 18, 6);
+      ctx.fillRect(flowerX - 4, islandY - 24, 12, 6);
     }
-    ctx.fillStyle = '#32cd32';
-    ctx.fillRect(W * 0.28, islandY - 8, W * 0.14, 8);
-    ctx.fillRect(W * 0.48, islandY - 16, W * 0.18, 8);
-    ctx.fillRect(W * 0.38, islandY + 4, W * 0.22, 8);
-    ctx.fillStyle = '#0b3d18';
-    ctx.fillRect(W * 0.30, islandY - 4, W * 0.05, 3);
-    ctx.fillRect(W * 0.52, islandY - 12, W * 0.06, 3);
 
-    // Mist layer at the very bottom.
-    ctx.fillStyle = 'rgba(11,61,24,0.55)';
+    // Glow-vines, stair-stepped so they feel pixel-organic.
+    ctx.fillStyle = vineDark;
+    for (let i = 0; i < 8; i++) {
+      const vineX = W * 0.10 + i * W * 0.11;
+      const vineBase = islandY - 2;
+      let vineY = vineBase;
+      for (let seg = 0; seg < 8; seg++) {
+        const stepX = vineX + ((seg % 2 === 0) ? 0 : 4) + Math.sin((t + i + seg) * 0.01) * 2;
+        ctx.fillRect(stepX, vineY, 5, 6);
+        vineY += 6;
+      }
+      ctx.fillStyle = toxicGlow;
+      ctx.fillRect(vineX + 2, vineBase + 8, 2, 2);
+      ctx.fillStyle = vineDark;
+    }
+
+    // Slime river: rounded bubbling mounds with a wet highlight.
+    const riverY = H * 0.74;
+    ctx.fillStyle = slimeDeep;
+    ctx.fillRect(0, riverY, W, H - riverY);
+    for (let x = -20; x < W + 30; x += 26) {
+      const bubbleH = 8 + ((Math.floor((x + t * 0.6) / 26) % 3) * 3);
+      const bubbleY = riverY - bubbleH + Math.sin((x + t * 0.04) * 0.07) * 2;
+      ctx.fillStyle = slimeBase;
+      ctx.fillRect(x, bubbleY + 2, 24, bubbleH + 4);
+      ctx.fillRect(x + 4, bubbleY - 1, 16, bubbleH + 2);
+      ctx.fillStyle = toxicGlow;
+      ctx.fillRect(x + 4, bubbleY, 16, 2);
+    }
+    ctx.fillStyle = '#1f7f2a';
+    ctx.fillRect(0, riverY + 6, W, 2);
+    ctx.fillRect(0, riverY + 15, W, 2);
+    ctx.fillRect(0, riverY + 24, W, 2);
+
+    // Drip particles: stretch, drop, and splash with a tiny three-frame loop.
+    ctx.fillStyle = toxicGlow;
+    for (let i = 0; i < 10; i++) {
+      const dripSeed = i * 31;
+      const dripX = W * 0.18 + (i * W * 0.08) + (camera.x * 0.03);
+      const phase = Math.floor((t / 18 + i) % 5);
+      const dripY = islandY + 8 + (i % 3) * 6;
+      if (phase === 0) {
+        ctx.fillRect(dripX, dripY, 2, 1);
+      } else if (phase === 1) {
+        ctx.fillRect(dripX, dripY, 2, 3);
+      } else if (phase === 2) {
+        ctx.fillRect(dripX - 1, dripY + 2, 4, 3);
+      } else if (phase === 3) {
+        ctx.fillRect(dripX, riverY - 12 + ((dripSeed + t) % 10), 2, 4);
+      } else {
+        const splashY = riverY + 2 + (dripSeed % 6);
+        ctx.fillRect(dripX - 2, splashY, 1, 1);
+        ctx.fillRect(dripX, splashY - 1, 3, 1);
+        ctx.fillRect(dripX + 2, splashY, 1, 1);
+      }
+    }
+
+    // Bubbles rising and popping from the slime surface.
+    ctx.fillStyle = toxicGlow;
+    for (let i = 0; i < 20; i++) {
+      const bubbleX = (i * 67 + t * 0.9 + camera.x * 0.08) % (W + 20) - 10;
+      const bubbleRise = (Math.sin((t + i * 14) * 0.04) * 10) + (i % 4) * 2;
+      const bubbleY = riverY - 10 - bubbleRise;
+      const popPhase = Math.floor((t / 14 + i) % 3);
+      if (popPhase === 0) {
+        ctx.fillRect(bubbleX, bubbleY, 2, 2);
+      } else if (popPhase === 1) {
+        ctx.fillRect(bubbleX - 1, bubbleY, 4, 3);
+        ctx.fillRect(bubbleX, bubbleY - 1, 2, 5);
+      } else {
+        ctx.fillRect(bubbleX - 2, bubbleY + 1, 1, 1);
+        ctx.fillRect(bubbleX + 2, bubbleY + 1, 1, 1);
+        ctx.fillRect(bubbleX, bubbleY - 1, 1, 1);
+      }
+    }
+
+    // Bottom mist/gas band to soften the silhouette.
+    ctx.fillStyle = 'rgba(11,61,24,0.72)';
     ctx.fillRect(0, H * 0.88, W, H * 0.12);
-
-    // Tiny toxic flowers and bubbles.
-    ctx.fillStyle = '#bbf7d0';
-    for (let i = 0; i < 18; i++) {
-      const bubbleX = (i * 73 + t * 0.75 + camera.x * 0.08) % (W + 30) - 15;
-      const bubbleY = (H * 0.46 + i * 21 + Math.sin((t + i) * 0.03) * 14) % (H * 0.88);
-      ctx.fillRect(bubbleX, bubbleY, 3, 3);
-    }
+    ctx.fillStyle = 'rgba(74,20,140,0.18)';
+    ctx.fillRect(0, H * 0.12, W, 8);
   } else {
     ctx.fillStyle = '#87ceeb';
     ctx.fillRect(0, 0, W, H);
