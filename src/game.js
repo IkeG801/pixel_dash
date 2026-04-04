@@ -83,6 +83,9 @@ function savePlayerData() {
 // Load on startup
 loadPlayerData();
 playerData.challenge_points = (playerData.challenge_points || 0);
+playerData.total_coins = 0;
+playerData.challenge_points = 0;
+savePlayerData();
 
 if (window.elementSdk) {
   window.elementSdk.init({

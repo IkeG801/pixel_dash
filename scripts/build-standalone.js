@@ -42,8 +42,12 @@ async function buildStandalone() {
     target: 'es2018',
   })).code.trim();
 
-  const cssWithFonts = cssSource.replace(/url\((['"]?)\.\.\/assets\/fonts\/PressStart2P-latin\.woff2\1\)/g, `url(${fontDataUri})`);
-  const minifiedCss = minifyCss(cssWithFonts);
+  const standaloneFontCss = [
+    `@font-face{font-family:'Press Start 2P';src:url(${fontDataUri}) format('woff2');font-style:normal;font-weight:400;font-display:swap}`,
+    `@font-face{font-family:'Silkscreen';src:url(${fontDataUri}) format('woff2');font-style:normal;font-weight:400;font-display:swap}`,
+  ].join('');
+  const cssWithoutFonts = cssSource.replace(/@font-face\s*\{[\s\S]*?\}\s*/g, '');
+  const minifiedCss = minifyCss(`${standaloneFontCss}${cssWithoutFonts}*{font-family:'Press Start 2P','Silkscreen',monospace}`);
 
   const html = `<!doctype html><html lang="en" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:;"><title>Pixel Dash</title><link rel="icon" type="image/svg+xml" sizes="any" href="${faviconDataUri}"><link rel="shortcut icon" type="image/svg+xml" href="${faviconDataUri}"><style>${minifiedCss}</style></head><body class="h-full bg-black"><canvas id="game"></canvas><script>${minifiedJs}</script></body></html>`;
 
