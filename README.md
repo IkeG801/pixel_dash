@@ -231,8 +231,14 @@ Project creator: Isaac (IkeG801)
 
 ### Media and Asset Credits
 
-- Soundtrack: `assets/music/high_score_run.mp3`
-- Attribution: Generated with Google Gemini on April 3, 2026 (per project instruction when no better embedded MP3 metadata is available in this environment)
+- Soundtrack (all current music files):
+  - `assets/music/high_score_run.mp3` (menu/castle)
+  - `assets/music/frozen_ascent.mp3` (ice kingdom)
+  - `assets/music/squelchy_basin_run.mp3` (slime kingdom)
+  - `assets/music/Below_the_Obsidian_Peak.mp3` (magma kingdom)
+  - `assets/music/Seven_Thousand_Feet.mp3` (sky kingdom)
+  - `assets/music/Crashing_the_Cartridge.mp3` (glitch kingdom)
+- Attribution: Soundtrack generated with Google Gemini (credited per project instruction when no better embedded MP3 metadata is available in this environment)
 - Pixel art and in-game UI graphics: Original game art created for this project (player cube variants, platforms, hazards, icons, and particle visuals)
 - Sound effects (jump, power-ups, death, level complete, crumble, and variants): Synthesized in code using the Web Audio API in `src/game.js`
 
