@@ -1108,9 +1108,14 @@ let audioContext;
 let soundEnabled = true;
 let backgroundMusic;
 let backgroundMusicStarted = false;
-const MUSIC_TRACK_URL = (typeof __PIXEL_DASH_MUSIC_URL__ !== 'undefined' && __PIXEL_DASH_MUSIC_URL__)
-  ? __PIXEL_DASH_MUSIC_URL__
-  : 'assets/music/high_score_run.mp3';
+let musicTrackIndex = 0;
+const MUSIC_TRACK_URLS = (typeof __PIXEL_DASH_MUSIC_URLS__ !== 'undefined' && Array.isArray(__PIXEL_DASH_MUSIC_URLS__) && __PIXEL_DASH_MUSIC_URLS__.length > 0)
+  ? __PIXEL_DASH_MUSIC_URLS__
+  : [
+      'assets/music/high_score_run.mp3',
+      'assets/music/squelchy_basin_run.mp3',
+      'assets/music/frozen_ascent.mp3'
+    ];
 
 function clampVolume(value) {
   return Math.max(0, Math.min(1, value));
@@ -1263,13 +1268,27 @@ function tryStartBackgroundMusic() {
   }
 }
 
+function playCurrentMusicTrack() {
+  if (!backgroundMusic) return;
+  backgroundMusic.src = MUSIC_TRACK_URLS[musicTrackIndex];
+  backgroundMusic.load();
+  backgroundMusicStarted = false;
+  tryStartBackgroundMusic();
+}
+
+function playNextMusicTrack() {
+  musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACK_URLS.length;
+  playCurrentMusicTrack();
+}
+
 function initBackgroundMusic() {
   try {
-    backgroundMusic = new Audio(MUSIC_TRACK_URL);
-    backgroundMusic.loop = true;
+    backgroundMusic = new Audio();
+    backgroundMusic.loop = false;
     backgroundMusic.volume = playerData.musicVolume;
     backgroundMusic.preload = 'auto';
-    tryStartBackgroundMusic();
+    backgroundMusic.addEventListener('ended', playNextMusicTrack);
+    playCurrentMusicTrack();
   } catch (e) {
     console.error('Failed to initialize background music:', e);
     backgroundMusic = null;
