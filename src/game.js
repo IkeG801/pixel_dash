@@ -3634,7 +3634,12 @@ function draw() {
 
     // Spikes - repeating pattern with serrated edges
     spikes.forEach(s => {
-      ctx.fillStyle = '#7a5c3d';
+      const spikeTheme = level.kingdom === 'ice'
+        ? { fill: '#b3e5fc', stroke: '#7dd3fc', core: '#e0f2fe' }
+        : level.kingdom === 'slime'
+          ? { fill: '#c084fc', stroke: '#8b5cf6', core: '#e9d5ff' }
+          : { fill: '#7a5c3d', stroke: '#6b5535', core: '#f2d6b3' };
+      ctx.fillStyle = spikeTheme.fill;
       const spikeWidth = 10;
       for (let i = 0; i < s.w; i += spikeWidth) {
         const sx = s.x + i;
@@ -3644,12 +3649,14 @@ function draw() {
         ctx.lineTo(sx, s.y + s.h);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = '#6b5535';
+        ctx.strokeStyle = spikeTheme.stroke;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(sx + spikeWidth / 2, s.y);
         ctx.lineTo(sx + spikeWidth / 2, s.y + s.h);
         ctx.stroke();
+        ctx.fillStyle = spikeTheme.core;
+        ctx.fillRect(sx + spikeWidth / 2 - 1, s.y + s.h - 4, 2, 3);
       }
     });
 
