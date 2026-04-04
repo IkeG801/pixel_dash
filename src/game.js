@@ -1926,6 +1926,7 @@ let soundEnabled = true;
 let backgroundMusic;
 let backgroundMusicStarted = false;
 let musicTrackIndex = 0;
+let currentMusicSignature = null;
 const MUSIC_TRACK_URLS = (typeof __PIXEL_DASH_MUSIC_URLS__ !== 'undefined' && Array.isArray(__PIXEL_DASH_MUSIC_URLS__) && __PIXEL_DASH_MUSIC_URLS__.length > 0)
   ? __PIXEL_DASH_MUSIC_URLS__
   : [
@@ -1938,6 +1939,7 @@ const KINGDOM_MUSIC_TRACK_INDEX = {
   slime: 1,
   ice: 2
 };
+const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect']);
 
 function clampVolume(value) {
   return Math.max(0, Math.min(1, value));
@@ -2090,11 +2092,24 @@ function tryStartBackgroundMusic() {
   }
 }
 
-function playCurrentMusicTrack() {
+function getDesiredMusicTrackIndex() {
+  if (MENU_MUSIC_STATES.has(state)) {
+    return 0;
+  }
+  if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+    const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
+    const kingdomKey = level && level.kingdom ? level.kingdom : 'castle';
+    return KINGDOM_MUSIC_TRACK_INDEX[kingdomKey] ?? 0;
+  }
+  return 0;
+}
+
+function syncBackgroundMusicToState() {
   if (!backgroundMusic) return;
-  const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
-  const kingdomKey = level && level.kingdom ? level.kingdom : 'castle';
-  const desiredTrackIndex = KINGDOM_MUSIC_TRACK_INDEX[kingdomKey] ?? 0;
+  const desiredTrackIndex = getDesiredMusicTrackIndex();
+  const desiredSignature = `${desiredTrackIndex}`;
+  if (currentMusicSignature === desiredSignature) return;
+  currentMusicSignature = desiredSignature;
   musicTrackIndex = desiredTrackIndex;
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
@@ -2105,12 +2120,16 @@ function playCurrentMusicTrack() {
   tryStartBackgroundMusic();
 }
 
+function playCurrentMusicTrack() {
+  syncBackgroundMusicToState();
+}
+
 function initBackgroundMusic() {
   try {
     backgroundMusic = new Audio();
     backgroundMusic.volume = playerData.musicVolume;
     backgroundMusic.preload = 'auto';
-    playCurrentMusicTrack();
+    syncBackgroundMusicToState();
   } catch (e) {
     console.error('Failed to initialize background music:', e);
     backgroundMusic = null;
@@ -2265,6 +2284,8 @@ function rectCollide(a, b) {
 }
 
 function update() {
+  syncBackgroundMusicToState();
+
   // Menu navigation
   if (state === 'menu') {
     if (keys['l'] || keys['L']) {
@@ -3636,9 +3657,6 @@ function initGame(levelNum = 0) {
   flyMode = false;
   flyModeTimer = 0;
   state = 'playing';
-
-  // Switch music based on kingdom
-  playCurrentMusicTrack();
 }
 
 function startDailyChallenge(silent = false) {
