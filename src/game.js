@@ -2946,7 +2946,7 @@ function drawKingdomBackground(kingdom, W, H, t) {
 }
 
 function getDrawBackgroundKingdom() {
-  if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+  if (state === 'dead' || state === 'levelcomplete') {
     const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
     return (level && level.kingdom) || 'castle';
   }
@@ -3379,13 +3379,11 @@ function draw() {
   }
 
   if (state === 'playing') {
-    ctx.fillStyle = '#1a3a52';
-    ctx.fillRect(0, 0, W, H);
+    const level = INITIAL_LEVELS[currentLevel] || INITIAL_LEVELS[0];
+    drawKingdomBackground(level.kingdom || 'castle', W, H, time);
     
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
-
-    const level = INITIAL_LEVELS[currentLevel] || INITIAL_LEVELS[0];
     const kingdomTheme = {
       castle: { normal: '#a78baf', dark: '#8b7b9f', top: '#7cb342', flagColor: '#ff6b6b' },
       ice: { normal: '#b3e5fc', dark: '#80deea', top: '#e1f5fe', flagColor: '#81d4fa' },
