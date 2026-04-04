@@ -227,8 +227,28 @@ Proprietary - All rights reserved
 
 ## Credits
 
-Created by Isaac (IkeG801)  
-Last Updated: March 2026
+Project creator: Isaac (IkeG801)
+
+### Media and Asset Credits
+
+- Soundtrack: `assets/music/high_score_run.mp3`
+- Attribution: Generated with Google Gemini on April 3, 2026 (per project instruction when no better embedded MP3 metadata is available in this environment)
+- Pixel art and in-game UI graphics: Original game art created for this project (player cube variants, platforms, hazards, icons, and particle visuals)
+- Sound effects (jump, power-ups, death, level complete, crumble, and variants): Synthesized in code using the Web Audio API in `src/game.js`
+
+### Font Credits
+
+- Silkscreen (used in web build): by Jason Kottke, distributed via Google Fonts under the SIL Open Font License 1.1
+- Press Start 2P (used in standalone build): by CodeMan38, distributed via Google Fonts under the SIL Open Font License 1.1
+
+### AI and Development Tooling Credits
+
+- GitHub Copilot (GPT-5.3-Codex) used for implementation support, refactoring, debugging, and documentation drafting
+- Google Gemini credited for generating the soundtrack noted above
+- Core build/test tooling and libraries used by the project:
+  - esbuild (standalone build/minification)
+  - Jest + jest-environment-jsdom (automated testing)
+  - HTML5 Canvas API, Web Audio API, and localStorage API (runtime platform features)
 
 ## Roadmap
 

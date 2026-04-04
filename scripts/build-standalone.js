@@ -5,6 +5,7 @@ const { transform } = require('esbuild');
 const rootDir = path.resolve(__dirname, '..');
 const outputPath = path.join(rootDir, 'pixel_dash_standalone.html');
 const fontPath = path.join(rootDir, 'assets', 'fonts', 'PressStart2P-latin.woff2');
+const musicPath = path.join(rootDir, 'assets', 'music', 'high_score_run.mp3');
 const faviconPath = path.join(rootDir, 'favicon.svg');
 const cssPath = path.join(rootDir, 'src', 'styles.css');
 const gameLogicPath = path.join(rootDir, 'src', 'game-logic.js');
@@ -29,14 +30,18 @@ function minifyHtml(html) {
 
 async function buildStandalone() {
   const fontData = fs.readFileSync(fontPath);
+  const musicData = fs.readFileSync(musicPath);
   const faviconSvg = fs.readFileSync(faviconPath, 'utf8').trim();
   const cssSource = fs.readFileSync(cssPath, 'utf8');
   const jsSource = `${fs.readFileSync(gameLogicPath, 'utf8')}\n\n${fs.readFileSync(gamePath, 'utf8')}`;
 
   const fontDataUri = toDataUri('font/woff2', fontData);
+  const musicDataUri = toDataUri('audio/mpeg', musicData);
   const faviconDataUri = toDataUri('image/svg+xml', Buffer.from(faviconSvg, 'utf8'));
 
-  const minifiedJs = (await transform(jsSource, {
+  const jsWithEmbeddedMusic = `const __PIXEL_DASH_MUSIC_URL__ = '${musicDataUri}';\n${jsSource}`;
+
+  const minifiedJs = (await transform(jsWithEmbeddedMusic, {
     loader: 'js',
     minify: true,
     target: 'es2018',

@@ -17,6 +17,8 @@ let playerData = {
   player_name: 'Player', 
   total_coins: 0, 
   challenge_points: 0, 
+  sfxVolume: 0.85,
+  musicVolume: 0.18,
   selected_cube: 'classic', 
   owned_cubes: 'classic', 
   level_completed: 0, 
@@ -41,6 +43,8 @@ function loadPlayerData() {
         player_name: 'Player', 
         total_coins: 0, 
         challenge_points: 0, 
+        sfxVolume: 0.85,
+        musicVolume: 0.18,
         selected_cube: 'classic', 
         owned_cubes: 'classic', 
         level_completed: 0, 
@@ -87,6 +91,8 @@ function resetSessionCurrencies() {
 
 // Load on startup
 loadPlayerData();
+playerData.sfxVolume = Number.isFinite(playerData.sfxVolume) ? Math.max(0, Math.min(1, playerData.sfxVolume)) : 0.85;
+playerData.musicVolume = Number.isFinite(playerData.musicVolume) ? Math.max(0, Math.min(1, playerData.musicVolume)) : 0.18;
 resetSessionCurrencies();
 savePlayerData();
 
@@ -1100,6 +1106,28 @@ const CUBE_SKINS = {
 // Audio system
 let audioContext;
 let soundEnabled = true;
+let backgroundMusic;
+let backgroundMusicStarted = false;
+const MUSIC_TRACK_URL = (typeof __PIXEL_DASH_MUSIC_URL__ !== 'undefined' && __PIXEL_DASH_MUSIC_URL__)
+  ? __PIXEL_DASH_MUSIC_URL__
+  : 'assets/music/high_score_run.mp3';
+
+function clampVolume(value) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function setSfxVolume(value, persist = true) {
+  playerData.sfxVolume = clampVolume(value);
+  if (persist) savePlayerData();
+}
+
+function setMusicVolume(value, persist = true) {
+  playerData.musicVolume = clampVolume(value);
+  if (backgroundMusic) {
+    backgroundMusic.volume = playerData.musicVolume;
+  }
+  if (persist) savePlayerData();
+}
 
 function initAudio() {
   if (!audioContext) {
@@ -1128,7 +1156,7 @@ function playTone(frequency, duration, type = 'square', gain = 0.1) {
   
   osc.type = type;
   osc.frequency.value = frequency;
-  gainNode.gain.setValueAtTime(gain, audioContext.currentTime);
+  gainNode.gain.setValueAtTime(gain * playerData.sfxVolume, audioContext.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
   
   osc.connect(gainNode);
@@ -1219,6 +1247,45 @@ function playClickSound() {
   playTone(520, 0.05, 'square', 0.1);
 }
 
+function tryStartBackgroundMusic() {
+  if (!backgroundMusic || backgroundMusicStarted) return;
+  const startPromise = backgroundMusic.play();
+  if (startPromise && typeof startPromise.then === 'function') {
+    startPromise
+      .then(() => {
+        backgroundMusicStarted = true;
+      })
+      .catch(() => {
+        // Autoplay may be blocked until first user gesture.
+      });
+  } else {
+    backgroundMusicStarted = true;
+  }
+}
+
+function initBackgroundMusic() {
+  try {
+    backgroundMusic = new Audio(MUSIC_TRACK_URL);
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = playerData.musicVolume;
+    backgroundMusic.preload = 'auto';
+    tryStartBackgroundMusic();
+  } catch (e) {
+    console.error('Failed to initialize background music:', e);
+    backgroundMusic = null;
+  }
+}
+
+window.addEventListener('load', () => {
+  initBackgroundMusic();
+  tryStartBackgroundMusic();
+});
+
+// Retry playback on first user interaction for browsers that block autoplay.
+['pointerdown', 'touchstart', 'keydown'].forEach(eventName => {
+  window.addEventListener(eventName, tryStartBackgroundMusic, { passive: true });
+});
+
 // Game state
 let state = 'menu';
 let player, platforms, coins, spikes, camera, score, time, deathY, currentLevel, obstacles, powerups;
@@ -1261,6 +1328,7 @@ function unlockAchievement(achievementId) {
 let selectedLevel = 0;
 let levelSelectScrollY = 0;
 let shopScrollY = 0;
+let selectedSettingsRow = 0;
 
 // Home icon bounds for click detection
 let homeIconBounds = { x: 16, y: 0, w: 40, h: 40 };
@@ -1366,6 +1434,45 @@ function update() {
       keys['d'] = false;
       keys['D'] = false;
       startDailyChallenge();
+    }
+    if (keys['o'] || keys['O']) {
+      keys['o'] = false;
+      keys['O'] = false;
+      selectedSettingsRow = 0;
+      state = 'settings';
+    }
+    return;
+  }
+
+  if (state === 'settings') {
+    if (keys['ArrowUp'] || keys['w']) {
+      keys['ArrowUp'] = false;
+      keys['w'] = false;
+      selectedSettingsRow = Math.max(0, selectedSettingsRow - 1);
+    }
+    if (keys['ArrowDown'] || keys['s']) {
+      keys['ArrowDown'] = false;
+      keys['s'] = false;
+      selectedSettingsRow = Math.min(1, selectedSettingsRow + 1);
+    }
+    if (keys['ArrowLeft'] || keys['a']) {
+      keys['ArrowLeft'] = false;
+      keys['a'] = false;
+      if (selectedSettingsRow === 0) setSfxVolume(playerData.sfxVolume - 0.05);
+      else setMusicVolume(playerData.musicVolume - 0.05);
+    }
+    if (keys['ArrowRight'] || keys['d']) {
+      keys['ArrowRight'] = false;
+      keys['d'] = false;
+      if (selectedSettingsRow === 0) setSfxVolume(playerData.sfxVolume + 0.05);
+      else setMusicVolume(playerData.musicVolume + 0.05);
+    }
+    if (keys['Escape'] || keys['Backspace'] || keys['Enter'] || keys[' ']) {
+      keys['Escape'] = false;
+      keys['Backspace'] = false;
+      keys['Enter'] = false;
+      keys[' '] = false;
+      state = 'menu';
     }
     return;
   }
@@ -1898,14 +2005,88 @@ function draw() {
       startDailyChallenge();
     });
 
+    ctx.fillStyle = accent;
+    ctx.fillRect(W / 2 - 50, H / 2 + 350, 100, 40);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px Silkscreen';
+    ctx.fillText('AUDIO', W / 2, H / 2 + 375);
+    ctx.fillStyle = txt;
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
+    ctx.fillText('[O]', W / 2, H / 2 + 395);
+    registerUiButton(W / 2 - 50, H / 2 + 350, 100, 40, () => {
+      selectedSettingsRow = 0;
+      state = 'settings';
+    });
+
     ctx.fillStyle = txt;
     ctx.font = '12px Silkscreen, Arial, sans-serif';
     const todayDate = getTodayDate();
     const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
     const bestText = bestDaily > 0 ? `${bestDaily}s` : '--';
-    ctx.fillText(`Daily Best: ${bestText}`, W / 2, H / 2 + 360);
+    ctx.fillText(`Daily Best: ${bestText}`, W / 2, H / 2 + 430);
 
     return;
+  }
+
+  if (state === 'settings') {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = surf;
+    ctx.font = 'bold 38px Silkscreen';
+    ctx.fillText('AUDIO SETTINGS', W / 2, 90);
+
+    const drawVolumeRow = (label, value, rowIndex, onDecrease, onIncrease) => {
+      const y = 170 + rowIndex * 130;
+      const isSelected = selectedSettingsRow === rowIndex;
+      const barWidth = 260;
+      const barHeight = 22;
+      const barX = W / 2 - barWidth / 2;
+      const percent = Math.round(value * 100);
+
+      ctx.fillStyle = isSelected ? accent : txt;
+      ctx.font = 'bold 18px Silkscreen';
+      ctx.fillText(`${label}: ${percent}%`, W / 2, y - 22);
+
+      ctx.fillStyle = '#1f2937';
+      ctx.fillRect(barX, y, barWidth, barHeight);
+      ctx.fillStyle = isSelected ? accent : sec;
+      ctx.fillRect(barX, y, barWidth * value, barHeight);
+      ctx.strokeStyle = txt;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(barX, y, barWidth, barHeight);
+
+      ctx.fillStyle = sec;
+      ctx.fillRect(barX - 70, y - 2, 48, 28);
+      ctx.fillRect(barX + barWidth + 22, y - 2, 48, 28);
+      ctx.fillStyle = txt;
+      ctx.font = 'bold 20px Silkscreen';
+      ctx.fillText('-', barX - 46, y + 19);
+      ctx.fillText('+', barX + barWidth + 46, y + 19);
+
+      registerUiButton(barX - 70, y - 2, 48, 28, onDecrease);
+      registerUiButton(barX + barWidth + 22, y - 2, 48, 28, onIncrease);
+    };
+
+    drawVolumeRow('SFX VOLUME', playerData.sfxVolume, 0,
+      () => setSfxVolume(playerData.sfxVolume - 0.05),
+      () => setSfxVolume(playerData.sfxVolume + 0.05)
+    );
+    drawVolumeRow('MUSIC VOLUME', playerData.musicVolume, 1,
+      () => setMusicVolume(playerData.musicVolume - 0.05),
+      () => setMusicVolume(playerData.musicVolume + 0.05)
+    );
+
+    ctx.fillStyle = txt;
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
+    ctx.fillText('Arrow Up/Down: Select • Arrow Left/Right: Adjust • Enter/Esc: Back', W / 2, H - 70);
+
+    ctx.fillStyle = sec;
+    ctx.fillRect(W / 2 - 80, H - 55, 160, 36);
+    ctx.fillStyle = txt;
+    ctx.font = 'bold 14px Silkscreen';
+    ctx.fillText('BACK TO MENU', W / 2, H - 31);
+    registerUiButton(W / 2 - 80, H - 55, 160, 36, () => {
+      state = 'menu';
+    });
   }
 
   if (state === 'levelselect') {
