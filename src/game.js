@@ -2290,8 +2290,6 @@ function update() {
     return;
   }
 
-  selectedKingdom = 0;
-  levelSelectScrollY = 0;
   if (state === 'settings') {
     if (keys['ArrowUp'] || keys['w']) {
       keys['ArrowUp'] = false;
