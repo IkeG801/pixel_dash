@@ -1281,8 +1281,12 @@ window.addEventListener('load', () => {
   tryStartBackgroundMusic();
 });
 
+if (document.readyState !== 'loading') {
+  initBackgroundMusic();
+}
+
 // Retry playback on first user interaction for browsers that block autoplay.
-['pointerdown', 'touchstart', 'keydown'].forEach(eventName => {
+['pointerdown', 'touchstart', 'keydown', 'click', 'focus'].forEach(eventName => {
   window.addEventListener(eventName, tryStartBackgroundMusic, { passive: true });
 });
 
@@ -2024,6 +2028,7 @@ function draw() {
     const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
     const bestText = bestDaily > 0 ? `${bestDaily}s` : '--';
     ctx.fillText(`Daily Best: ${bestText}`, W / 2, H / 2 + 430);
+    ctx.fillText('Audio settings: [O] / AUDIO button', W / 2, H / 2 + 458);
 
     return;
   }
