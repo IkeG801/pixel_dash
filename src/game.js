@@ -1172,6 +1172,24 @@ function playJumpSound(surfaceType = 0, boosted = false) {
   }
 }
 
+function playJumpBoostJumpSound(surfaceType = 0) {
+  // Distinct boosted jump cue layered over the surface jump feel.
+  playJumpSound(surfaceType, false);
+  playNoteSequence([
+    [980, 0.06, 'triangle', 0.12, 40],
+    [1318, 0.07, 'sine', 0.11, 95],
+    [1568, 0.08, 'sine', 0.1, 150]
+  ]);
+}
+
+function playCrumbleSound() {
+  playNoteSequence([
+    [260, 0.05, 'sawtooth', 0.12, 0],
+    [220, 0.05, 'sawtooth', 0.1, 45],
+    [185, 0.06, 'square', 0.08, 90]
+  ]);
+}
+
 function playPowerupSound() {
   playNoteSequence([
     [784, 0.09, 'sine', 0.18, 0],
@@ -1489,7 +1507,11 @@ function update() {
   if (p.jumpBuffer > 0 && p.coyoteTime > 0) {
     p.vy = JUMP_FORCE;
     if (jumpBoostActive) p.vy *= 1.5; // 50% higher jump
-    playJumpSound(lastGroundSurfaceType, jumpBoostActive);
+    if (jumpBoostActive) {
+      playJumpBoostJumpSound(lastGroundSurfaceType);
+    } else {
+      playJumpSound(lastGroundSurfaceType);
+    }
     p.jumpBuffer = 0;
     p.coyoteTime = 0;
     spawnParticles(p.x + p.w / 2, p.y + p.h, config.surface_color, 5);
@@ -1534,6 +1556,7 @@ function update() {
         }
         
         if (pl.type === 2 && !pl.crumbling) {
+          playCrumbleSound();
           pl.crumbling = true;
           pl.crumbleTimer = 0;
         }
