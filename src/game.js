@@ -1940,8 +1940,6 @@ const KINGDOM_MUSIC_TRACK_INDEX = {
   ice: 2
 };
 const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect']);
-const GAMEPLAY_MUSIC_STATES = new Set(['playing', 'dead', 'levelcomplete']);
-let lastMusicState = null;
 
 function clampVolume(value) {
   return Math.max(0, Math.min(1, value));
@@ -2098,11 +2096,7 @@ function getDesiredMusicTrackIndex() {
   if (MENU_MUSIC_STATES.has(state)) {
     return 0;
   }
-  if (GAMEPLAY_MUSIC_STATES.has(state)) {
-    const enteringGameplayFromMenu = !GAMEPLAY_MUSIC_STATES.has(lastMusicState);
-    if (!enteringGameplayFromMenu) {
-      return musicTrackIndex;
-    }
+  if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
     const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
     const kingdomKey = level && level.kingdom ? level.kingdom : 'castle';
     return KINGDOM_MUSIC_TRACK_INDEX[kingdomKey] ?? 0;
@@ -2114,10 +2108,7 @@ function syncBackgroundMusicToState() {
   if (!backgroundMusic) return;
   const desiredTrackIndex = getDesiredMusicTrackIndex();
   const desiredSignature = `${desiredTrackIndex}`;
-  if (currentMusicSignature === desiredSignature) {
-    lastMusicState = state;
-    return;
-  }
+  if (currentMusicSignature === desiredSignature) return;
   currentMusicSignature = desiredSignature;
   musicTrackIndex = desiredTrackIndex;
   backgroundMusic.pause();
@@ -2127,7 +2118,6 @@ function syncBackgroundMusicToState() {
   backgroundMusic.load();
   backgroundMusicStarted = false;
   tryStartBackgroundMusic();
-  lastMusicState = state;
 }
 
 function playCurrentMusicTrack() {
@@ -2867,16 +2857,18 @@ function drawKingdomBackground(kingdom, W, H, t) {
       ctx.fillStyle = m.color;
       const peakX = m.x + m.w / 2;
       const baseY = H * 0.68;
-      for (let row = 0; row < m.h / 6; row++) {
-        const rowWidth = (row / (m.h / 6)) * m.w;
+      const rows = Math.floor(m.h / 6);
+      for (let row = 0; row < rows; row++) {
+        const rowWidth = m.w * (1 - row / rows);
         const startX = peakX - rowWidth / 2;
-        ctx.fillRect(startX, baseY - row * 6, rowWidth, 6);
+        const y = baseY - row * 6;
+        ctx.fillRect(startX, y, rowWidth, 6);
       }
       ctx.fillStyle = '#f8fafc';
       const snowWidth = m.w * 0.28;
-      ctx.fillRect(peakX - snowWidth / 2, baseY - m.h + 20, snowWidth, 10);
-      ctx.fillRect(peakX - snowWidth / 3, baseY - m.h + 30, snowWidth / 1.5, 8);
-      ctx.fillRect(peakX - snowWidth / 4, baseY - m.h + 38, snowWidth / 2, 6);
+      ctx.fillRect(peakX - snowWidth / 2, baseY - m.h + 26, snowWidth, 10);
+      ctx.fillRect(peakX - snowWidth / 3, baseY - m.h + 18, snowWidth / 1.5, 8);
+      ctx.fillRect(peakX - snowWidth / 4, baseY - m.h + 10, snowWidth / 2, 6);
     });
 
     ctx.fillStyle = '#ffffff';
