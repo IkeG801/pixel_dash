@@ -2940,28 +2940,34 @@ function drawKingdomBackground(kingdom, W, H, t) {
     ctx.fillRect(W * 0.24, islandY - 14, W * 0.52, 16);
     ctx.fillRect(W * 0.34, islandY - 28, W * 0.32, 12);
 
-    // Toxic flower silhouettes with purple blooms.
-    ctx.fillStyle = '#913175';
-    for (let i = 0; i < 5; i++) {
-      const flowerX = W * 0.15 + i * W * 0.17;
-      ctx.fillRect(flowerX, islandY - 12, 5, 22);
-      ctx.fillRect(flowerX - 7, islandY - 18, 18, 6);
-      ctx.fillRect(flowerX - 4, islandY - 24, 12, 6);
-    }
-
     // Glow-vines, stair-stepped so they feel pixel-organic.
     ctx.fillStyle = vineDark;
-    for (let i = 0; i < 8; i++) {
-      const vineX = W * 0.10 + i * W * 0.11;
+    for (let i = 0; i < 14; i++) {
+      const vineX = W * 0.05 + i * W * 0.07;
       const vineBase = islandY - 2;
       let vineY = vineBase;
-      for (let seg = 0; seg < 8; seg++) {
+      for (let seg = 0; seg < 10; seg++) {
         const stepX = vineX + ((seg % 2 === 0) ? 0 : 4) + Math.sin((t + i + seg) * 0.01) * 2;
         ctx.fillRect(stepX, vineY, 5, 6);
         vineY += 6;
       }
       ctx.fillStyle = toxicGlow;
       ctx.fillRect(vineX + 2, vineBase + 8, 2, 2);
+      ctx.fillStyle = vineDark;
+    }
+
+    // Secondary vines hanging from the island underside for extra density.
+    for (let i = 0; i < 9; i++) {
+      const vineX = W * 0.18 + i * W * 0.09;
+      const vineBase = islandY + 14;
+      let vineY = vineBase;
+      for (let seg = 0; seg < 7; seg++) {
+        const stepX = vineX + ((seg % 3) - 1) * 2 + Math.sin((t * 0.015) + i + seg) * 1.5;
+        ctx.fillRect(stepX, vineY, 4, 5);
+        vineY += 5;
+      }
+      ctx.fillStyle = toxicGlow;
+      ctx.fillRect(vineX + 1, vineBase + 6, 2, 2);
       ctx.fillStyle = vineDark;
     }
 
