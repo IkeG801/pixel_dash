@@ -1270,6 +1270,8 @@ function tryStartBackgroundMusic() {
 
 function playCurrentMusicTrack() {
   if (!backgroundMusic) return;
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
   backgroundMusic.src = MUSIC_TRACK_URLS[musicTrackIndex];
   backgroundMusic.load();
   backgroundMusicStarted = false;
