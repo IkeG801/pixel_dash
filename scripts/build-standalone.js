@@ -8,7 +8,8 @@ const fontPath = path.join(rootDir, 'assets', 'fonts', 'PressStart2P-latin.woff2
 const musicPaths = [
   path.join(rootDir, 'assets', 'music', 'high_score_run.mp3'),
   path.join(rootDir, 'assets', 'music', 'squelchy_basin_run.mp3'),
-  path.join(rootDir, 'assets', 'music', 'frozen_ascent.mp3')
+  path.join(rootDir, 'assets', 'music', 'frozen_ascent.mp3'),
+  path.join(rootDir, 'assets', 'music', 'Below_the_Obsidian_Peak.mp3')
 ];
 const faviconPath = path.join(rootDir, 'favicon.svg');
 const cssPath = path.join(rootDir, 'src', 'styles.css');

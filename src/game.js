@@ -186,6 +186,10 @@ class SeededRandom {
 const particleRng = new SeededRandom();
 const platformVisualRng = new SeededRandom(12345); // Fixed seed for consistent platform visuals
 const ICE_FRICTION = 0.975;
+const MAGMA_GEYSER_IDLE = 130;
+const MAGMA_GEYSER_WARNING = 35;
+const MAGMA_GEYSER_ERUPTION = 45;
+const MAGMA_GEYSER_CYCLE = MAGMA_GEYSER_IDLE + MAGMA_GEYSER_WARNING + MAGMA_GEYSER_ERUPTION;
 // const TILE = 32;              // from game-logic.js
 // const GRAVITY = 0.6;          // from game-logic.js
 // const JUMP_FORCE = -12;       // from game-logic.js
@@ -1651,6 +1655,138 @@ const INITIAL_LEVELS = [
     powerups: [
       { x: 350, y: 310, w: 14, h: 14, collected: false, type: 'flymode' }
     ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Ember Threshold',
+    platforms: [
+      { x: 0, y: 500, w: 170, h: 20, type: 0 },
+      { x: 220, y: 450, w: 110, h: 20, type: 0 },
+      { x: 380, y: 430, w: 100, h: 20, type: 6 },
+      { x: 530, y: 380, w: 120, h: 20, type: 0 },
+      { x: 700, y: 350, w: 110, h: 20, type: 6 },
+      { x: 860, y: 310, w: 120, h: 20, type: 0 },
+      { x: 1030, y: 260, w: 120, h: 20, type: 0 },
+      { x: 1180, y: 210, w: 220, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 170, y: 520, w: 40, h: 16, type: 0 },
+      { x: 480, y: 450, w: 40, h: 16, type: 0 },
+      { x: 810, y: 370, w: 40, h: 16, type: 0 },
+      { x: 1150, y: 280, w: 40, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 230, y: 390, w: 16, h: 16, collected: false },
+      { x: 550, y: 320, w: 16, h: 16, collected: false },
+      { x: 870, y: 250, w: 16, h: 16, collected: false },
+      { x: 1220, y: 160, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 600, y: 310, w: 24, h: 24, vx: 1.8, minX: 560, maxX: 690, type: 'spike' }
+    ],
+    powerups: [
+      { x: 1050, y: 210, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Obsidian Lung',
+    platforms: [
+      { x: 0, y: 500, w: 140, h: 20, type: 0 },
+      { x: 190, y: 470, w: 100, h: 20, type: 6 },
+      { x: 340, y: 430, w: 110, h: 20, type: 0 },
+      { x: 510, y: 390, w: 100, h: 20, type: 6 },
+      { x: 660, y: 360, w: 120, h: 20, type: 0 },
+      { x: 830, y: 330, w: 120, h: 20, type: 2 },
+      { x: 1000, y: 280, w: 110, h: 20, type: 6 },
+      { x: 1160, y: 230, w: 210, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 30, h: 16, type: 0 },
+      { x: 300, y: 450, w: 30, h: 16, type: 0 },
+      { x: 620, y: 410, w: 30, h: 16, type: 0 },
+      { x: 950, y: 350, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 200, y: 410, w: 16, h: 16, collected: false },
+      { x: 520, y: 330, w: 16, h: 16, collected: false },
+      { x: 845, y: 270, w: 16, h: 16, collected: false },
+      { x: 1175, y: 180, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 720, y: 300, w: 24, h: 24, vx: -2.1, minX: 670, maxX: 810, type: 'spike' }
+    ],
+    powerups: [
+      { x: 670, y: 320, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Vent Gauntlet',
+    platforms: [
+      { x: 0, y: 500, w: 140, h: 20, type: 0 },
+      { x: 190, y: 470, w: 90, h: 20, type: 6 },
+      { x: 330, y: 430, w: 90, h: 20, type: 6 },
+      { x: 470, y: 390, w: 90, h: 20, type: 0 },
+      { x: 620, y: 350, w: 90, h: 20, type: 6 },
+      { x: 760, y: 320, w: 100, h: 20, type: 0 },
+      { x: 920, y: 290, w: 100, h: 20, type: 6 },
+      { x: 1070, y: 250, w: 120, h: 20, type: 0 },
+      { x: 1230, y: 200, w: 220, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 145, y: 520, w: 30, h: 16, type: 0 },
+      { x: 285, y: 490, w: 30, h: 16, type: 0 },
+      { x: 425, y: 450, w: 30, h: 16, type: 0 },
+      { x: 875, y: 340, w: 30, h: 16, type: 0 },
+      { x: 1195, y: 270, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 345, y: 370, w: 16, h: 16, collected: false },
+      { x: 635, y: 290, w: 16, h: 16, collected: false },
+      { x: 930, y: 230, w: 16, h: 16, collected: false },
+      { x: 1255, y: 150, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 540, y: 330, w: 24, h: 24, vx: 2.2, minX: 500, maxX: 610, type: 'spike' },
+      { x: 1040, y: 210, w: 24, h: 24, vx: -2.2, minX: 990, maxX: 1120, type: 'spike' }
+    ],
+    powerups: [
+      { x: 770, y: 280, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'magma',
+    name: 'Peak Breach',
+    platforms: [
+      { x: 0, y: 500, w: 160, h: 20, type: 0 },
+      { x: 220, y: 440, w: 110, h: 20, type: 0 },
+      { x: 390, y: 390, w: 100, h: 20, type: 6 },
+      { x: 540, y: 350, w: 100, h: 20, type: 0 },
+      { x: 700, y: 300, w: 100, h: 20, type: 6 },
+      { x: 860, y: 260, w: 100, h: 20, type: 0 },
+      { x: 1020, y: 220, w: 120, h: 20, type: 2 },
+      { x: 1200, y: 170, w: 240, h: 40, type: 0 }
+    ],
+    spikes: [
+      { x: 175, y: 520, w: 40, h: 16, type: 0 },
+      { x: 500, y: 410, w: 30, h: 16, type: 0 },
+      { x: 820, y: 320, w: 30, h: 16, type: 0 },
+      { x: 1160, y: 240, w: 30, h: 16, type: 0 }
+    ],
+    coins: [
+      { x: 235, y: 380, w: 16, h: 16, collected: false },
+      { x: 555, y: 290, w: 16, h: 16, collected: false },
+      { x: 875, y: 200, w: 16, h: 16, collected: false },
+      { x: 1230, y: 120, w: 16, h: 16, collected: false }
+    ],
+    obstacles: [
+      { x: 320, y: 360, w: 24, h: 24, vx: 2.0, minX: 260, maxX: 380, type: 'spike' },
+      { x: 950, y: 190, w: 24, h: 24, vx: -2.0, minX: 900, maxX: 1040, type: 'spike' }
+    ],
+    powerups: [
+      { x: 710, y: 250, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
   }
 ];
 
@@ -1932,12 +2068,14 @@ const MUSIC_TRACK_URLS = (typeof __PIXEL_DASH_MUSIC_URLS__ !== 'undefined' && Ar
   : [
       'assets/music/high_score_run.mp3',
       'assets/music/squelchy_basin_run.mp3',
-      'assets/music/frozen_ascent.mp3'
+      'assets/music/frozen_ascent.mp3',
+      'assets/music/Below_the_Obsidian_Peak.mp3'
     ];
 const KINGDOM_MUSIC_TRACK_INDEX = {
   castle: 0,
   slime: 1,
-  ice: 2
+  ice: 2,
+  magma: 3
 };
 const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect']);
 
@@ -2087,6 +2225,66 @@ function tryStartBackgroundMusic() {
       .catch(() => {
         // Autoplay may be blocked until first user gesture.
       });
+  } else if (kingdom === 'magma') {
+    ctx.fillStyle = '#2a0d09';
+    ctx.fillRect(0, 0, W, H);
+
+    // Ember sky bands.
+    ctx.fillStyle = '#4a1610';
+    ctx.fillRect(0, H * 0.10, W, H * 0.26);
+    ctx.fillStyle = '#6b1f12';
+    ctx.fillRect(0, H * 0.36, W, H * 0.18);
+    ctx.fillStyle = '#2f1310';
+    ctx.fillRect(0, H * 0.54, W, H * 0.24);
+
+    // Volcano silhouette.
+    const volcanoX = W * 0.62 - camera.x * 0.03;
+    const volcanoY = H * 0.74;
+    ctx.fillStyle = '#1b0f10';
+    ctx.beginPath();
+    ctx.moveTo(volcanoX - 210, volcanoY);
+    ctx.lineTo(volcanoX - 100, volcanoY - 170);
+    ctx.lineTo(volcanoX - 30, volcanoY - 215);
+    ctx.lineTo(volcanoX + 50, volcanoY - 165);
+    ctx.lineTo(volcanoX + 190, volcanoY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#ff7a18';
+    ctx.fillRect(volcanoX - 28, volcanoY - 210, 56, 8);
+    ctx.fillStyle = '#ffb347';
+    ctx.fillRect(volcanoX - 18, volcanoY - 205, 36, 5);
+
+    // Lava rivers in the distance.
+    ctx.fillStyle = '#5a1612';
+    ctx.fillRect(0, H * 0.78, W, H * 0.22);
+    for (let i = -20; i < W + 20; i += 26) {
+      const wave = Math.sin((i + t * 0.06) * 0.1) * 4;
+      ctx.fillStyle = '#ff4f1c';
+      ctx.fillRect(i, H * 0.82 + wave, 18, 6);
+      ctx.fillStyle = '#ffb347';
+      ctx.fillRect(i + 3, H * 0.82 + wave + 1, 8, 2);
+    }
+
+    // Falling ash.
+    ctx.fillStyle = 'rgba(220, 190, 170, 0.45)';
+    for (let i = 0; i < 90; i++) {
+      const ashX = (i * 71 + camera.x * 0.08 + t * 0.3) % (W + 20) - 10;
+      const ashY = (i * 53 + t * 0.8) % H;
+      const ashSize = i % 3 === 0 ? 2 : 1;
+      ctx.fillRect(ashX, ashY, ashSize, ashSize);
+    }
+
+    // Eruption sparks above the crater.
+    ctx.fillStyle = '#ffcf66';
+    for (let i = 0; i < 22; i++) {
+      const sparkX = volcanoX + ((i % 5) - 2) * 10 + Math.sin((t + i * 17) * 0.04) * 6;
+      const sparkRise = (t * 1.2 + i * 14) % 110;
+      const sparkY = volcanoY - 210 - sparkRise;
+      if (sparkY > 0) {
+        ctx.fillRect(sparkX, sparkY, 2, 2);
+      }
+    }
   } else {
     backgroundMusicStarted = true;
   }
@@ -2190,7 +2388,7 @@ function unlockAchievement(achievementId) {
 
 // Menu navigation state
 let selectedLevel = 0;
-let selectedKingdom = 0; // 0 = castle, 1 = ice, 2 = slime
+let selectedKingdom = 0; // 0 = castle, 1 = ice, 2 = slime, 3 = magma
 let levelSelectScrollY = 0;
 let shopScrollY = 0;
 let selectedSettingsRow = 0;
@@ -2227,7 +2425,7 @@ function tryHandleUiTap(tx, ty) {
 function getLevelSelectMaxScroll() {
   const W = canvas.width;
   const H = canvas.height;
-  const kingdomKey = ['castle', 'ice', 'slime'][selectedKingdom];
+  const kingdomKey = ['castle', 'ice', 'slime', 'magma'][selectedKingdom];
   const levelCount = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey).length;
   const levelSize = 80;
   const spacing = 20;
@@ -2281,6 +2479,30 @@ score = 0;
 // Collision
 function rectCollide(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function magmaGeyserState(timer) {
+  const t = ((timer % MAGMA_GEYSER_CYCLE) + MAGMA_GEYSER_CYCLE) % MAGMA_GEYSER_CYCLE;
+  if (t < MAGMA_GEYSER_IDLE) return 'idle';
+  if (t < MAGMA_GEYSER_IDLE + MAGMA_GEYSER_WARNING) return 'warning';
+  return 'eruption';
+}
+
+function getMagmaGeyserHazardRect(platform) {
+  const state = magmaGeyserState(platform.geyserTimer || 0);
+  if (state !== 'eruption') return null;
+
+  const eruptFrame = (platform.geyserTimer || 0) - (MAGMA_GEYSER_IDLE + MAGMA_GEYSER_WARNING);
+  const phase = Math.max(0, Math.min(1, eruptFrame / MAGMA_GEYSER_ERUPTION));
+  const intensity = Math.sin(phase * Math.PI);
+  const plumeHeight = 34 + intensity * 58;
+
+  return {
+    x: platform.x + 4,
+    y: platform.y - plumeHeight,
+    w: Math.max(8, platform.w - 8),
+    h: plumeHeight
+  };
 }
 
 function update() {
@@ -2352,7 +2574,7 @@ function update() {
     const wantsLeft = !!(keys['ArrowLeft'] || keys['a']);
     const wantsRight = !!(keys['ArrowRight'] || keys['d']);
     if (wantsRight && !wantsLeft) {
-      if (selectedKingdom < 2) {
+      if (selectedKingdom < 3) {
         selectedKingdom += 1;
         selectedLevel = 0;
         levelSelectScrollY = 0;
@@ -2374,7 +2596,7 @@ function update() {
     }
 
     // Level selection navigation (Up/Down arrows)
-    const kingdomKey = ['castle', 'ice', 'slime'][selectedKingdom];
+    const kingdomKey = ['castle', 'ice', 'slime', 'magma'][selectedKingdom];
     const kingdomLevels = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey);
     if (keys['ArrowUp'] || keys['w']) {
       keys['ArrowUp'] = false;
@@ -2472,6 +2694,12 @@ function update() {
 
   // Movement
   p.vx += moveX * 1.2;
+
+  platforms.forEach(pl => {
+    if (pl.type === 6) {
+      pl.geyserTimer = ((pl.geyserTimer || 0) + 1) % MAGMA_GEYSER_CYCLE;
+    }
+  });
   
   // Check if player is on ice platform for reduced friction
   let onIcePlatform = false;
@@ -2623,6 +2851,18 @@ function update() {
   // Obstacle collision detection (instant death from saw blades)
   for (let i = 0; i < obstacles.length; i++) {
     if (rectCollide(p, obstacles[i])) {
+      if (state !== 'dead') playDeathJingle();
+      state = 'dead';
+      break;
+    }
+  }
+
+  // Magma geyser collision detection (instant death)
+  for (let i = 0; i < platforms.length; i++) {
+    const pl = platforms[i];
+    if (pl.type !== 6) continue;
+    const hazardRect = getMagmaGeyserHazardRect(pl);
+    if (hazardRect && rectCollide(p, hazardRect)) {
       if (state !== 'dead') playDeathJingle();
       state = 'dead';
       break;
@@ -3263,8 +3503,8 @@ function draw() {
 
   if (state === 'levelselect') {
     // KINGDOM-BASED LEVEL SELECT
-    const kingdomNames = ['Castle Kingdom', 'Ice Kingdom', 'Slime Kingdom'];
-    const kingdomKey = ['castle', 'ice', 'slime'][selectedKingdom];
+    const kingdomNames = ['Castle Kingdom', 'Ice Kingdom', 'Slime Kingdom', 'Magma Kingdom'];
+    const kingdomKey = ['castle', 'ice', 'slime', 'magma'][selectedKingdom];
     
     ctx.textAlign = 'center';
     ctx.fillStyle = surf;
@@ -3371,7 +3611,7 @@ function draw() {
     }
 
     // RIGHT ARROW - go to next kingdom (disabled on last kingdom)
-    if (selectedKingdom < 2) {
+    if (selectedKingdom < 3) {
       ctx.fillStyle = accent;
       ctx.fillRect(W - 80, H / 2 - 25, 50, 50);
       ctx.fillStyle = '#000';
@@ -3379,7 +3619,7 @@ function draw() {
       ctx.textAlign = 'center';
       ctx.fillText('>', W - 55, H / 2 + 12);
       registerUiButton(W - 80, H / 2 - 25, 50, 50, () => {
-        selectedKingdom = Math.min(2, selectedKingdom + 1);
+        selectedKingdom = Math.min(3, selectedKingdom + 1);
         selectedLevel = 0;
         levelSelectScrollY = 0;
       });
@@ -3525,7 +3765,8 @@ function draw() {
     const kingdomTheme = {
       castle: { normal: '#a78baf', dark: '#8b7b9f', top: '#7cb342', flagColor: '#ff6b6b' },
       ice: { normal: '#b3e5fc', dark: '#80deea', top: '#e1f5fe', flagColor: '#81d4fa' },
-      slime: { normal: '#7cb342', dark: '#558b2f', top: '#aeea00', flagColor: '#9ccc65' }
+      slime: { normal: '#7cb342', dark: '#558b2f', top: '#aeea00', flagColor: '#9ccc65' },
+      magma: { normal: '#4c3b44', dark: '#2d2329', top: '#9a6c4a', flagColor: '#ff7a18' }
     };
     const theme = kingdomTheme[level.kingdom] || kingdomTheme.castle;
 
@@ -3596,6 +3837,42 @@ function draw() {
         }
         ctx.fillStyle = 'rgba(255,255,255,0.3)';
         ctx.fillRect(pl.x + 2, pl.y + 2, pl.w - 4, 3);
+      } else if (pl.type === 6) {
+        const geyserState = magmaGeyserState(pl.geyserTimer || 0);
+
+        // Obsidian vent base
+        ctx.fillStyle = '#2a2126';
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.fillStyle = '#4a3a42';
+        for (let i = 2; i < pl.w; i += 10) {
+          ctx.fillRect(pl.x + i, pl.y + 2, 2, pl.h - 4);
+        }
+        ctx.fillStyle = '#ff7a18';
+        for (let i = 6; i < pl.w - 4; i += 12) {
+          ctx.fillRect(pl.x + i, pl.y + 3, 3, 4);
+        }
+
+        if (geyserState === 'warning') {
+          const pulse = 0.55 + Math.sin(time * 0.35) * 0.25;
+          ctx.fillStyle = `rgba(255, 122, 24, ${pulse})`;
+          ctx.fillRect(pl.x + 2, pl.y - 6, pl.w - 4, 6);
+          ctx.fillStyle = '#ffd166';
+          ctx.fillRect(pl.x + pl.w / 2 - 2, pl.y - 10, 4, 4);
+        }
+
+        if (geyserState === 'eruption') {
+          const hazard = getMagmaGeyserHazardRect(pl);
+          if (hazard) {
+            ctx.fillStyle = '#ff4f1c';
+            ctx.fillRect(hazard.x, hazard.y, hazard.w, hazard.h);
+            ctx.fillStyle = '#ffb347';
+            ctx.fillRect(hazard.x + 3, hazard.y + 4, Math.max(2, hazard.w - 6), Math.max(4, hazard.h * 0.55));
+            ctx.fillStyle = 'rgba(255, 220, 150, 0.65)';
+            for (let i = 0; i < hazard.w; i += 8) {
+              ctx.fillRect(hazard.x + i, hazard.y + 2 + Math.sin((time + i) * 0.2) * 2, 3, 3);
+            }
+          }
+        }
       } else {
         ctx.fillStyle = theme.normal;
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
@@ -3638,6 +3915,8 @@ function draw() {
         ? { fill: '#b3e5fc', stroke: '#7dd3fc', core: '#e0f2fe' }
         : level.kingdom === 'slime'
           ? { fill: '#c084fc', stroke: '#8b5cf6', core: '#e9d5ff' }
+          : level.kingdom === 'magma'
+            ? { fill: '#ff7a18', stroke: '#c2410c', core: '#ffd6a5' }
           : { fill: '#7a5c3d', stroke: '#6b5535', core: '#f2d6b3' };
       const spikeWidth = 10;
       for (let i = 0; i < s.w; i += spikeWidth) {
@@ -3668,6 +3947,8 @@ function draw() {
         ? { blade: '#b3e5fc', edge: '#e0f2fe', core: '#60a5fa', highlight: '#ffffff' }
         : level.kingdom === 'slime'
           ? { blade: '#b47cff', edge: '#7c3aed', core: '#5b21b6', highlight: '#e9d5ff' }
+          : level.kingdom === 'magma'
+            ? { blade: '#ff6b2c', edge: '#b45309', core: '#7c2d12', highlight: '#ffd6a5' }
           : { blade: '#ff3333', edge: '#cc0000', core: '#991b1b', highlight: '#ff9f9f' };
       
       ctx.save();
@@ -3937,7 +4218,14 @@ function initGame(levelNum = 0) {
   inDailyChallenge = false;
   currentLevel = levelNum;
   const levelData = generateLevel(levelNum);
-  platforms = levelData.platforms.map(p => ({...p, oy: p.y, crumbleTimer: 0, crumbling: false, visible: true}));
+  platforms = levelData.platforms.map(p => ({
+    ...p,
+    oy: p.y,
+    crumbleTimer: 0,
+    crumbling: false,
+    visible: true,
+    geyserTimer: p.type === 6 ? (typeof p.geyserTimer === 'number' ? p.geyserTimer : Math.floor((p.x + p.y) % MAGMA_GEYSER_CYCLE)) : 0
+  }));
   coins = levelData.coins ? levelData.coins.map(c => ({...c})) : [];
   spikes = levelData.spikes ? levelData.spikes.map(s => ({...s})) : [];
   obstacles = levelData.obstacles ? levelData.obstacles.map(o => ({...o})) : [];
@@ -3962,7 +4250,15 @@ function startDailyChallenge(silent = false) {
   inDailyChallenge = true;
   const seed = getDailyChallengeSeed();
   const levelData = generateDailyLevel(seed);
-  platforms = levelData.platforms.map(p => ({ ...p, oy: p.y, crumbleTimer: 0, crumbling: false, visible: true, iceSliding: false }));
+  platforms = levelData.platforms.map(p => ({
+    ...p,
+    oy: p.y,
+    crumbleTimer: 0,
+    crumbling: false,
+    visible: true,
+    iceSliding: false,
+    geyserTimer: p.type === 6 ? (typeof p.geyserTimer === 'number' ? p.geyserTimer : Math.floor((p.x + p.y) % MAGMA_GEYSER_CYCLE)) : 0
+  }));
   coins = levelData.coins ? levelData.coins.map(c => ({ ...c })) : [];
   spikes = levelData.spikes ? levelData.spikes.map(s => ({ ...s })) : [];
   obstacles = levelData.obstacles ? levelData.obstacles.map(o => ({ ...o })) : [];
