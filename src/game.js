@@ -2225,66 +2225,6 @@ function tryStartBackgroundMusic() {
       .catch(() => {
         // Autoplay may be blocked until first user gesture.
       });
-  } else if (kingdom === 'magma') {
-    ctx.fillStyle = '#2a0d09';
-    ctx.fillRect(0, 0, W, H);
-
-    // Ember sky bands.
-    ctx.fillStyle = '#4a1610';
-    ctx.fillRect(0, H * 0.10, W, H * 0.26);
-    ctx.fillStyle = '#6b1f12';
-    ctx.fillRect(0, H * 0.36, W, H * 0.18);
-    ctx.fillStyle = '#2f1310';
-    ctx.fillRect(0, H * 0.54, W, H * 0.24);
-
-    // Volcano silhouette.
-    const volcanoX = W * 0.62 - camera.x * 0.03;
-    const volcanoY = H * 0.74;
-    ctx.fillStyle = '#1b0f10';
-    ctx.beginPath();
-    ctx.moveTo(volcanoX - 210, volcanoY);
-    ctx.lineTo(volcanoX - 100, volcanoY - 170);
-    ctx.lineTo(volcanoX - 30, volcanoY - 215);
-    ctx.lineTo(volcanoX + 50, volcanoY - 165);
-    ctx.lineTo(volcanoX + 190, volcanoY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = '#ff7a18';
-    ctx.fillRect(volcanoX - 28, volcanoY - 210, 56, 8);
-    ctx.fillStyle = '#ffb347';
-    ctx.fillRect(volcanoX - 18, volcanoY - 205, 36, 5);
-
-    // Lava rivers in the distance.
-    ctx.fillStyle = '#5a1612';
-    ctx.fillRect(0, H * 0.78, W, H * 0.22);
-    for (let i = -20; i < W + 20; i += 26) {
-      const wave = Math.sin((i + t * 0.06) * 0.1) * 4;
-      ctx.fillStyle = '#ff4f1c';
-      ctx.fillRect(i, H * 0.82 + wave, 18, 6);
-      ctx.fillStyle = '#ffb347';
-      ctx.fillRect(i + 3, H * 0.82 + wave + 1, 8, 2);
-    }
-
-    // Falling ash.
-    ctx.fillStyle = 'rgba(220, 190, 170, 0.45)';
-    for (let i = 0; i < 90; i++) {
-      const ashX = (i * 71 + camera.x * 0.08 + t * 0.3) % (W + 20) - 10;
-      const ashY = (i * 53 + t * 0.8) % H;
-      const ashSize = i % 3 === 0 ? 2 : 1;
-      ctx.fillRect(ashX, ashY, ashSize, ashSize);
-    }
-
-    // Eruption sparks above the crater.
-    ctx.fillStyle = '#ffcf66';
-    for (let i = 0; i < 22; i++) {
-      const sparkX = volcanoX + ((i % 5) - 2) * 10 + Math.sin((t + i * 17) * 0.04) * 6;
-      const sparkRise = (t * 1.2 + i * 14) % 110;
-      const sparkY = volcanoY - 210 - sparkRise;
-      if (sparkY > 0) {
-        ctx.fillRect(sparkX, sparkY, 2, 2);
-      }
-    }
   } else {
     backgroundMusicStarted = true;
   }
@@ -2468,6 +2408,66 @@ function buyOrSelectCube(skinKey) {
       playerData.total_coins -= selectedSkin.price;
       playerData.owned_cubes += ',' + playerData.selected_cube;
       savePlayerData();
+    }
+  } else if (kingdom === 'magma') {
+    ctx.fillStyle = '#2a0d09';
+    ctx.fillRect(0, 0, W, H);
+
+    // Ember sky bands.
+    ctx.fillStyle = '#4a1610';
+    ctx.fillRect(0, H * 0.10, W, H * 0.26);
+    ctx.fillStyle = '#6b1f12';
+    ctx.fillRect(0, H * 0.36, W, H * 0.18);
+    ctx.fillStyle = '#2f1310';
+    ctx.fillRect(0, H * 0.54, W, H * 0.24);
+
+    // Volcano silhouette.
+    const volcanoX = W * 0.62 - camera.x * 0.03;
+    const volcanoY = H * 0.74;
+    ctx.fillStyle = '#1b0f10';
+    ctx.beginPath();
+    ctx.moveTo(volcanoX - 210, volcanoY);
+    ctx.lineTo(volcanoX - 100, volcanoY - 170);
+    ctx.lineTo(volcanoX - 30, volcanoY - 215);
+    ctx.lineTo(volcanoX + 50, volcanoY - 165);
+    ctx.lineTo(volcanoX + 190, volcanoY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#ff7a18';
+    ctx.fillRect(volcanoX - 28, volcanoY - 210, 56, 8);
+    ctx.fillStyle = '#ffb347';
+    ctx.fillRect(volcanoX - 18, volcanoY - 205, 36, 5);
+
+    // Lava rivers in the distance.
+    ctx.fillStyle = '#5a1612';
+    ctx.fillRect(0, H * 0.78, W, H * 0.22);
+    for (let i = -20; i < W + 20; i += 26) {
+      const wave = Math.sin((i + t * 0.06) * 0.1) * 4;
+      ctx.fillStyle = '#ff4f1c';
+      ctx.fillRect(i, H * 0.82 + wave, 18, 6);
+      ctx.fillStyle = '#ffb347';
+      ctx.fillRect(i + 3, H * 0.82 + wave + 1, 8, 2);
+    }
+
+    // Falling ash.
+    ctx.fillStyle = 'rgba(220, 190, 170, 0.45)';
+    for (let i = 0; i < 90; i++) {
+      const ashX = (i * 71 + camera.x * 0.08 + t * 0.3) % (W + 20) - 10;
+      const ashY = (i * 53 + t * 0.8) % H;
+      const ashSize = i % 3 === 0 ? 2 : 1;
+      ctx.fillRect(ashX, ashY, ashSize, ashSize);
+    }
+
+    // Eruption sparks above the crater.
+    ctx.fillStyle = '#ffcf66';
+    for (let i = 0; i < 22; i++) {
+      const sparkX = volcanoX + ((i % 5) - 2) * 10 + Math.sin((t + i * 17) * 0.04) * 6;
+      const sparkRise = (t * 1.2 + i * 14) % 110;
+      const sparkY = volcanoY - 210 - sparkRise;
+      if (sparkY > 0) {
+        ctx.fillRect(sparkX, sparkY, 2, 2);
+      }
     }
   } else {
     savePlayerData();
