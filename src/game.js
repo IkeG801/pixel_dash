@@ -403,6 +403,7 @@ function generateDailyLevel(seed) {
 // Level definitions - curated levels from Canva
 const INITIAL_LEVELS = [
   {
+    kingdom: 'castle',
     name: "Getting Started",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -423,6 +424,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Jump Challenge",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -451,6 +453,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Crumbling Path",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -477,6 +480,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Spike Gauntlet",
     platforms: [
       { x: 0, y: 500, w: 100, h: 20, type: 0 },
@@ -505,6 +509,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Narrow Escape",
     platforms: [
       { x: 0, y: 500, w: 120, h: 20, type: 0 },
@@ -534,6 +539,7 @@ const INITIAL_LEVELS = [
     powerups: []
   },
   {
+    kingdom: 'castle',
     name: "Mixed Terrain",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -563,6 +569,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Bouncy Platforms",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -590,6 +597,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Gravity Rush",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -620,6 +628,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Platform Chain",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -654,6 +663,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Double Jump Dash",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -689,6 +699,7 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Zigzag Master",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -720,6 +731,7 @@ const INITIAL_LEVELS = [
     powerups: []
   },
   {
+    kingdom: 'castle',
     name: "Ice Cavern",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -746,6 +758,7 @@ const INITIAL_LEVELS = [
     powerups: []
   },
   {
+    kingdom: 'castle',
     name: "Slime Bounce",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -770,6 +783,7 @@ const INITIAL_LEVELS = [
     powerups: []
   },
   {
+    kingdom: 'castle',
     name: "Sky Tower",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
@@ -804,7 +818,810 @@ const INITIAL_LEVELS = [
     ]
   },
   {
+    kingdom: 'castle',
     name: "Obstacle Course",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 420, w: 100, h: 20, type: 0 },
+      { x: 350, y: 380, w: 100, h: 20, type: 0 },
+      { x: 500, y: 340, w: 100, h: 20, type: 0 },
+      { x: 650, y: 380, w: 100, h: 20, type: 0 },
+      { x: 800, y: 320, w: 100, h: 20, type: 0 },
+      { x: 950, y: 380, w: 100, h: 20, type: 0 },
+      { x: 1100, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 400, w: 40, h: 16, type: 0 },
+      { x: 450, y: 360, w: 40, h: 16, type: 0 },
+      { x: 750, y: 340, w: 40, h: 16, type: 0 },
+      { x: 900, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 350, w: 16, h: 16, collected: false },
+      { x: 500, y: 270, w: 16, h: 16, collected: false },
+      { x: 800, y: 250, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 350, y: 300, w: 24, h: 24, vx: 2, minX: 300, maxX: 400, type: 'spike' },
+      { x: 650, y: 300, w: 24, h: 24, vx: -2, minX: 600, maxX: 700, type: 'spike' }
+    ],
+    powerups: [
+      { x: 350, y: 310, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  // ICE KINGDOM - 15 levels
+  {
+    kingdom: 'ice',
+    name: "Frozen Foundations",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 480, w: 80, h: 20, type: 0 },
+      { x: 320, y: 450, w: 80, h: 20, type: 0 },
+      { x: 440, y: 420, w: 80, h: 20, type: 0 },
+      { x: 560, y: 380, w: 80, h: 20, type: 0 },
+      { x: 680, y: 340, w: 80, h: 20, type: 0 },
+      { x: 800, y: 300, w: 150, h: 20, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 270, y: 470, w: 40, h: 16, type: 0 },
+      { x: 390, y: 440, w: 40, h: 16, type: 0 },
+      { x: 750, y: 360, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 410, w: 16, h: 16, collected: false },
+      { x: 440, y: 350, w: 16, h: 16, collected: false },
+      { x: 680, y: 270, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 560, y: 310, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Icy Climbs",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 180, y: 430, w: 70, h: 20, type: 0 },
+      { x: 300, y: 370, w: 70, h: 20, type: 0 },
+      { x: 420, y: 300, w: 70, h: 20, type: 0 },
+      { x: 540, y: 230, w: 70, h: 20, type: 0 },
+      { x: 660, y: 360, w: 70, h: 20, type: 0 },
+      { x: 780, y: 280, w: 70, h: 20, type: 0 },
+      { x: 950, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 130, y: 520, w: 40, h: 16, type: 0 },
+      { x: 250, y: 390, w: 40, h: 16, type: 0 },
+      { x: 370, y: 320, w: 40, h: 16, type: 0 },
+      { x: 610, y: 250, w: 40, h: 16, type: 0 },
+      { x: 730, y: 380, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 180, y: 360, w: 16, h: 16, collected: false },
+      { x: 420, y: 230, w: 16, h: 16, collected: false },
+      { x: 660, y: 290, w: 16, h: 16, collected: false },
+      { x: 950, y: 150, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 540, y: 160, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Crystal Gauntlet",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 0 },
+      { x: 350, y: 400, w: 100, h: 20, type: 0 },
+      { x: 500, y: 350, w: 100, h: 20, type: 0 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 250, w: 100, h: 20, type: 0 },
+      { x: 950, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 420, w: 40, h: 16, type: 0 },
+      { x: 450, y: 370, w: 40, h: 16, type: 0 },
+      { x: 600, y: 320, w: 40, h: 16, type: 0 },
+      { x: 750, y: 270, w: 40, h: 16, type: 0 },
+      { x: 900, y: 220, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+      { x: 800, y: 180, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 400, y: 330, w: 24, h: 24, vx: 2, minX: 350, maxX: 450, type: 'spike' }
+    ],
+    powerups: []
+  },
+  {
+    kingdom: 'ice',
+    name: "Slippery Slopes",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 220, y: 480, w: 90, h: 20, type: 0 },
+      { x: 380, y: 450, w: 90, h: 20, type: 0 },
+      { x: 540, y: 420, w: 90, h: 20, type: 0 },
+      { x: 700, y: 380, w: 90, h: 20, type: 0 },
+      { x: 860, y: 340, w: 90, h: 20, type: 0 },
+      { x: 1020, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 330, y: 470, w: 40, h: 16, type: 0 },
+      { x: 490, y: 440, w: 40, h: 16, type: 0 },
+      { x: 810, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 220, y: 410, w: 16, h: 16, collected: false },
+      { x: 540, y: 350, w: 16, h: 16, collected: false },
+      { x: 860, y: 270, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 700, y: 310, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Frostbite Peak",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 420, w: 80, h: 20, type: 0 },
+      { x: 320, y: 360, w: 80, h: 20, type: 0 },
+      { x: 440, y: 300, w: 80, h: 20, type: 0 },
+      { x: 560, y: 280, w: 100, h: 20, type: 0 },
+      { x: 700, y: 320, w: 80, h: 20, type: 0 },
+      { x: 820, y: 380, w: 100, h: 20, type: 2 },
+      { x: 950, y: 250, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 380, y: 380, w: 40, h: 16, type: 0 },
+      { x: 650, y: 320, w: 40, h: 16, type: 0 },
+      { x: 900, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 350, w: 16, h: 16, collected: false },
+      { x: 440, y: 230, w: 16, h: 16, collected: false },
+      { x: 700, y: 250, w: 16, h: 16, collected: false },
+      { x: 950, y: 180, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 200, y: 340, w: 14, h: 14, collected: false, type: 'coinmultiplier' },
+      { x: 560, y: 210, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Snowdrift Challenge",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 170, y: 460, w: 70, h: 20, type: 0 },
+      { x: 270, y: 420, w: 70, h: 20, type: 0 },
+      { x: 370, y: 380, w: 70, h: 20, type: 2 },
+      { x: 470, y: 340, w: 70, h: 20, type: 2 },
+      { x: 570, y: 300, w: 70, h: 20, type: 0 },
+      { x: 670, y: 360, w: 70, h: 20, type: 0 },
+      { x: 770, y: 320, w: 70, h: 20, type: 0 },
+      { x: 870, y: 280, w: 70, h: 20, type: 2 },
+      { x: 1000, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 120, y: 520, w: 40, h: 16, type: 0 },
+      { x: 220, y: 440, w: 40, h: 16, type: 0 },
+      { x: 420, y: 400, w: 40, h: 16, type: 0 },
+      { x: 620, y: 320, w: 40, h: 16, type: 0 },
+      { x: 820, y: 340, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 170, y: 390, w: 16, h: 16, collected: false },
+      { x: 370, y: 310, w: 16, h: 16, collected: false },
+      { x: 570, y: 230, w: 16, h: 16, collected: false },
+      { x: 770, y: 250, w: 16, h: 16, collected: false },
+      { x: 1000, y: 150, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 470, y: 270, w: 14, h: 14, collected: false, type: 'jumpboost' },
+      { x: 870, y: 210, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Blizzard Run",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 440, w: 100, h: 20, type: 0 },
+      { x: 350, y: 380, w: 100, h: 20, type: 0 },
+      { x: 500, y: 320, w: 100, h: 20, type: 0 },
+      { x: 650, y: 380, w: 100, h: 20, type: 0 },
+      { x: 800, y: 440, w: 100, h: 20, type: 0 },
+      { x: 950, y: 350, w: 100, h: 20, type: 0 },
+      { x: 1100, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 400, w: 40, h: 16, type: 0 },
+      { x: 450, y: 340, w: 40, h: 16, type: 0 },
+      { x: 600, y: 400, w: 40, h: 16, type: 0 },
+      { x: 750, y: 460, w: 40, h: 16, type: 0 },
+      { x: 900, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 370, w: 16, h: 16, collected: false },
+      { x: 500, y: 250, w: 16, h: 16, collected: false },
+      { x: 800, y: 370, w: 16, h: 16, collected: false },
+      { x: 950, y: 280, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 400, y: 360, w: 24, h: 24, vx: 2, minX: 350, maxX: 450, type: 'spike' },
+      { x: 700, y: 360, w: 24, h: 24, vx: -2, minX: 650, maxX: 750, type: 'spike' }
+    ],
+    powerups: [
+      { x: 650, y: 310, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Polar Passage",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 220, y: 450, w: 90, h: 20, type: 0 },
+      { x: 380, y: 400, w: 90, h: 20, type: 0 },
+      { x: 540, y: 350, w: 90, h: 20, type: 0 },
+      { x: 700, y: 300, w: 90, h: 20, type: 2 },
+      { x: 860, y: 350, w: 90, h: 20, type: 0 },
+      { x: 1020, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 330, y: 420, w: 40, h: 16, type: 0 },
+      { x: 490, y: 370, w: 40, h: 16, type: 0 },
+      { x: 810, y: 330, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 220, y: 380, w: 16, h: 16, collected: false },
+      { x: 540, y: 280, w: 16, h: 16, collected: false },
+      { x: 860, y: 280, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 700, y: 230, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Glacial Descent",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 430, w: 100, h: 20, type: 0 },
+      { x: 300, y: 360, w: 100, h: 20, type: 0 },
+      { x: 400, y: 290, w: 100, h: 20, type: 0 },
+      { x: 500, y: 220, w: 100, h: 20, type: 0 },
+      { x: 600, y: 320, w: 100, h: 20, type: 4 },
+      { x: 700, y: 240, w: 100, h: 20, type: 0 },
+      { x: 850, y: 350, w: 100, h: 20, type: 2 },
+      { x: 1000, y: 150, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 250, y: 380, w: 40, h: 16, type: 0 },
+      { x: 350, y: 310, w: 40, h: 16, type: 0 },
+      { x: 550, y: 240, w: 40, h: 16, type: 0 },
+      { x: 800, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 360, w: 16, h: 16, collected: false },
+      { x: 400, y: 220, w: 16, h: 16, collected: false },
+      { x: 600, y: 250, w: 16, h: 16, collected: false },
+      { x: 700, y: 170, w: 16, h: 16, collected: false },
+      { x: 1000, y: 100, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 350, y: 300, w: 24, h: 24, vx: 1.5, minX: 300, maxX: 400, type: 'spike' }
+    ],
+    powerups: [
+      { x: 500, y: 140, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Frostfire Fields",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 420, w: 100, h: 20, type: 0 },
+      { x: 350, y: 380, w: 100, h: 20, type: 0 },
+      { x: 500, y: 340, w: 100, h: 20, type: 0 },
+      { x: 650, y: 380, w: 100, h: 20, type: 0 },
+      { x: 800, y: 320, w: 100, h: 20, type: 0 },
+      { x: 950, y: 380, w: 100, h: 20, type: 0 },
+      { x: 1100, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 400, w: 40, h: 16, type: 0 },
+      { x: 450, y: 360, w: 40, h: 16, type: 0 },
+      { x: 750, y: 340, w: 40, h: 16, type: 0 },
+      { x: 900, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 350, w: 16, h: 16, collected: false },
+      { x: 500, y: 270, w: 16, h: 16, collected: false },
+      { x: 800, y: 250, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 350, y: 300, w: 24, h: 24, vx: 2, minX: 300, maxX: 400, type: 'spike' },
+      { x: 650, y: 300, w: 24, h: 24, vx: -2, minX: 600, maxX: 700, type: 'spike' }
+    ],
+    powerups: [
+      { x: 350, y: 310, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Permafrost Tower",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 0 },
+      { x: 350, y: 400, w: 100, h: 20, type: 0 },
+      { x: 500, y: 350, w: 100, h: 20, type: 0 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 250, w: 100, h: 20, type: 0 },
+      { x: 950, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 420, w: 40, h: 16, type: 0 },
+      { x: 450, y: 370, w: 40, h: 16, type: 0 },
+      { x: 600, y: 320, w: 40, h: 16, type: 0 },
+      { x: 750, y: 270, w: 40, h: 16, type: 0 },
+      { x: 900, y: 220, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+      { x: 800, y: 180, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 400, y: 330, w: 24, h: 24, vx: 2, minX: 350, maxX: 450, type: 'spike' }
+    ],
+    powerups: [
+      { x: 650, y: 230, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Glacial Maze",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 220, y: 480, w: 90, h: 20, type: 0 },
+      { x: 380, y: 500, w: 90, h: 20, type: 0 },
+      { x: 540, y: 400, w: 90, h: 20, type: 0 },
+      { x: 700, y: 450, w: 90, h: 20, type: 2 },
+      { x: 860, y: 350, w: 90, h: 20, type: 0 },
+      { x: 1020, y: 450, w: 90, h: 20, type: 0 },
+      { x: 1180, y: 300, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 330, y: 520, w: 40, h: 16, type: 0 },
+      { x: 490, y: 420, w: 40, h: 16, type: 0 },
+      { x: 810, y: 470, w: 40, h: 16, type: 0 },
+      { x: 970, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 220, y: 410, w: 16, h: 16, collected: false },
+      { x: 380, y: 430, w: 16, h: 16, collected: false },
+      { x: 540, y: 330, w: 16, h: 16, collected: false },
+      { x: 860, y: 280, w: 16, h: 16, collected: false },
+      { x: 1020, y: 380, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 450, y: 380, w: 24, h: 24, vx: 2.5, minX: 380, maxX: 540, type: 'spike' }
+    ],
+    powerups: [
+      { x: 700, y: 380, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'ice',
+    name: "Icebreaker",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 0 },
+      { x: 350, y: 400, w: 100, h: 20, type: 0 },
+      { x: 500, y: 350, w: 100, h: 20, type: 0 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 250, w: 150, h: 20, type: 0 },
+      { x: 1000, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 420, w: 40, h: 16, type: 0 },
+      { x: 600, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+      { x: 800, y: 180, w: 16, h: 16, collected: false },
+      { x: 1000, y: 150, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 350, y: 320, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  // SLIME KINGDOM - 15 levels
+  {
+    kingdom: 'slime',
+    name: "Green Goo Gardens",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 0 },
+      { x: 350, y: 400, w: 100, h: 20, type: 0 },
+      { x: 500, y: 350, w: 100, h: 20, type: 0 },
+      { x: 650, y: 300, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 350, y: 330, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 400, y: 320, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Bouncy Bog",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 430, w: 100, h: 20, type: 5 },
+      { x: 350, y: 380, w: 100, h: 20, type: 5 },
+      { x: 500, y: 330, w: 100, h: 20, type: 5 },
+      { x: 650, y: 280, w: 100, h: 20, type: 0 },
+      { x: 800, y: 350, w: 100, h: 20, type: 5 },
+      { x: 950, y: 250, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 400, y: 400, w: 40, h: 16, type: 0 },
+      { x: 650, y: 350, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 360, w: 16, h: 16, collected: false },
+      { x: 500, y: 260, w: 16, h: 16, collected: false },
+      { x: 800, y: 280, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 250, y: 420, w: 24, h: 24, vx: 2.5, minX: 200, maxX: 300, type: 'spike' }
+    ],
+    powerups: [
+      { x: 720, y: 200, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Squishy Standard",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 2 },
+      { x: 350, y: 400, w: 100, h: 20, type: 2 },
+      { x: 500, y: 350, w: 100, h: 20, type: 2 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 350, w: 100, h: 20, type: 2 },
+      { x: 950, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 900, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+      { x: 800, y: 230, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 350, y: 320, w: 14, h: 14, collected: false, type: 'jumpboost' },
+      { x: 650, y: 260, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Molten Marsh",
+    platforms: [
+      { x: 0, y: 500, w: 100, h: 20, type: 0 },
+      { x: 150, y: 450, w: 100, h: 20, type: 0 },
+      { x: 300, y: 400, w: 100, h: 20, type: 0 },
+      { x: 450, y: 350, w: 100, h: 20, type: 0 },
+      { x: 600, y: 300, w: 100, h: 20, type: 0 },
+      { x: 750, y: 380, w: 100, h: 20, type: 0 },
+      { x: 900, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 120, y: 520, w: 40, h: 16, type: 0 },
+      { x: 270, y: 420, w: 40, h: 16, type: 0 },
+      { x: 420, y: 370, w: 40, h: 16, type: 0 },
+      { x: 570, y: 320, w: 40, h: 16, type: 0 },
+      { x: 720, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 150, y: 380, w: 16, h: 16, collected: false },
+      { x: 450, y: 280, w: 16, h: 16, collected: false },
+      { x: 750, y: 310, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 300, y: 330, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Viscous Valley",
+    platforms: [
+      { x: 0, y: 500, w: 120, h: 20, type: 0 },
+      { x: 180, y: 480, w: 80, h: 20, type: 0 },
+      { x: 320, y: 460, w: 80, h: 20, type: 0 },
+      { x: 460, y: 440, w: 80, h: 20, type: 0 },
+      { x: 600, y: 420, w: 80, h: 20, type: 0 },
+      { x: 740, y: 400, w: 80, h: 20, type: 0 },
+      { x: 880, y: 380, w: 80, h: 20, type: 0 },
+      { x: 1020, y: 300, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 100, y: 520, w: 80, h: 16, type: 0 },
+      { x: 240, y: 500, w: 80, h: 16, type: 0 },
+      { x: 380, y: 480, w: 80, h: 16, type: 0 },
+      { x: 520, y: 460, w: 80, h: 16, type: 0 },
+      { x: 660, y: 440, w: 80, h: 16, type: 0 },
+      { x: 800, y: 420, w: 80, h: 16, type: 0 },
+      { x: 940, y: 400, w: 80, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 180, y: 410, w: 16, h: 16, collected: false },
+      { x: 460, y: 370, w: 16, h: 16, collected: false },
+      { x: 740, y: 330, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: []
+  },
+  {
+    kingdom: 'slime',
+    name: "Gooey Gauntlet",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 480, w: 100, h: 20, type: 2 },
+      { x: 350, y: 420, w: 150, h: 20, type: 0 },
+      { x: 550, y: 400, w: 80, h: 20, type: 2 },
+      { x: 680, y: 380, w: 80, h: 20, type: 2 },
+      { x: 810, y: 340, w: 150, h: 20, type: 0 },
+      { x: 1000, y: 280, w: 180, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 440, w: 40, h: 16, type: 0 },
+      { x: 500, y: 420, w: 40, h: 16, type: 0 },
+      { x: 750, y: 400, w: 40, h: 16, type: 0 },
+      { x: 950, y: 360, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 410, w: 16, h: 16, collected: false },
+      { x: 350, y: 350, w: 16, h: 16, collected: false },
+      { x: 550, y: 330, w: 16, h: 16, collected: false },
+      { x: 810, y: 270, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 680, y: 310, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Sticky Slopes",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 450, w: 100, h: 20, type: 0 },
+      { x: 350, y: 400, w: 100, h: 20, type: 0 },
+      { x: 500, y: 350, w: 100, h: 20, type: 0 },
+      { x: 650, y: 300, w: 100, h: 20, type: 0 },
+      { x: 800, y: 250, w: 150, h: 20, type: 0 },
+      { x: 1000, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 420, w: 40, h: 16, type: 0 },
+      { x: 600, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 380, w: 16, h: 16, collected: false },
+      { x: 500, y: 280, w: 16, h: 16, collected: false },
+      { x: 800, y: 180, w: 16, h: 16, collected: false },
+      { x: 1000, y: 150, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 350, y: 320, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Gelatinous Giant",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 420, w: 80, h: 20, type: 0 },
+      { x: 320, y: 360, w: 80, h: 20, type: 0 },
+      { x: 440, y: 300, w: 80, h: 20, type: 0 },
+      { x: 560, y: 280, w: 100, h: 20, type: 0 },
+      { x: 700, y: 320, w: 80, h: 20, type: 0 },
+      { x: 820, y: 380, w: 100, h: 20, type: 2 },
+      { x: 950, y: 250, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 380, y: 380, w: 40, h: 16, type: 0 },
+      { x: 650, y: 320, w: 40, h: 16, type: 0 },
+      { x: 900, y: 400, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 350, w: 16, h: 16, collected: false },
+      { x: 440, y: 230, w: 16, h: 16, collected: false },
+      { x: 700, y: 250, w: 16, h: 16, collected: false },
+      { x: 950, y: 180, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 200, y: 340, w: 14, h: 14, collected: false, type: 'coinmultiplier' },
+      { x: 560, y: 210, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Slime Slide",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 170, y: 460, w: 70, h: 20, type: 0 },
+      { x: 270, y: 420, w: 70, h: 20, type: 0 },
+      { x: 370, y: 380, w: 70, h: 20, type: 2 },
+      { x: 470, y: 340, w: 70, h: 20, type: 2 },
+      { x: 570, y: 300, w: 70, h: 20, type: 0 },
+      { x: 670, y: 360, w: 70, h: 20, type: 0 },
+      { x: 770, y: 320, w: 70, h: 20, type: 0 },
+      { x: 870, y: 280, w: 70, h: 20, type: 2 },
+      { x: 1000, y: 200, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 120, y: 520, w: 40, h: 16, type: 0 },
+      { x: 220, y: 440, w: 40, h: 16, type: 0 },
+      { x: 420, y: 400, w: 40, h: 16, type: 0 },
+      { x: 620, y: 320, w: 40, h: 16, type: 0 },
+      { x: 820, y: 340, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 170, y: 390, w: 16, h: 16, collected: false },
+      { x: 370, y: 310, w: 16, h: 16, collected: false },
+      { x: 570, y: 230, w: 16, h: 16, collected: false },
+      { x: 770, y: 250, w: 16, h: 16, collected: false },
+      { x: 1000, y: 150, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 470, y: 270, w: 14, h: 14, collected: false, type: 'jumpboost' },
+      { x: 870, y: 210, w: 14, h: 14, collected: false, type: 'coinmultiplier' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Amphibious Ascent",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 440, w: 100, h: 20, type: 0 },
+      { x: 350, y: 380, w: 100, h: 20, type: 0 },
+      { x: 500, y: 320, w: 100, h: 20, type: 0 },
+      { x: 650, y: 380, w: 100, h: 20, type: 0 },
+      { x: 800, y: 440, w: 100, h: 20, type: 0 },
+      { x: 950, y: 350, w: 100, h: 20, type: 0 },
+      { x: 1100, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 300, y: 400, w: 40, h: 16, type: 0 },
+      { x: 450, y: 340, w: 40, h: 16, type: 0 },
+      { x: 600, y: 400, w: 40, h: 16, type: 0 },
+      { x: 750, y: 460, w: 40, h: 16, type: 0 },
+      { x: 900, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 370, w: 16, h: 16, collected: false },
+      { x: 500, y: 250, w: 16, h: 16, collected: false },
+      { x: 800, y: 370, w: 16, h: 16, collected: false },
+      { x: 950, y: 280, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 400, y: 360, w: 24, h: 24, vx: 2, minX: 350, maxX: 450, type: 'spike' },
+      { x: 700, y: 360, w: 24, h: 24, vx: -2, minX: 650, maxX: 750, type: 'spike' }
+    ],
+    powerups: [
+      { x: 650, y: 310, w: 14, h: 14, collected: false, type: 'coinmultiplier' },
+      { x: 1100, y: 210, w: 14, h: 14, collected: false, type: 'flymode' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Swamp Serpent",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 220, y: 450, w: 90, h: 20, type: 0 },
+      { x: 380, y: 400, w: 90, h: 20, type: 0 },
+      { x: 540, y: 350, w: 90, h: 20, type: 0 },
+      { x: 700, y: 300, w: 90, h: 20, type: 2 },
+      { x: 860, y: 350, w: 90, h: 20, type: 0 },
+      { x: 1020, y: 280, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 330, y: 420, w: 40, h: 16, type: 0 },
+      { x: 490, y: 370, w: 40, h: 16, type: 0 },
+      { x: 810, y: 330, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 220, y: 380, w: 16, h: 16, collected: false },
+      { x: 540, y: 280, w: 16, h: 16, collected: false },
+      { x: 860, y: 280, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [],
+    powerups: [
+      { x: 700, y: 230, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Putrid Palace",
+    platforms: [
+      { x: 0, y: 500, w: 150, h: 20, type: 0 },
+      { x: 200, y: 430, w: 100, h: 20, type: 0 },
+      { x: 300, y: 360, w: 100, h: 20, type: 0 },
+      { x: 400, y: 290, w: 100, h: 20, type: 0 },
+      { x: 500, y: 220, w: 100, h: 20, type: 0 },
+      { x: 600, y: 320, w: 100, h: 20, type: 4 },
+      { x: 700, y: 240, w: 100, h: 20, type: 0 },
+      { x: 850, y: 350, w: 100, h: 20, type: 2 },
+      { x: 1000, y: 150, w: 200, h: 40, type: 0 },
+    ],
+    spikes: [
+      { x: 150, y: 520, w: 40, h: 16, type: 0 },
+      { x: 250, y: 380, w: 40, h: 16, type: 0 },
+      { x: 350, y: 310, w: 40, h: 16, type: 0 },
+      { x: 550, y: 240, w: 40, h: 16, type: 0 },
+      { x: 800, y: 370, w: 40, h: 16, type: 0 },
+    ],
+    coins: [
+      { x: 200, y: 360, w: 16, h: 16, collected: false },
+      { x: 400, y: 220, w: 16, h: 16, collected: false },
+      { x: 600, y: 250, w: 16, h: 16, collected: false },
+      { x: 700, y: 170, w: 16, h: 16, collected: false },
+      { x: 1000, y: 100, w: 16, h: 16, collected: false },
+    ],
+    obstacles: [
+      { x: 350, y: 300, w: 24, h: 24, vx: 1.5, minX: 300, maxX: 400, type: 'spike' }
+    ],
+    powerups: [
+      { x: 500, y: 140, w: 14, h: 14, collected: false, type: 'jumpboost' }
+    ]
+  },
+  {
+    kingdom: 'slime',
+    name: "Ooze Obstacle",
     platforms: [
       { x: 0, y: 500, w: 150, h: 20, type: 0 },
       { x: 200, y: 420, w: 100, h: 20, type: 0 },
@@ -1351,6 +2168,7 @@ function unlockAchievement(achievementId) {
 
 // Menu navigation state
 let selectedLevel = 0;
+let selectedKingdom = 0; // 0 = castle, 1 = ice, 2 = slime
 let levelSelectScrollY = 0;
 let shopScrollY = 0;
 let selectedSettingsRow = 0;
@@ -1387,10 +2205,12 @@ function tryHandleUiTap(tx, ty) {
 function getLevelSelectMaxScroll() {
   const W = canvas.width;
   const H = canvas.height;
+  const kingdomKey = ['castle', 'ice', 'slime'][selectedKingdom];
+  const levelCount = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey).length;
   const levelSize = 80;
   const spacing = 20;
   const levelsPerRow = Math.max(1, Math.floor((W - 40) / (levelSize + spacing)));
-  const levelRows = Math.ceil(INITIAL_LEVELS.length / levelsPerRow);
+  const levelRows = Math.ceil(levelCount / levelsPerRow);
   const contentHeight = levelRows * (levelSize + spacing + 50);
   const visibleHeight = H - 180;
   return Math.max(0, contentHeight - visibleHeight);
@@ -1449,6 +2269,7 @@ function update() {
       state = 'levelselect';
       selectedLevel = 0;
       levelSelectScrollY = 0;
+      selectedKingdom = 0;
     }
     if (keys['s'] || keys['S']) {
       keys['s'] = false;
@@ -1469,6 +2290,8 @@ function update() {
     return;
   }
 
+  selectedKingdom = 0;
+  levelSelectScrollY = 0;
   if (state === 'settings') {
     if (keys['ArrowUp'] || keys['w']) {
       keys['ArrowUp'] = false;
@@ -1503,7 +2326,29 @@ function update() {
   }
 
   if (state === 'levelselect') {
-    // Level selection navigation
+    // Kingdom navigation (Left/Right arrows)
+    if (keys['ArrowLeft'] || keys['a']) {
+      keys['ArrowLeft'] = false;
+      keys['a'] = false;
+      if (selectedKingdom > 0) {
+        selectedKingdom -= 1;
+        selectedLevel = 0;
+        levelSelectScrollY = 0;
+      }
+    }
+    if (keys['ArrowRight'] || keys['d']) {
+      keys['ArrowRight'] = false;
+      keys['d'] = false;
+      if (selectedKingdom < 2) {
+        selectedKingdom += 1;
+        selectedLevel = 0;
+        levelSelectScrollY = 0;
+      }
+    }
+
+    // Level selection navigation (Up/Down arrows)
+    const kingdomKey = ['castle', 'ice', 'slime'][selectedKingdom];
+    const kingdomLevels = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey);
     if (keys['ArrowUp'] || keys['w']) {
       keys['ArrowUp'] = false;
       keys['w'] = false;
@@ -1513,26 +2358,16 @@ function update() {
     if (keys['ArrowDown'] || keys['s']) {
       keys['ArrowDown'] = false;
       keys['s'] = false;
-      selectedLevel = Math.min(INITIAL_LEVELS.length - 1, selectedLevel + 1);
+      selectedLevel = Math.min(kingdomLevels.length - 1, selectedLevel + 1);
       levelSelectScrollY += 90;
-    }
-    if (keys['ArrowLeft'] || keys['a']) {
-      keys['ArrowLeft'] = false;
-      keys['a'] = false;
-      selectedLevel = Math.max(0, selectedLevel - 1);
-    }
-    if (keys['ArrowRight'] || keys['d']) {
-      keys['ArrowRight'] = false;
-      keys['d'] = false;
-      selectedLevel = Math.min(INITIAL_LEVELS.length - 1, selectedLevel + 1);
     }
 
     if (keys[' '] || keys['Enter']) {
       keys[' '] = false;
       keys['Enter'] = false;
-      initGame(selectedLevel);
+      const actualLevelIndex = INITIAL_LEVELS.indexOf(kingdomLevels[selectedLevel]);
+      initGame(actualLevelIndex);
     }
-
     // Backspace or Escape to go back
     if (keys['Backspace'] || keys['Escape']) {
       keys['Backspace'] = false;
@@ -2002,6 +2837,7 @@ function draw() {
       state = 'levelselect';
       selectedLevel = 0;
       levelSelectScrollY = 0;
+      selectedKingdom = 0;
     });
 
     ctx.fillStyle = accent;
@@ -2116,16 +2952,21 @@ function draw() {
   }
 
   if (state === 'levelselect') {
+    // KINGDOM-BASED LEVEL SELECT
+    const kingdomNames = ['Castle Kingdom', 'Ice Kingdom', 'Slime Kingdom'];
+    const kingdomKey = ['castle', 'ice', 'slime'][selectedKingdom];
+    
     ctx.textAlign = 'center';
     ctx.fillStyle = surf;
     ctx.font = 'bold 36px Silkscreen';
-    ctx.fillText('SELECT LEVEL', W / 2, 80);
+    ctx.fillText(kingdomNames[selectedKingdom], W / 2, 80);
 
-    const maxLevels = INITIAL_LEVELS.length;
+    // Get levels for current kingdom
+    const kingdomLevels = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey);
     const levelSize = 80;
     const spacing = 20;
     const levelsPerRow = Math.floor((W - 40) / (levelSize + spacing));
-    const levelRows = Math.ceil(maxLevels / levelsPerRow);
+    const levelRows = Math.ceil(kingdomLevels.length / levelsPerRow);
     const contentHeight = levelRows * (levelSize + spacing + 50);
     const visibleHeight = H - 180;
     const maxScroll = Math.max(0, contentHeight - visibleHeight);
@@ -2135,7 +2976,7 @@ function draw() {
     ctx.rect(0, 120, W, visibleHeight);
     ctx.clip();
 
-    for (let i = 0; i < maxLevels; i++) {
+    for (let i = 0; i < kingdomLevels.length; i++) {
       const col = i % levelsPerRow;
       const row = Math.floor(i / levelsPerRow);
       const lx = W / 2 - (levelsPerRow * (levelSize + spacing)) / 2 + col * (levelSize + spacing);
@@ -2144,7 +2985,8 @@ function draw() {
       if (ly + levelSize < 120 || ly > H - 60) continue;
 
       const isSelected = i === selectedLevel;
-      const levelData = generateLevel(i);
+      const levelData = kingdomLevels[i];
+      const actualLevelIndex = INITIAL_LEVELS.indexOf(levelData);
 
       // Draw selection highlight
       if (isSelected) {
@@ -2159,7 +3001,7 @@ function draw() {
       ctx.lineWidth = 2;
       ctx.strokeRect(lx, ly, levelSize, levelSize);
 
-      // Draw level number
+      // Draw level number (1-15 within kingdom)
       ctx.fillStyle = txt;
       ctx.font = 'bold 28px Silkscreen';
       ctx.textAlign = 'center';
@@ -2172,7 +3014,7 @@ function draw() {
       ctx.fillText(levelData.name, lx + levelSize / 2, ly + levelSize + 20);
       registerUiButton(lx, ly, levelSize, levelSize, () => {
         selectedLevel = i;
-        initGame(i);
+        initGame(actualLevelIndex);
       });
     }
 
@@ -2191,7 +3033,8 @@ function draw() {
     ctx.font = 'bold 13px Silkscreen';
     ctx.textAlign = 'center';
     ctx.fillText('PLAY LEVEL', W / 2, H - 20);
-    registerUiButton(W / 2 - 60, H - 45, 120, 35, () => initGame(selectedLevel));
+    const actualLevelIndex = INITIAL_LEVELS.indexOf(INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey)[selectedLevel]);
+    registerUiButton(W / 2 - 60, H - 45, 120, 35, () => initGame(actualLevelIndex));
 
     // Back button
     ctx.fillStyle = sec;
@@ -2201,6 +3044,36 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText('BACK', 50, H - 20);
     registerUiButton(20, H - 45, 60, 35, () => { state = 'menu'; });
+
+    // LEFT ARROW - go back to previous kingdom
+    if (selectedKingdom > 0) {
+      ctx.fillStyle = accent;
+      ctx.fillRect(30, H / 2 - 25, 50, 50);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 30px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText('<', 55, H / 2 + 12);
+      registerUiButton(30, H / 2 - 25, 50, 50, () => {
+        selectedKingdom = Math.max(0, selectedKingdom - 1);
+        selectedLevel = 0;
+        levelSelectScrollY = 0;
+      });
+    }
+
+    // RIGHT ARROW - go to next kingdom (disabled on last kingdom)
+    if (selectedKingdom < 2) {
+      ctx.fillStyle = accent;
+      ctx.fillRect(W - 80, H / 2 - 25, 50, 50);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 30px Silkscreen';
+      ctx.textAlign = 'center';
+      ctx.fillText('>', W - 55, H / 2 + 12);
+      registerUiButton(W - 80, H / 2 - 25, 50, 50, () => {
+        selectedKingdom = Math.min(2, selectedKingdom + 1);
+        selectedLevel = 0;
+        levelSelectScrollY = 0;
+      });
+    }
   }
 
   if (state === 'shop') {
@@ -2340,23 +3213,28 @@ function draw() {
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
 
+    const level = INITIAL_LEVELS[currentLevel] || INITIAL_LEVELS[0];
+    const kingdomTheme = {
+      castle: { normal: '#a78baf', dark: '#8b7b9f', top: '#7cb342', flagColor: '#ff6b6b' },
+      ice: { normal: '#b3e5fc', dark: '#80deea', top: '#e1f5fe', flagColor: '#81d4fa' },
+      slime: { normal: '#7cb342', dark: '#558b2f', top: '#aeea00', flagColor: '#9ccc65' }
+    };
+    const theme = kingdomTheme[level.kingdom] || kingdomTheme.castle;
+
     // Platforms with type-specific rendering
     platforms.forEach(pl => {
       if (!pl.visible) return;
-      
+
       if (pl.type === 2) {
-        // Crumbling platforms - purple stone with cracks
         if (pl.crumbling) {
           ctx.globalAlpha = 1 - pl.crumbleTimer / 30;
         }
-        ctx.fillStyle = '#a78baf';
+        ctx.fillStyle = theme.normal;
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
-        // Stone texture with vertical lines
         for (let i = 0; i < pl.w; i += 8) {
-          ctx.fillStyle = '#8b7b9f';
+          ctx.fillStyle = theme.dark;
           ctx.fillRect(pl.x + i, pl.y, 1, pl.h);
         }
-        // Jagged cracks (high contrast so they stay visible)
         ctx.strokeStyle = '#3f3350';
         ctx.lineWidth = 2;
         const crackPoints = [0.18, 0.38, 0.62, 0.82];
@@ -2370,8 +3248,7 @@ function draw() {
           ctx.lineTo(x2, pl.y + pl.h - 1);
           ctx.stroke();
         });
-        // Moss/grass on top
-        ctx.fillStyle = '#7cb342';
+        ctx.fillStyle = theme.top;
         for (let i = 0; i < pl.w; i += 4) {
           const grassHeight = 2 + Math.sin(i * 0.1) * 1;
           ctx.fillRect(pl.x + i, pl.y - grassHeight, 3, grassHeight);
@@ -2380,10 +3257,8 @@ function draw() {
           ctx.globalAlpha = 1;
         }
       } else if (pl.type === 4) {
-        // Ice platforms - cyan blue with cracks and shine
         ctx.fillStyle = '#b3e5fc';
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
-        // Ice cracks
         ctx.strokeStyle = '#80deea';
         ctx.lineWidth = 1;
         for (let i = 0; i < 3; i++) {
@@ -2394,17 +3269,14 @@ function draw() {
           ctx.lineTo(endX, pl.y + pl.h);
           ctx.stroke();
         }
-        // Ice shine effect
         ctx.fillStyle = 'rgba(255,255,255,0.4)';
         ctx.fillRect(pl.x + 2, pl.y + 2, pl.w - 4, 4);
       } else if (pl.type === 5) {
-        // Slime platforms - lime green, bouncy and wavy
         ctx.fillStyle = '#76ff03';
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
         ctx.strokeStyle = '#64dd17';
         ctx.lineWidth = 2;
         ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
-        // Wavy slime texture
         ctx.strokeStyle = '#558b2f';
         ctx.lineWidth = 1;
         for (let i = 0; i < pl.w; i += 8) {
@@ -2414,18 +3286,16 @@ function draw() {
           ctx.lineTo(pl.x + i + 4, pl.y - waveHeight);
           ctx.stroke();
         }
-        // Slime shine
         ctx.fillStyle = 'rgba(255,255,255,0.3)';
         ctx.fillRect(pl.x + 2, pl.y + 2, pl.w - 4, 3);
       } else {
-        // Default/normal platforms (type 0): same stone style as crumbling, but no cracks.
-        ctx.fillStyle = '#a78baf';
+        ctx.fillStyle = theme.normal;
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
         for (let i = 0; i < pl.w; i += 8) {
-          ctx.fillStyle = '#8b7b9f';
+          ctx.fillStyle = theme.dark;
           ctx.fillRect(pl.x + i, pl.y, 1, pl.h);
         }
-        ctx.fillStyle = '#7cb342';
+        ctx.fillStyle = theme.top;
         for (let i = 0; i < pl.w; i += 4) {
           const grassHeight = 2 + Math.sin(i * 0.1) * 1;
           ctx.fillRect(pl.x + i, pl.y - grassHeight, 3, grassHeight);
@@ -2435,11 +3305,10 @@ function draw() {
 
     // Finish flag
     const finish = platforms[platforms.length - 1];
-    ctx.fillStyle = accent;
+    ctx.fillStyle = theme.flagColor;
     ctx.fillRect(finish.x + finish.w / 2 - 3, finish.y - 50, 6, 50);
-    ctx.fillStyle = accent + 'cc';
+    ctx.fillStyle = theme.flagColor + 'cc';
     ctx.fillRect(finish.x + finish.w / 2 + 3, finish.y - 50, 24, 16);
-
     // Coins
     coins.forEach(c => {
       if (c.collected) return;
@@ -2761,6 +3630,18 @@ function initGame(levelNum = 0) {
   flyMode = false;
   flyModeTimer = 0;
   state = 'playing';
+
+  // Switch music based on kingdom
+  const level = INITIAL_LEVELS[levelNum];
+  if (level) {
+    let targetTrackIndex = 0; // High Score Run for castle
+    if (level.kingdom === 'ice') targetTrackIndex = 2; // Frozen Ascent
+    if (level.kingdom === 'slime') targetTrackIndex = 1; // Squelchy Basin Run
+    if (musicTrackIndex !== targetTrackIndex) {
+      musicTrackIndex = targetTrackIndex;
+      playCurrentMusicTrack();
+    }
+  }
 }
 
 function startDailyChallenge(silent = false) {
@@ -2790,6 +3671,12 @@ function startDailyChallenge(silent = false) {
   levelDeathStreak = 0;
   achievementToast = null;
   state = 'playing';
+
+  // Default music for daily challenge (castle/High Score Run)
+  if (musicTrackIndex !== 0) {
+    musicTrackIndex = 0;
+    playCurrentMusicTrack();
+  }
 }
 
 // Touch controls
