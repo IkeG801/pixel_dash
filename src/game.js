@@ -1933,6 +1933,11 @@ const MUSIC_TRACK_URLS = (typeof __PIXEL_DASH_MUSIC_URLS__ !== 'undefined' && Ar
       'assets/music/squelchy_basin_run.mp3',
       'assets/music/frozen_ascent.mp3'
     ];
+const KINGDOM_MUSIC_TRACK_INDEX = {
+  castle: 0,
+  slime: 1,
+  ice: 2
+};
 
 function clampVolume(value) {
   return Math.max(0, Math.min(1, value));
@@ -2087,6 +2092,10 @@ function tryStartBackgroundMusic() {
 
 function playCurrentMusicTrack() {
   if (!backgroundMusic) return;
+  const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
+  const kingdomKey = level && level.kingdom ? level.kingdom : 'castle';
+  const desiredTrackIndex = KINGDOM_MUSIC_TRACK_INDEX[kingdomKey] ?? 0;
+  musicTrackIndex = desiredTrackIndex;
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
   backgroundMusic.src = MUSIC_TRACK_URLS[musicTrackIndex];
@@ -2095,18 +2104,13 @@ function playCurrentMusicTrack() {
   tryStartBackgroundMusic();
 }
 
-function playNextMusicTrack() {
-  musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACK_URLS.length;
-  playCurrentMusicTrack();
-}
-
 function initBackgroundMusic() {
   try {
     backgroundMusic = new Audio();
     backgroundMusic.loop = false;
     backgroundMusic.volume = playerData.musicVolume;
     backgroundMusic.preload = 'auto';
-    backgroundMusic.addEventListener('ended', playNextMusicTrack);
+    backgroundMusic.addEventListener('ended', playCurrentMusicTrack);
     playCurrentMusicTrack();
   } catch (e) {
     console.error('Failed to initialize background music:', e);
@@ -3635,16 +3639,7 @@ function initGame(levelNum = 0) {
   state = 'playing';
 
   // Switch music based on kingdom
-  const level = INITIAL_LEVELS[levelNum];
-  if (level) {
-    let targetTrackIndex = 0; // High Score Run for castle
-    if (level.kingdom === 'ice') targetTrackIndex = 2; // Frozen Ascent
-    if (level.kingdom === 'slime') targetTrackIndex = 1; // Squelchy Basin Run
-    if (musicTrackIndex !== targetTrackIndex) {
-      musicTrackIndex = targetTrackIndex;
-      playCurrentMusicTrack();
-    }
-  }
+  playCurrentMusicTrack();
 }
 
 function startDailyChallenge(silent = false) {
