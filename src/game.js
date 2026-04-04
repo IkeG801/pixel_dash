@@ -2946,14 +2946,11 @@ function drawKingdomBackground(kingdom, W, H, t) {
 }
 
 function getDrawBackgroundKingdom() {
-  if (state === 'levelselect') {
-    return ['castle', 'ice', 'slime'][selectedKingdom] || 'castle';
-  }
   if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
     const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
     return (level && level.kingdom) || 'castle';
   }
-  return 'castle';
+  return null;
 }
 
 function draw() {
@@ -2970,7 +2967,13 @@ function draw() {
   resetUiButtons();
 
   ctx.clearRect(0, 0, W, H);
-  drawKingdomBackground(getDrawBackgroundKingdom(), W, H, time);
+  const backgroundKingdom = getDrawBackgroundKingdom();
+  if (backgroundKingdom) {
+    drawKingdomBackground(backgroundKingdom, W, H, time);
+  } else {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+  }
 
   if (state === 'menu') {
     ctx.textAlign = 'center';
