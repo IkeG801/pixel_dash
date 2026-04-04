@@ -80,11 +80,14 @@ function savePlayerData() {
   localStorage.setItem('pixelDashPlayer', JSON.stringify(playerData));
 }
 
+function resetSessionCurrencies() {
+  playerData.total_coins = 0;
+  playerData.challenge_points = 0;
+}
+
 // Load on startup
 loadPlayerData();
-playerData.challenge_points = (playerData.challenge_points || 0);
-playerData.total_coins = 0;
-playerData.challenge_points = 0;
+resetSessionCurrencies();
 savePlayerData();
 
 if (window.elementSdk) {
