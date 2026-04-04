@@ -3639,10 +3639,10 @@ function draw() {
         : level.kingdom === 'slime'
           ? { fill: '#c084fc', stroke: '#8b5cf6', core: '#e9d5ff' }
           : { fill: '#7a5c3d', stroke: '#6b5535', core: '#f2d6b3' };
-      ctx.fillStyle = spikeTheme.fill;
       const spikeWidth = 10;
       for (let i = 0; i < s.w; i += spikeWidth) {
         const sx = s.x + i;
+        ctx.fillStyle = spikeTheme.fill;
         ctx.beginPath();
         ctx.moveTo(sx + spikeWidth / 2, s.y);
         ctx.lineTo(sx + spikeWidth, s.y + s.h);
