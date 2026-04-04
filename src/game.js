@@ -3657,12 +3657,17 @@ function draw() {
     obstacles.forEach(obs => {
       const centerX = obs.x + obs.w / 2;
       const centerY = obs.y + obs.h / 2;
+      const obstacleTheme = level.kingdom === 'ice'
+        ? { blade: '#b3e5fc', edge: '#e0f2fe', core: '#60a5fa', highlight: '#ffffff' }
+        : level.kingdom === 'slime'
+          ? { blade: '#b47cff', edge: '#7c3aed', core: '#5b21b6', highlight: '#e9d5ff' }
+          : { blade: '#ff3333', edge: '#cc0000', core: '#991b1b', highlight: '#ff9f9f' };
       
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate((time * 0.15) % (Math.PI * 2));
       
-      ctx.fillStyle = '#ff3333';
+      ctx.fillStyle = obstacleTheme.blade;
       for (let i = 0; i < 8; i++) {
         const angle = (i / 8) * Math.PI * 2;
         const x = Math.cos(angle) * 10;
@@ -3673,10 +3678,15 @@ function draw() {
         ctx.lineTo(Math.cos(angle + 0.3) * 6, Math.sin(angle + 0.3) * 6);
         ctx.closePath();
         ctx.fill();
+        ctx.strokeStyle = obstacleTheme.edge;
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
       
-      ctx.fillStyle = '#cc0000';
+      ctx.fillStyle = obstacleTheme.core;
       ctx.fillRect(-4, -4, 8, 8);
+      ctx.fillStyle = obstacleTheme.highlight;
+      ctx.fillRect(-2, -2, 2, 2);
       
       ctx.restore();
     });
