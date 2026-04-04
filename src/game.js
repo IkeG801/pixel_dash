@@ -1940,6 +1940,8 @@ const KINGDOM_MUSIC_TRACK_INDEX = {
   ice: 2
 };
 const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect']);
+const GAMEPLAY_MUSIC_STATES = new Set(['playing', 'dead', 'levelcomplete']);
+let lastMusicState = null;
 
 function clampVolume(value) {
   return Math.max(0, Math.min(1, value));
@@ -2096,7 +2098,11 @@ function getDesiredMusicTrackIndex() {
   if (MENU_MUSIC_STATES.has(state)) {
     return 0;
   }
-  if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+  if (GAMEPLAY_MUSIC_STATES.has(state)) {
+    const enteringGameplayFromMenu = !GAMEPLAY_MUSIC_STATES.has(lastMusicState);
+    if (!enteringGameplayFromMenu) {
+      return musicTrackIndex;
+    }
     const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
     const kingdomKey = level && level.kingdom ? level.kingdom : 'castle';
     return KINGDOM_MUSIC_TRACK_INDEX[kingdomKey] ?? 0;
@@ -2108,7 +2114,10 @@ function syncBackgroundMusicToState() {
   if (!backgroundMusic) return;
   const desiredTrackIndex = getDesiredMusicTrackIndex();
   const desiredSignature = `${desiredTrackIndex}`;
-  if (currentMusicSignature === desiredSignature) return;
+  if (currentMusicSignature === desiredSignature) {
+    lastMusicState = state;
+    return;
+  }
   currentMusicSignature = desiredSignature;
   musicTrackIndex = desiredTrackIndex;
   backgroundMusic.pause();
@@ -2118,6 +2127,7 @@ function syncBackgroundMusicToState() {
   backgroundMusic.load();
   backgroundMusicStarted = false;
   tryStartBackgroundMusic();
+  lastMusicState = state;
 }
 
 function playCurrentMusicTrack() {
