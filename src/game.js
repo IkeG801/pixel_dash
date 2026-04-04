@@ -2892,28 +2892,28 @@ function draw() {
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - 50, H / 2 + 285, 100, 40);
+    ctx.fillRect(W / 2 + 30, H / 2 + 285, 100, 40);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('DAILY', W / 2, H / 2 + 310);
+    ctx.fillText('AUDIO', W / 2 + 80, H / 2 + 310);
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[D]', W / 2, H / 2 + 330);
-    registerUiButton(W / 2 - 50, H / 2 + 285, 100, 40, () => {
-      startDailyChallenge();
+    ctx.fillText('[O]', W / 2 + 80, H / 2 + 330);
+    registerUiButton(W / 2 + 30, H / 2 + 285, 100, 40, () => {
+      selectedSettingsRow = 0;
+      state = 'settings';
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - 50, H / 2 + 350, 100, 40);
+    ctx.fillRect(W / 2 - 130, H / 2 + 285, 100, 40);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('AUDIO', W / 2, H / 2 + 375);
+    ctx.fillText('DAILY', W / 2 - 80, H / 2 + 310);
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[O]', W / 2, H / 2 + 395);
-    registerUiButton(W / 2 - 50, H / 2 + 350, 100, 40, () => {
-      selectedSettingsRow = 0;
-      state = 'settings';
+    ctx.fillText('[D]', W / 2 - 80, H / 2 + 330);
+    registerUiButton(W / 2 - 130, H / 2 + 285, 100, 40, () => {
+      startDailyChallenge();
     });
 
     ctx.fillStyle = txt;
@@ -2921,8 +2921,8 @@ function draw() {
     const todayDate = getTodayDate();
     const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
     const bestText = bestDaily > 0 ? `${bestDaily}s` : '--';
-    ctx.fillText(`Daily Best: ${bestText}`, W / 2, H / 2 + 430);
-    ctx.fillText('Audio settings: [O] / AUDIO button', W / 2, H / 2 + 458);
+    ctx.fillText(`Daily Best: ${bestText}`, W / 2, H / 2 + 365);
+    ctx.fillText('Audio settings: [O] / AUDIO button', W / 2, H / 2 + 393);
 
     return;
   }
