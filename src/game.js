@@ -2324,24 +2324,29 @@ function update() {
   }
 
   if (state === 'levelselect') {
-    // Kingdom navigation (Left/Right arrows)
-    if (keys['ArrowLeft'] || keys['a']) {
-      keys['ArrowLeft'] = false;
-      keys['a'] = false;
-      if (selectedKingdom > 0) {
-        selectedKingdom -= 1;
-        selectedLevel = 0;
-        levelSelectScrollY = 0;
-      }
-    }
-    if (keys['ArrowRight'] || keys['d']) {
-      keys['ArrowRight'] = false;
-      keys['d'] = false;
+    // Kingdom navigation (Left/Right arrows). Resolve opposite-key conflicts safely.
+    const wantsLeft = !!(keys['ArrowLeft'] || keys['a']);
+    const wantsRight = !!(keys['ArrowRight'] || keys['d']);
+    if (wantsRight && !wantsLeft) {
       if (selectedKingdom < 2) {
         selectedKingdom += 1;
         selectedLevel = 0;
         levelSelectScrollY = 0;
       }
+      keys['ArrowRight'] = false;
+      keys['d'] = false;
+      keys['ArrowLeft'] = false;
+      keys['a'] = false;
+    } else if (wantsLeft && !wantsRight) {
+      if (selectedKingdom > 0) {
+        selectedKingdom -= 1;
+        selectedLevel = 0;
+        levelSelectScrollY = 0;
+      }
+      keys['ArrowLeft'] = false;
+      keys['a'] = false;
+      keys['ArrowRight'] = false;
+      keys['d'] = false;
     }
 
     // Level selection navigation (Up/Down arrows)
