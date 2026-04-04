@@ -173,6 +173,7 @@ class SeededRandom {
 
 const particleRng = new SeededRandom();
 const platformVisualRng = new SeededRandom(12345); // Fixed seed for consistent platform visuals
+const ICE_FRICTION = 0.975;
 // const TILE = 32;              // from game-logic.js
 // const GRAVITY = 0.6;          // from game-logic.js
 // const JUMP_FORCE = -12;       // from game-logic.js
@@ -1411,8 +1412,8 @@ function update() {
     }
   });
   
-  // Apply friction (less on ice)
-  p.vx *= onIcePlatform ? 0.92 : FRICTION;
+  // Apply friction (much less on ice so it feels slippery)
+  p.vx *= onIcePlatform ? ICE_FRICTION : FRICTION;
   if (Math.abs(p.vx) > MOVE_SPEED) p.vx = MOVE_SPEED * Math.sign(p.vx);
   if (Math.abs(p.vx) < 0.1) p.vx = 0;
   if (moveX !== 0) p.facing = moveX;

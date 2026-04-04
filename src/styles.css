@@ -1,5 +1,21 @@
 /* Pixel Dash - Game Styles */
 
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('../assets/fonts/PressStart2P-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('../assets/fonts/PressStart2P-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -9,7 +25,7 @@ html, body {
 }
 
 * {
-  font-family: 'Silkscreen', monospace;
+  font-family: 'Press Start 2P', 'Silkscreen', monospace;
 }
 
 canvas {
@@ -18,4 +34,5 @@ canvas {
 
 body {
   background-color: #0f172a;
+  box-sizing: border-box;
 }
