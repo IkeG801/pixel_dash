@@ -2839,100 +2839,171 @@ function drawPixelSun(x, y, scale, color) {
 
 function drawKingdomBackground(kingdom, W, H, t) {
   if (kingdom === 'ice') {
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = '#87ceeb';
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#1d4ed8';
-    ctx.fillRect(0, 0, W, H * 0.55);
-    ctx.fillStyle = '#2563eb';
-    ctx.fillRect(0, H * 0.18, W, H * 0.22);
 
-    const mountains = [
-      { x: 0, w: 260, h: 170, color: '#334155' },
-      { x: 190, w: 260, h: 210, color: '#475569' },
-      { x: 410, w: 300, h: 190, color: '#334155' },
-      { x: 650, w: 280, h: 230, color: '#475569' },
-      { x: 860, w: 320, h: 200, color: '#334155' }
+    // Horizon glow and depth bands
+    ctx.fillStyle = '#9edcff';
+    ctx.fillRect(0, H * 0.18, W, H * 0.26);
+    ctx.fillStyle = '#c9eefc';
+    ctx.fillRect(0, H * 0.42, W, H * 0.10);
+
+    // Distant mountains, drawn as triangular silhouettes with lit/shadowed sides.
+    const mountainBases = [
+      { x: -80, w: 280, h: 170 },
+      { x: 140, w: 320, h: 220 },
+      { x: 420, w: 280, h: 190 },
+      { x: 650, w: 340, h: 240 },
+      { x: 930, w: 300, h: 200 }
     ];
-    mountains.forEach(m => {
-      ctx.fillStyle = m.color;
-      const peakX = m.x + m.w / 2;
-      const baseY = H * 0.68;
-      const rows = Math.floor(m.h / 6);
-      for (let row = 0; row < rows; row++) {
-        const rowWidth = m.w * (1 - row / rows);
-        const startX = peakX - rowWidth / 2;
-        const y = baseY - row * 6;
-        ctx.fillRect(startX, y, rowWidth, 6);
+    mountainBases.forEach((m, index) => {
+      const baseY = H * 0.72;
+      const peakX = m.x + m.w / 2 - (camera.x * 0.015);
+      const peakY = baseY - m.h;
+      const leftColor = index % 2 === 0 ? '#f0f8ff' : '#dbeafe';
+      const rightColor = index % 2 === 0 ? '#b284be' : '#7c83a3';
+      const bodyColor = index % 2 === 0 ? '#8fb3d9' : '#6b7fa6';
+
+      // Base mountain body, built in stacked triangle bands.
+      for (let row = 0; row < m.h; row += 6) {
+        const progress = row / m.h;
+        const halfWidth = m.w * (1 - progress) * 0.5;
+        const y = baseY - row;
+        ctx.fillStyle = bodyColor;
+        ctx.fillRect(peakX - halfWidth, y, halfWidth * 2, 6);
+
+        // Left side lit, right side shadowed for a classic 8-bit mountain split.
+        ctx.fillStyle = leftColor;
+        ctx.fillRect(peakX - halfWidth, y, halfWidth * 0.52, 6);
+        ctx.fillStyle = rightColor;
+        ctx.fillRect(peakX + halfWidth * 0.04, y, halfWidth * 0.48, 6);
       }
-      ctx.fillStyle = '#f8fafc';
-      const snowWidth = m.w * 0.28;
-      ctx.fillRect(peakX - snowWidth / 2, baseY - m.h + 26, snowWidth, 10);
-      ctx.fillRect(peakX - snowWidth / 3, baseY - m.h + 18, snowWidth / 1.5, 8);
-      ctx.fillRect(peakX - snowWidth / 4, baseY - m.h + 10, snowWidth / 2, 6);
+
+      // Snow cap, angled to the left side and punched out with bright pixels.
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(peakX - 18, peakY + 10, 18, 6);
+      ctx.fillRect(peakX - 12, peakY + 4, 24, 6);
+      ctx.fillRect(peakX - 8, peakY - 2, 16, 6);
+      ctx.fillStyle = '#f0f8ff';
+      ctx.fillRect(peakX - 16, peakY + 16, 14, 4);
+      ctx.fillRect(peakX - 4, peakY + 12, 18, 4);
     });
 
+    // Foreground icy ridge to hide the lower mountain bases and increase depth.
+    ctx.fillStyle = '#dbeafe';
+    ctx.fillRect(0, H * 0.76, W, H * 0.24);
+    ctx.fillStyle = '#9bb9d6';
+    for (let i = 0; i < W; i += 16) {
+      const ridgeHeight = 10 + Math.sin((i + t * 0.03) * 0.02) * 3;
+      ctx.fillRect(i, H * 0.76 - ridgeHeight, 14, ridgeHeight + 2);
+    }
+
+    // Falling snow using pixel dots.
     ctx.fillStyle = '#ffffff';
-    for (let i = 0; i < 36; i++) {
-      const flakeX = (i * 97 + t * 0.7) % (W + 40) - 20;
-      const flakeY = (i * 53 + t * 1.4) % H;
+    for (let i = 0; i < 70; i++) {
+      const flakeX = (i * 83 + t * 0.45 + (camera.x * 0.12)) % (W + 40) - 20;
+      const flakeY = (i * 47 + t * 1.15) % H;
       ctx.fillRect(flakeX, flakeY, 2, 2);
     }
   } else if (kingdom === 'slime') {
-    ctx.fillStyle = '#14324a';
+    ctx.fillStyle = '#0b3d18';
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#0f766e';
-    ctx.fillRect(0, 0, W, H * 0.38);
+
+    // Dense swamp atmosphere with a darker top band and drifting mist.
     ctx.fillStyle = '#134e4a';
-    ctx.fillRect(0, H * 0.38, W, H * 0.62);
+    ctx.fillRect(0, 0, W, H * 0.34);
+    ctx.fillStyle = '#1f6f2a';
+    ctx.fillRect(0, H * 0.34, W, H * 0.26);
 
-    const islandY = H * 0.42;
-    ctx.fillStyle = '#475569';
-    ctx.fillRect(W * 0.18, islandY, W * 0.64, 34);
-    ctx.fillRect(W * 0.22, islandY - 18, W * 0.56, 18);
-    ctx.fillRect(W * 0.28, islandY - 30, W * 0.44, 12);
-    ctx.fillRect(W * 0.34, islandY - 40, W * 0.32, 10);
+    // Floating island silhouette.
+    const islandY = H * 0.34;
+    ctx.fillStyle = '#374151';
+    ctx.fillRect(W * 0.14, islandY + 16, W * 0.72, 40);
+    ctx.fillRect(W * 0.20, islandY, W * 0.60, 20);
+    ctx.fillRect(W * 0.28, islandY - 18, W * 0.44, 18);
+    ctx.fillRect(W * 0.36, islandY - 32, W * 0.28, 14);
 
-    ctx.fillStyle = '#84cc16';
-    ctx.fillRect(W * 0.28, islandY - 18, W * 0.12, 8);
-    ctx.fillRect(W * 0.48, islandY - 26, W * 0.16, 8);
-    ctx.fillRect(W * 0.36, islandY - 6, W * 0.22, 8);
-    ctx.fillStyle = '#22c55e';
-    ctx.fillRect(W * 0.30, islandY - 10, W * 0.08, 4);
-    ctx.fillRect(W * 0.50, islandY - 18, W * 0.11, 4);
+    // Glowing toxic slime river with ripples near the bottom.
+    const riverY = H * 0.74;
+    ctx.fillStyle = '#32cd32';
+    ctx.fillRect(0, riverY, W, H - riverY);
+    ctx.fillStyle = '#1a7f2b';
+    ctx.fillRect(0, riverY + 8, W, 3);
+    ctx.fillRect(0, riverY + 18, W, 3);
+    ctx.fillRect(0, riverY + 28, W, 3);
+    ctx.fillStyle = '#0b3d18';
+    ctx.fillRect(0, riverY - 10, W, 14);
 
-    ctx.fillStyle = '#84cc16';
-    for (let i = 0; i < 8; i++) {
-      const dripX = W * 0.20 + i * W * 0.075;
-      const dripHeight = 20 + (i % 3) * 8;
-      ctx.fillRect(dripX, islandY + 34, 8, dripHeight);
+    // Organic hanging vines and lily pads.
+    ctx.fillStyle = '#913175';
+    for (let i = 0; i < 7; i++) {
+      const vineX = W * 0.18 + i * W * 0.1;
+      const vineLen = 18 + (i % 4) * 10;
+      ctx.fillRect(vineX, islandY - 10, 6, vineLen);
+      ctx.fillRect(vineX - 6, islandY + vineLen - 8, 18, 6);
     }
+    ctx.fillStyle = '#32cd32';
+    ctx.fillRect(W * 0.28, islandY - 8, W * 0.14, 8);
+    ctx.fillRect(W * 0.48, islandY - 16, W * 0.18, 8);
+    ctx.fillRect(W * 0.38, islandY + 4, W * 0.22, 8);
+    ctx.fillStyle = '#0b3d18';
+    ctx.fillRect(W * 0.30, islandY - 4, W * 0.05, 3);
+    ctx.fillRect(W * 0.52, islandY - 12, W * 0.06, 3);
 
+    // Mist layer at the very bottom.
+    ctx.fillStyle = 'rgba(11,61,24,0.55)';
+    ctx.fillRect(0, H * 0.88, W, H * 0.12);
+
+    // Tiny toxic flowers and bubbles.
     ctx.fillStyle = '#bbf7d0';
-    for (let i = 0; i < 16; i++) {
-      const bubbleX = (i * 83 + t * 0.8) % (W + 30) - 15;
-      const bubbleY = (H * 0.55 + i * 19 + Math.sin((t + i) * 0.04) * 18) % H;
+    for (let i = 0; i < 18; i++) {
+      const bubbleX = (i * 73 + t * 0.75 + camera.x * 0.08) % (W + 30) - 15;
+      const bubbleY = (H * 0.46 + i * 21 + Math.sin((t + i) * 0.03) * 14) % (H * 0.88);
       ctx.fillRect(bubbleX, bubbleY, 3, 3);
     }
   } else {
-    ctx.fillStyle = '#7dd3fc';
+    ctx.fillStyle = '#87ceeb';
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#bae6fd';
-    ctx.fillRect(0, H * 0.45, W, H * 0.55);
+    ctx.fillStyle = '#a8d8f0';
+    ctx.fillRect(0, H * 0.20, W, H * 0.80);
 
-    drawPixelSun(W - 140, 38, 6, '#fde047');
-    drawPixelCloud(60, 60, 6, '#ffffff');
-    drawPixelCloud(W * 0.32, 40, 7, '#f8fafc');
-    drawPixelCloud(W * 0.68, 82, 6, '#ffffff');
+    // Layered clouds for parallax depth.
+    drawPixelCloud(50 + (camera.x * 0.04) % 80, 40, 6, '#dff7ff');
+    drawPixelCloud(W * 0.26 + (camera.x * 0.02) % 60, 24, 7, '#ffffff');
+    drawPixelCloud(W * 0.60 + (camera.x * 0.03) % 90, 56, 6, '#d7eef8');
 
-    ctx.fillStyle = '#93c5fd';
-    ctx.fillRect(0, H * 0.66, W, H * 0.34);
-    ctx.fillStyle = '#60a5fa';
-    for (let i = 0; i < 6; i++) {
-      const hillX = i * (W / 6) - 30;
-      const hillW = W / 4;
-      ctx.fillRect(hillX, H * 0.72, hillW, 24);
-      ctx.fillRect(hillX + hillW * 0.18, H * 0.68, hillW * 0.28, 16);
-      ctx.fillRect(hillX + hillW * 0.46, H * 0.64, hillW * 0.22, 12);
+    // Bright sun with dithering glow.
+    const sunX = W - 150;
+    const sunY = 36;
+    ctx.fillStyle = '#fff7b2';
+    for (let dx = -3; dx <= 18; dx++) {
+      for (let dy = -3; dy <= 18; dy++) {
+        const dist = Math.abs(dx - 8) + Math.abs(dy - 8);
+        if (dist <= 11 && ((dx + dy) & 1) === 0) {
+          ctx.fillRect(sunX + dx, sunY + dy, 3, 3);
+        }
+      }
+    }
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(sunX + 5, sunY + 5, 18, 18);
+    ctx.fillStyle = '#fffbe6';
+    ctx.fillRect(sunX + 8, sunY + 8, 10, 10);
+
+    // Castle silhouettes: spires and battlements at the horizon.
+    const skylineY = H * 0.76;
+    ctx.fillStyle = '#7c8fb8';
+    ctx.fillRect(0, skylineY, W, H - skylineY);
+    ctx.fillStyle = '#6b7da8';
+    for (let i = 0; i < 7; i++) {
+      const spireX = i * (W / 7) - 20 + (camera.x * 0.06) % 40;
+      const towerW = 22 + (i % 3) * 8;
+      const towerH = 26 + (i % 4) * 10;
+      ctx.fillRect(spireX, skylineY - towerH, towerW, towerH);
+      ctx.fillRect(spireX - 6, skylineY - towerH - 10, towerW + 12, 10);
+      ctx.fillRect(spireX + towerW / 2 - 4, skylineY - towerH - 18, 8, 18);
+      ctx.fillStyle = '#d9e5f5';
+      ctx.fillRect(spireX + 4, skylineY - towerH - 6, towerW - 8, 4);
+      ctx.fillStyle = '#6b7da8';
     }
   }
 }
