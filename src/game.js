@@ -2099,6 +2099,7 @@ function playCurrentMusicTrack() {
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
   backgroundMusic.src = MUSIC_TRACK_URLS[musicTrackIndex];
+  backgroundMusic.loop = true;
   backgroundMusic.load();
   backgroundMusicStarted = false;
   tryStartBackgroundMusic();
@@ -2107,10 +2108,8 @@ function playCurrentMusicTrack() {
 function initBackgroundMusic() {
   try {
     backgroundMusic = new Audio();
-    backgroundMusic.loop = false;
     backgroundMusic.volume = playerData.musicVolume;
     backgroundMusic.preload = 'auto';
-    backgroundMusic.addEventListener('ended', playCurrentMusicTrack);
     playCurrentMusicTrack();
   } catch (e) {
     console.error('Failed to initialize background music:', e);
