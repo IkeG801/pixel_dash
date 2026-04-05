@@ -2467,10 +2467,10 @@ function buildGlitchLevels() {
     });
     
     // Generate main path: left-to-right horizontal progression
-    let xPos = 150;
+    let xPos = 200;
     const platformIndices = [];
     for (let i = 0; i < normalCount + glitchCount; i++) {
-      const y = 200 + rng.range(-80, 80); // Vary vertical position
+      const y = 300 + rng.range(-60, 60); // Mid-level vertical variation (y: 240-360)
       const isGlitch = i < glitchCount;
       
       platformIndices.push({ x: xPos, y, isGlitch, idx: i });
@@ -2480,7 +2480,6 @@ function buildGlitchLevels() {
     // Create actual platforms from indices
     let lastX = 50;
     let lastY = 440;
-    let glitchesUsed = 0;
     
     for (let i = 0; i < platformIndices.length; i++) {
       const { x, y, isGlitch } = platformIndices[i];
@@ -2511,16 +2510,15 @@ function buildGlitchLevels() {
           glitchTimer: 0,
           currentPos: 0
         });
-        glitchesUsed++;
       }
       
       lastX = x;
       lastY = y;
     }
     
-    // Finish platform
+    // Finish platform - place it after the last platform
     platforms.push({
-      x: lastX + STEP_WIDTH,
+      x: lastX + STEP_WIDTH + 20,
       y: lastY,
       w: PLATFORM_WIDTH,
       h: PLATFORM_HEIGHT,
@@ -2537,7 +2535,7 @@ function buildGlitchLevels() {
       
       obstacles.push({
         x: x - 30 + rng.range(-20, 20),
-        y: y - 40,
+        y: y - 60,
         w: 24,
         h: 24,
         color: GLITCH_COLOR_GREEN,
@@ -2549,21 +2547,19 @@ function buildGlitchLevels() {
     }
     
     // Add powerups (jump boosts in middle levels)
-    if (levelIndex % 3 === 1) {
+    if (levelIndex % 3 === 1 && platformIndices.length > 0) {
       const midPlatform = platformIndices[Math.floor(platformIndices.length / 2)];
-      if (midPlatform) {
-        powerups.push({
-          x: midPlatform.x,
-          y: midPlatform.y - 30,
-          w: 14,
-          h: 14,
-          collected: false,
-          type: 'jumpboost'
-        });
-      }
+      powerups.push({
+        x: midPlatform.x,
+        y: midPlatform.y - 30,
+        w: 14,
+        h: 14,
+        collected: false,
+        type: 'jumpboost'
+      });
     }
     
-    // Validate and sanitize
+    // Create level
     const level = {
       name: `Glitch ${levelNum}`,
       platforms,
@@ -2571,8 +2567,6 @@ function buildGlitchLevels() {
       powerups,
       kingdom: 'glitch'
     };
-    
-    platforms.length = Math.max(platforms.length, 2); // Ensure at least spawn and finish
     
     levels.push(level);
   }
