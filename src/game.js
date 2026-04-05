@@ -190,6 +190,7 @@ const MAGMA_GEYSER_IDLE = 130;
 const MAGMA_GEYSER_WARNING = 35;
 const MAGMA_GEYSER_ERUPTION = 45;
 const MAGMA_GEYSER_CYCLE = MAGMA_GEYSER_IDLE + MAGMA_GEYSER_WARNING + MAGMA_GEYSER_ERUPTION;
+const ELEVATOR_MAX_DELTA = 3;
 // const TILE = 32;              // from game-logic.js
 // const GRAVITY = 0.6;          // from game-logic.js
 // const JUMP_FORCE = -12;       // from game-logic.js
@@ -2133,6 +2134,113 @@ const INITIAL_LEVELS = [
   }
 ];
 
+function buildSkyLevels() {
+  const skyNames = [
+    'Cloudstep Start',
+    'Morning Lift',
+    'Featherline',
+    'Rose Horizon',
+    'Sunwake Rungs',
+    'High Drift',
+    'Dawn Rails',
+    'Pastel Updraft',
+    'Skyline Pulse',
+    'Cirrus Ladder',
+    'Halo Transit',
+    'Silver Wake',
+    'Zenith Liftway',
+    'Above the Amber',
+    'Seven Thousand Feet'
+  ];
+
+  const levels = [];
+
+  for (let i = 0; i < skyNames.length; i++) {
+    const platforms = [{ x: 0, y: 500, w: 170, h: 20, type: 0 }];
+    const coins = [];
+    const spikes = [];
+    const obstacles = [];
+    const powerups = [];
+
+    const baseY = 500;
+    const heightOffset = Math.floor(i * 2.4);
+
+    for (let step = 1; step <= 7; step++) {
+      const y = baseY - step * 55 - heightOffset;
+      const x = 470 + (((step + i) % 3) - 1) * 120 + ((i % 2) ? 26 : -26);
+      const isElevator = step % 3 === 0;
+      const isCrumble = step % 4 === 0;
+      const type = isElevator ? 7 : (isCrumble ? 2 : 0);
+      const width = isElevator ? 96 : 108;
+
+      const platform = { x, y, w: width, h: 20, type };
+      if (type === 7) {
+        platform.minY = y - 42;
+        platform.maxY = y + 42;
+        platform.speed = 0.9 + (i % 3) * 0.18;
+        platform.moveDir = ((i + step) % 2 === 0) ? 1 : -1;
+      }
+      platforms.push(platform);
+
+      coins.push({ x: x + Math.max(8, width / 2 - 8), y: y - 36, w: 16, h: 16, collected: false });
+
+      if (step % 2 === 0) {
+        spikes.push({ x: x - 36, y: y + 20, w: 30, h: 16, type: 0 });
+      }
+    }
+
+    const finishY = Math.max(46, 90 - Math.floor(i * 1.5));
+    const finishX = 520 + ((i % 3) - 1) * 70;
+    platforms.push({ x: finishX, y: finishY, w: 250, h: 40, type: 0 });
+
+    if (i >= 3) {
+      obstacles.push({
+        x: 520,
+        y: 360 - Math.floor(i * 6),
+        w: 24,
+        h: 24,
+        vx: (i % 2 === 0 ? 1 : -1) * (1.8 + (i / 16)),
+        minX: 460,
+        maxX: 620,
+        type: 'spike'
+      });
+    }
+
+    if (i >= 8) {
+      obstacles.push({
+        x: 700,
+        y: 250 - Math.floor(i * 3),
+        w: 24,
+        h: 24,
+        vx: (i % 2 === 0 ? -1 : 1) * 2.0,
+        minX: 640,
+        maxX: 780,
+        type: 'spike'
+      });
+    }
+
+    if (i % 4 === 1) {
+      powerups.push({ x: 500, y: 300 - Math.floor(i * 4), w: 14, h: 14, collected: false, type: 'jumpboost' });
+    } else if (i % 4 === 3) {
+      powerups.push({ x: 640, y: 270 - Math.floor(i * 3), w: 14, h: 14, collected: false, type: 'coinmultiplier' });
+    }
+
+    levels.push({
+      kingdom: 'sky',
+      name: skyNames[i],
+      platforms,
+      spikes,
+      coins,
+      obstacles,
+      powerups
+    });
+  }
+
+  return levels;
+}
+
+INITIAL_LEVELS.push(...buildSkyLevels());
+
 // Procedural generation and autopopulation removed: we run exactly the curated INITIAL_LEVELS now.
 
 // Particle system
@@ -2412,13 +2520,15 @@ const MUSIC_TRACK_URLS = (typeof __PIXEL_DASH_MUSIC_URLS__ !== 'undefined' && Ar
       'assets/music/high_score_run.mp3',
       'assets/music/squelchy_basin_run.mp3',
       'assets/music/frozen_ascent.mp3',
-      'assets/music/Below_the_Obsidian_Peak.mp3'
+      'assets/music/Below_the_Obsidian_Peak.mp3',
+      'assets/music/Seven_Thousand_Feet.mp3'
     ];
 const KINGDOM_MUSIC_TRACK_INDEX = {
   castle: 0,
   slime: 1,
   ice: 2,
-  magma: 3
+  magma: 3,
+  sky: 4
 };
 const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect']);
 
@@ -2671,7 +2781,7 @@ function unlockAchievement(achievementId) {
 
 // Menu navigation state
 let selectedLevel = 0;
-let selectedKingdom = 0; // 0 = castle, 1 = ice, 2 = slime, 3 = magma
+let selectedKingdom = 0; // 0 = castle, 1 = ice, 2 = slime, 3 = magma, 4 = sky
 let levelSelectScrollY = 0;
 let shopScrollY = 0;
 let selectedSettingsRow = 0;
@@ -2708,7 +2818,7 @@ function tryHandleUiTap(tx, ty) {
 function getLevelSelectMaxScroll() {
   const W = canvas.width;
   const H = canvas.height;
-  const kingdomKey = ['castle', 'ice', 'slime', 'magma'][selectedKingdom];
+  const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky'][selectedKingdom];
   const levelCount = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey).length;
   const levelSize = 80;
   const spacing = 20;
@@ -2857,7 +2967,7 @@ function update() {
     const wantsLeft = !!(keys['ArrowLeft'] || keys['a']);
     const wantsRight = !!(keys['ArrowRight'] || keys['d']);
     if (wantsRight && !wantsLeft) {
-      if (selectedKingdom < 3) {
+      if (selectedKingdom < 4) {
         selectedKingdom += 1;
         selectedLevel = 0;
         levelSelectScrollY = 0;
@@ -2879,7 +2989,7 @@ function update() {
     }
 
     // Level selection navigation (Up/Down arrows)
-    const kingdomKey = ['castle', 'ice', 'slime', 'magma'][selectedKingdom];
+    const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky'][selectedKingdom];
     const kingdomLevels = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey);
     if (keys['ArrowUp'] || keys['w']) {
       keys['ArrowUp'] = false;
@@ -2982,6 +3092,28 @@ function update() {
     if (pl.type === 6) {
       pl.geyserTimer = ((pl.geyserTimer || 0) + 1) % MAGMA_GEYSER_CYCLE;
     }
+    if (pl.type === 7) {
+      const prevY = pl.y;
+      const speed = Math.max(0.4, Math.min(2.2, pl.speed || 1));
+      if (typeof pl.moveDir !== 'number') {
+        pl.moveDir = 1;
+      }
+
+      pl.y += pl.moveDir * speed;
+      if (pl.y <= pl.minY) {
+        pl.y = pl.minY;
+        pl.moveDir = 1;
+      } else if (pl.y >= pl.maxY) {
+        pl.y = pl.maxY;
+        pl.moveDir = -1;
+      }
+
+      const rawDelta = pl.y - prevY;
+      pl.deltaY = Math.max(-ELEVATOR_MAX_DELTA, Math.min(ELEVATOR_MAX_DELTA, rawDelta));
+      if (pl.deltaY !== rawDelta) {
+        pl.y = prevY + pl.deltaY;
+      }
+    }
   });
   
   // Check if player is on ice platform for reduced friction
@@ -3038,6 +3170,7 @@ function update() {
   const oldY = p.y;
   p.y += p.vy;
   p.grounded = false;
+  let groundedPlatform = null;
   
   platforms.forEach(pl => {
     if (!pl.visible) return;
@@ -3049,6 +3182,7 @@ function update() {
       if (wasAbove && p.vy >= 0) {
         p.y = pl.y - p.h;
         p.grounded = true;
+        groundedPlatform = pl;
         lastGroundSurfaceType = pl.type;
         
         if (pl.type === 5) {
@@ -3071,6 +3205,19 @@ function update() {
       }
     }
   });
+
+  // Elevator carry: move with platform delta only while standing on top,
+  // and cancel carry when it would overlap another platform.
+  if (p.grounded && groundedPlatform && groundedPlatform.type === 7) {
+    const carryDeltaY = Math.max(-ELEVATOR_MAX_DELTA, Math.min(ELEVATOR_MAX_DELTA, groundedPlatform.deltaY || 0));
+    if (carryDeltaY !== 0) {
+      const candidate = { x: p.x, y: p.y + carryDeltaY, w: p.w, h: p.h };
+      const blocked = platforms.some(pl => pl !== groundedPlatform && pl.visible && rectCollide(candidate, pl));
+      if (!blocked) {
+        p.y = candidate.y;
+      }
+    }
+  }
 
   // Coins
   coins.forEach(c => {
@@ -3559,6 +3706,52 @@ function drawKingdomBackground(kingdom, W, H, t) {
     ctx.fillRect(0, H * 0.88, W, H * 0.12);
     ctx.fillStyle = 'rgba(74,20,140,0.18)';
     ctx.fillRect(0, H * 0.12, W, 8);
+  } else if (kingdom === 'sky') {
+    // Sunrise sky gradient.
+    ctx.fillStyle = '#fde68a';
+    ctx.fillRect(0, 0, W, H * 0.24);
+    ctx.fillStyle = '#fdba74';
+    ctx.fillRect(0, H * 0.24, W, H * 0.20);
+    ctx.fillStyle = '#fbcfe8';
+    ctx.fillRect(0, H * 0.44, W, H * 0.26);
+    ctx.fillStyle = '#ddd6fe';
+    ctx.fillRect(0, H * 0.70, W, H * 0.30);
+
+    // Sunrise sun halo.
+    const sunX = W * 0.18;
+    const sunY = H * 0.18;
+    ctx.fillStyle = 'rgba(255,245,220,0.55)';
+    ctx.fillRect(sunX - 38, sunY - 22, 76, 44);
+    ctx.fillStyle = '#fff7ed';
+    ctx.fillRect(sunX - 22, sunY - 14, 44, 28);
+    ctx.fillStyle = '#fdba74';
+    ctx.fillRect(sunX - 12, sunY - 8, 24, 16);
+
+    // Layered cloud bands with subtle parallax motion.
+    const cloudBands = [
+      { y: H * 0.22, speed: 0.02, color: '#fff7ed', scale: 7, count: 8 },
+      { y: H * 0.40, speed: 0.035, color: '#ffffff', scale: 8, count: 10 },
+      { y: H * 0.60, speed: 0.05, color: '#f8fafc', scale: 9, count: 12 },
+      { y: H * 0.78, speed: 0.08, color: '#eef2ff', scale: 10, count: 13 }
+    ];
+
+    cloudBands.forEach((band, bandIdx) => {
+      for (let i = 0; i < band.count; i++) {
+        const spread = (W + 120) / band.count;
+        const drift = ((camera.x * band.speed) + (i * spread) + (bandIdx * 17)) % (W + 140) - 70;
+        const wobble = Math.sin((t * 0.015) + i + bandIdx) * 4;
+        drawPixelCloud(drift, band.y + wobble, band.scale, band.color);
+      }
+    });
+
+    // Foreground cloud shelf.
+    ctx.fillStyle = '#ffffff';
+    for (let i = -40; i < W + 80; i += 34) {
+      const puff = 12 + Math.sin((i + t * 0.08) * 0.03) * 3;
+      ctx.fillRect(i, H * 0.86 - puff, 30, puff + 6);
+    }
+    ctx.fillStyle = '#e9d5ff';
+    ctx.fillRect(0, H * 0.89, W, H * 0.11);
   } else if (kingdom === 'magma') {
     ctx.fillStyle = '#2a0d09';
     ctx.fillRect(0, 0, W, H);
@@ -3856,8 +4049,8 @@ function draw() {
 
   if (state === 'levelselect') {
     // KINGDOM-BASED LEVEL SELECT
-    const kingdomNames = ['Castle Kingdom', 'Ice Kingdom', 'Slime Kingdom', 'Magma Kingdom'];
-    const kingdomKey = ['castle', 'ice', 'slime', 'magma'][selectedKingdom];
+    const kingdomNames = ['Castle Kingdom', 'Ice Kingdom', 'Slime Kingdom', 'Magma Kingdom', 'Sky Kingdom'];
+    const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky'][selectedKingdom];
     
     ctx.textAlign = 'center';
     ctx.fillStyle = surf;
@@ -3964,7 +4157,7 @@ function draw() {
     }
 
     // RIGHT ARROW - go to next kingdom (disabled on last kingdom)
-    if (selectedKingdom < 3) {
+    if (selectedKingdom < 4) {
       ctx.fillStyle = accent;
       ctx.fillRect(W - 80, H / 2 - 25, 50, 50);
       ctx.fillStyle = '#000';
@@ -3972,7 +4165,7 @@ function draw() {
       ctx.textAlign = 'center';
       ctx.fillText('>', W - 55, H / 2 + 12);
       registerUiButton(W - 80, H / 2 - 25, 50, 50, () => {
-        selectedKingdom = Math.min(3, selectedKingdom + 1);
+        selectedKingdom = Math.min(4, selectedKingdom + 1);
         selectedLevel = 0;
         levelSelectScrollY = 0;
       });
@@ -4119,7 +4312,8 @@ function draw() {
       castle: { normal: '#a78baf', dark: '#8b7b9f', top: '#7cb342', flagColor: '#ff6b6b' },
       ice: { normal: '#b3e5fc', dark: '#80deea', top: '#e1f5fe', flagColor: '#81d4fa' },
       slime: { normal: '#7cb342', dark: '#558b2f', top: '#aeea00', flagColor: '#9ccc65' },
-      magma: { normal: '#4c3b44', dark: '#2d2329', top: '#9a6c4a', flagColor: '#ff7a18' }
+      magma: { normal: '#4c3b44', dark: '#2d2329', top: '#9a6c4a', flagColor: '#ff7a18' },
+      sky: { normal: '#ffffff', dark: '#ddd6fe', top: '#e9d5ff', flagColor: '#fdba74' }
     };
     const theme = kingdomTheme[level.kingdom] || kingdomTheme.castle;
 
@@ -4137,7 +4331,11 @@ function draw() {
           ctx.fillStyle = theme.dark;
           ctx.fillRect(pl.x + i, pl.y, 1, pl.h);
         }
-        const crackColor = level.kingdom === 'magma' ? '#9ca3af' : '#3f3350';
+        const crackColor = level.kingdom === 'magma'
+          ? '#9ca3af'
+          : level.kingdom === 'sky'
+            ? '#c4b5fd'
+            : '#3f3350';
         ctx.strokeStyle = crackColor;
         ctx.lineWidth = 2;
         const crackPoints = [0.18, 0.38, 0.62, 0.82];
@@ -4227,6 +4425,22 @@ function draw() {
             }
           }
         }
+      } else if (pl.type === 7) {
+        // Elevator platform (sky kingdom): white + pastel purple with motion indicator.
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.strokeStyle = '#c4b5fd';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.fillStyle = '#e9d5ff';
+        for (let i = 3; i < pl.w - 3; i += 12) {
+          ctx.fillRect(pl.x + i, pl.y + 2, 6, pl.h - 4);
+        }
+        ctx.fillStyle = '#a78bfa';
+        ctx.fillRect(pl.x + pl.w / 2 - 2, pl.y - 8, 4, 6);
+        ctx.fillRect(pl.x + pl.w / 2 - 6, pl.y - 4, 12, 3);
+        ctx.fillRect(pl.x + pl.w / 2 - 2, pl.y + pl.h + 2, 4, 6);
+        ctx.fillRect(pl.x + pl.w / 2 - 6, pl.y + pl.h + 2, 12, 3);
       } else {
         ctx.fillStyle = theme.normal;
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
@@ -4244,10 +4458,15 @@ function draw() {
 
     // Finish flag
     const finish = platforms[platforms.length - 1];
-    ctx.fillStyle = theme.flagColor;
+    const isSkyKingdom = level.kingdom === 'sky';
+    ctx.fillStyle = isSkyKingdom ? '#ffffff' : theme.flagColor;
     ctx.fillRect(finish.x + finish.w / 2 - 3, finish.y - 50, 6, 50);
-    ctx.fillStyle = theme.flagColor + 'cc';
+    ctx.fillStyle = isSkyKingdom ? '#fdba74' : theme.flagColor + 'cc';
     ctx.fillRect(finish.x + finish.w / 2 + 3, finish.y - 50, 24, 16);
+    if (isSkyKingdom) {
+      ctx.fillStyle = '#fff7ed';
+      ctx.fillRect(finish.x + finish.w / 2 + 7, finish.y - 46, 10, 4);
+    }
     // Coins
     coins.forEach(c => {
       if (c.collected) return;
@@ -4269,6 +4488,8 @@ function draw() {
         ? { fill: '#b3e5fc', stroke: '#7dd3fc', core: '#e0f2fe' }
         : level.kingdom === 'slime'
           ? { fill: '#c084fc', stroke: '#8b5cf6', core: '#e9d5ff' }
+          : level.kingdom === 'sky'
+            ? { fill: '#fff7ed', stroke: '#fdba74', core: '#ffffff' }
           : level.kingdom === 'magma'
             ? { fill: '#ff7a18', stroke: '#c2410c', core: '#ffd6a5' }
           : { fill: '#7a5c3d', stroke: '#6b5535', core: '#f2d6b3' };
@@ -4301,6 +4522,8 @@ function draw() {
         ? { blade: '#b3e5fc', edge: '#e0f2fe', core: '#60a5fa', highlight: '#ffffff' }
         : level.kingdom === 'slime'
           ? { blade: '#b47cff', edge: '#7c3aed', core: '#5b21b6', highlight: '#e9d5ff' }
+          : level.kingdom === 'sky'
+            ? { blade: '#fff7ed', edge: '#fdba74', core: '#fed7aa', highlight: '#ffffff' }
           : level.kingdom === 'magma'
             ? { blade: '#ff6b2c', edge: '#b45309', core: '#7c2d12', highlight: '#ffd6a5' }
           : { blade: '#ff3333', edge: '#cc0000', core: '#991b1b', highlight: '#ff9f9f' };
@@ -4578,7 +4801,12 @@ function initGame(levelNum = 0) {
     crumbleTimer: 0,
     crumbling: false,
     visible: true,
-    geyserTimer: p.type === 6 ? (typeof p.geyserTimer === 'number' ? p.geyserTimer : Math.floor((p.x + p.y) % MAGMA_GEYSER_CYCLE)) : 0
+    geyserTimer: p.type === 6 ? (typeof p.geyserTimer === 'number' ? p.geyserTimer : Math.floor((p.x + p.y) % MAGMA_GEYSER_CYCLE)) : 0,
+    minY: p.type === 7 ? (typeof p.minY === 'number' ? p.minY : p.y - 40) : p.minY,
+    maxY: p.type === 7 ? (typeof p.maxY === 'number' ? p.maxY : p.y + 40) : p.maxY,
+    speed: p.type === 7 ? (typeof p.speed === 'number' ? p.speed : 1) : p.speed,
+    moveDir: p.type === 7 ? (typeof p.moveDir === 'number' ? p.moveDir : 1) : p.moveDir,
+    deltaY: 0
   }));
   coins = levelData.coins ? levelData.coins.map(c => ({...c})) : [];
   spikes = levelData.spikes ? levelData.spikes.map(s => ({...s})) : [];
@@ -4611,7 +4839,12 @@ function startDailyChallenge(silent = false) {
     crumbling: false,
     visible: true,
     iceSliding: false,
-    geyserTimer: p.type === 6 ? (typeof p.geyserTimer === 'number' ? p.geyserTimer : Math.floor((p.x + p.y) % MAGMA_GEYSER_CYCLE)) : 0
+    geyserTimer: p.type === 6 ? (typeof p.geyserTimer === 'number' ? p.geyserTimer : Math.floor((p.x + p.y) % MAGMA_GEYSER_CYCLE)) : 0,
+    minY: p.type === 7 ? (typeof p.minY === 'number' ? p.minY : p.y - 40) : p.minY,
+    maxY: p.type === 7 ? (typeof p.maxY === 'number' ? p.maxY : p.y + 40) : p.maxY,
+    speed: p.type === 7 ? (typeof p.speed === 'number' ? p.speed : 1) : p.speed,
+    moveDir: p.type === 7 ? (typeof p.moveDir === 'number' ? p.moveDir : 1) : p.moveDir,
+    deltaY: 0
   }));
   coins = levelData.coins ? levelData.coins.map(c => ({ ...c })) : [];
   spikes = levelData.spikes ? levelData.spikes.map(s => ({ ...s })) : [];
