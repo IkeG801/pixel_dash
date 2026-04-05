@@ -228,8 +228,9 @@ function ensureSpawnPlatform(level) {
 // Smooth out extreme platform gaps/heights so jumps remain possible.
 function ensurePlayableJumps(level) {
   const maxHorizontalGap = 155;
-  const maxUpwardStep = 175;
-  const maxDownwardStep = 230;
+  // Sky levels are vertical, so they need much larger upward tolerance
+  const maxUpwardStep = level.kingdom === 'sky' ? 300 : 175;
+  const maxDownwardStep = level.kingdom === 'sky' ? 400 : 230;
 
   const orderedPlatforms = (level.platforms || []).slice().sort((a, b) => a.x - b.x);
   for (let i = 1; i < orderedPlatforms.length; i++) {
@@ -242,13 +243,16 @@ function ensurePlayableJumps(level) {
       curr.x = prevRight + maxHorizontalGap;
     }
 
+    // For Sky levels, only enforce vertical limits if platforms are close horizontally
+    const isCloseHorizontally = Math.abs(curr.x - prev.x) < 180;
+    
     const rise = prev.y - curr.y; // positive means next platform is higher
-    if (rise > maxUpwardStep) {
+    if (isCloseHorizontally && rise > maxUpwardStep) {
       curr.y = prev.y - maxUpwardStep;
     }
 
     const drop = curr.y - prev.y; // positive means next platform is lower
-    if (drop > maxDownwardStep) {
+    if (isCloseHorizontally && drop > maxDownwardStep) {
       curr.y = prev.y + maxDownwardStep;
     }
   }
@@ -2229,7 +2233,7 @@ function buildSkyLevels() {
     const powerups = [];
 
     const baseY = 500;
-    const heightOffset = Math.floor(i * 2.1);
+    const heightOffset = Math.floor(i * 0.8);  // Reduced from 2.1 to prevent impossible jumps
     let lane = 1 + (i % 2);
     let prevPlatform = { x: 0, y: 500, w: 170 };
 
