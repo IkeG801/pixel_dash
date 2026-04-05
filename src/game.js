@@ -2344,9 +2344,9 @@ function buildSkyLevels() {
       lane = Math.max(0, Math.min(laneX.length - 1, lane + laneDelta));
 
       let x = laneX[lane] + ((i % 3) - 1) * 8;
-      x = Math.max(prevPlatform.x - 130, Math.min(prevPlatform.x + 140, x));
+      x = Math.max(prevPlatform.x - 155, Math.min(prevPlatform.x + 155, x)); // Increased from ±130 to ±155 for stronger connectivity
 
-      const isElevator = step === 3 || (step === 6 && i >= 5);
+      const isElevator = step === 3; // Only one elevator per level at step 3
       const isCrumble = step === 5 || (step === 7 && i >= 10);
       const type = isElevator ? 7 : (isCrumble ? 2 : 0);
       const width = 122;
@@ -2378,10 +2378,16 @@ function buildSkyLevels() {
     for (const elevStep of elevatorSteps) {
       const nextStep = elevStep + 1;
       if (nextStep <= 8) {
-        const nextY = baseY - nextStep * 66 - heightOffset;
-        const nextLane = 1 + ((nextStep + i) % 2);
-        const nextX = laneX[Math.max(0, Math.min(4, nextLane))];
-        platforms.push({ x: nextX, y: nextY, w: 122, h: 20, type: 0 });
+        // Find the actual elevator platform to get its position
+        const elevatorPlat = platforms.find(p => p.type === 7 && 
+          Math.abs(p.y - (baseY - elevStep * 66 - heightOffset)) < 1);
+        
+        if (elevatorPlat) {
+          const nextY = baseY - nextStep * 66 - heightOffset;
+          // Place safety platform near the elevator horizontally (same or adjacent lane)
+          const nextX = Math.max(prevPlatform.x - 130, Math.min(prevPlatform.x + 140, elevatorPlat.x));
+          platforms.push({ x: nextX, y: nextY, w: 122, h: 20, type: 0 });
+        }
       }
     }
 
