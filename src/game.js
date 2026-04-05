@@ -256,6 +256,71 @@ function ensurePlayableJumps(level) {
   return level;
 }
 
+function horizontalOverlap(a, b) {
+  return Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+}
+
+function hasPlatformUnderSpike(spike, platforms) {
+  const spikeBottom = spike.y + spike.h;
+  return platforms.some(p => {
+    const overlap = horizontalOverlap(spike, p);
+    if (overlap < Math.min(10, spike.w * 0.5)) return false;
+    const dy = p.y - spikeBottom;
+    return dy >= -2 && dy <= 40;
+  });
+}
+
+function sanitizeLevelLayout(level) {
+  const platforms = level.platforms || [];
+  const spikes = level.spikes || [];
+
+  // Remove impossible crumble placements: if a crumble tile is tucked under another
+  // platform with small vertical clearance and meaningful overlap, make it stable.
+  platforms.forEach(p => {
+    if (p.type !== 2) return;
+    const blockedAbove = platforms.some(other => {
+      if (other === p) return false;
+      const overlap = horizontalOverlap(p, other);
+      if (overlap < Math.min(36, p.w * 0.45)) return false;
+      const clearance = p.y - (other.y + other.h);
+      return clearance >= 0 && clearance < 88;
+    });
+    if (blockedAbove) {
+      p.type = 0;
+    }
+  });
+
+  // If spikes sit with platform support directly under them, shift them laterally.
+  if (platforms.length > 0 && spikes.length > 0) {
+    const minX = Math.min(...platforms.map(p => p.x)) - 80;
+    const maxX = Math.max(...platforms.map(p => p.x + p.w)) + 80;
+    const shiftOrder = [0, 36, -36, 72, -72, 108, -108, 144, -144, 180, -180];
+
+    spikes.forEach(spike => {
+      if (!hasPlatformUnderSpike(spike, platforms)) return;
+      const originalX = spike.x;
+      let moved = false;
+
+      for (let i = 0; i < shiftOrder.length; i++) {
+        const candidateX = Math.max(minX, Math.min(maxX - spike.w, originalX + shiftOrder[i]));
+        const candidate = { ...spike, x: candidateX };
+        if (!hasPlatformUnderSpike(candidate, platforms)) {
+          spike.x = candidateX;
+          moved = true;
+          break;
+        }
+      }
+
+      // Final fallback: park the spike off primary routes on the far side.
+      if (!moved) {
+        spike.x = Math.max(minX, Math.min(maxX - spike.w, originalX + 220));
+      }
+    });
+  }
+
+  return level;
+}
+
 // Generate level - just returns from INITIAL_LEVELS
 // Validate INITIAL_LEVELS structure
 function validateLevels(levels) {
@@ -302,7 +367,7 @@ function generateLevel(levelNum) {
     powerups: (baseLevel.powerups || []).map(u => ({ ...u }))
   };
 
-  return ensureSpawnPlatform(ensurePlayableJumps(clonedLevel));
+  return ensureSpawnPlatform(ensurePlayableJumps(sanitizeLevelLayout(clonedLevel)));
 }
 
 // Daily Challenge Functions
