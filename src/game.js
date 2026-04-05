@@ -2456,10 +2456,10 @@ function buildGlitchLevels() {
     const glitchCount = Math.floor(15 * glitchRatio);
     const normalCount = 15 - glitchCount;
     
-    // Spawn platform (safe start)
+    // Spawn platform (safe start) - placed lower on screen
     platforms.push({
       x: 50,
-      y: 440,
+      y: 450,
       w: PLATFORM_WIDTH,
       h: PLATFORM_HEIGHT,
       type: 0,
@@ -2479,7 +2479,7 @@ function buildGlitchLevels() {
     
     // Create actual platforms from indices
     let lastX = 50;
-    let lastY = 440;
+    let lastY = 450;
     
     for (let i = 0; i < platformIndices.length; i++) {
       const { x, y, isGlitch } = platformIndices[i];
@@ -2516,9 +2516,9 @@ function buildGlitchLevels() {
       lastY = y;
     }
     
-    // Finish platform - place it after the last platform
+    // Finish platform - place it far after the last platform
     platforms.push({
-      x: lastX + STEP_WIDTH + 20,
+      x: lastX + STEP_WIDTH + 120,
       y: lastY,
       w: PLATFORM_WIDTH,
       h: PLATFORM_HEIGHT,
