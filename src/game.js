@@ -325,6 +325,52 @@ function sanitizeLevelLayout(level) {
   return level;
 }
 
+function ensureMinimumPassages(level) {
+  if (level.kingdom !== 'sky') return level;
+  
+  const PLAYER_WIDTH = 20;
+  const MIN_PASSAGE = 30; // Minimum horizontal clearance
+  
+  const platforms = level.platforms || [];
+  
+  // Find all passages and ensure they're wide enough
+  // Strategy: check each pair of platforms at similar heights
+  for (let i = 0; i < platforms.length; i++) {
+    for (let j = i + 1; j < platforms.length; j++) {
+      const p1 = platforms[i];
+      const p2 = platforms[j];
+      
+      // Only check platforms at similar heights (passage scenario)
+      const heightDiff = Math.abs(p1.y - p2.y);
+      if (heightDiff > 80) continue;
+      
+      const p1Right = p1.x + p1.w;
+      const p2Left = p2.x;
+      const p1Left = p1.x;
+      const p2Right = p2.x + p2.w;
+      
+      // Check gap between p1 and p2 (left to right)
+      if (p1Right < p2Left) {
+        const gap = p2Left - p1Right;
+        if (gap > 0 && gap < MIN_PASSAGE) {
+          // Move p2 to the right to create adequate passage
+          p2.x = p1Right + MIN_PASSAGE;
+        }
+      } 
+      // Check gap between p2 and p1 (right to left)
+      else if (p2Right < p1Left) {
+        const gap = p1Left - p2Right;
+        if (gap > 0 && gap < MIN_PASSAGE) {
+          // Move p1 to the right to create adequate passage
+          p1.x = p2Right + MIN_PASSAGE;
+        }
+      }
+    }
+  }
+  
+  return level;
+}
+
 // Generate level - just returns from INITIAL_LEVELS
 // Validate INITIAL_LEVELS structure
 function validateLevels(levels) {
@@ -371,7 +417,7 @@ function generateLevel(levelNum) {
     powerups: (baseLevel.powerups || []).map(u => ({ ...u }))
   };
 
-  return ensureSpawnPlatform(ensurePlayableJumps(sanitizeLevelLayout(clonedLevel)));
+  return ensureSpawnPlatform(ensurePlayableJumps(ensureMinimumPassages(sanitizeLevelLayout(clonedLevel))));
 }
 
 // Daily Challenge Functions
