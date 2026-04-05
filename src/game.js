@@ -2154,6 +2154,7 @@ function buildSkyLevels() {
   ];
 
   const levels = [];
+  const laneX = [220, 370, 520, 670, 820];
 
   for (let i = 0; i < skyNames.length; i++) {
     const platforms = [{ x: 0, y: 500, w: 170, h: 20, type: 0 }];
@@ -2163,66 +2164,66 @@ function buildSkyLevels() {
     const powerups = [];
 
     const baseY = 500;
-    const heightOffset = Math.floor(i * 2.4);
+    const heightOffset = Math.floor(i * 2.1);
+    let lane = 1 + (i % 2);
+    let prevPlatform = { x: 0, y: 500, w: 170 };
 
-    for (let step = 1; step <= 7; step++) {
-      const y = baseY - step * 55 - heightOffset;
-      const x = 470 + (((step + i) % 3) - 1) * 120 + ((i % 2) ? 26 : -26);
-      const isElevator = step % 3 === 0;
-      const isCrumble = step % 4 === 0;
+    for (let step = 1; step <= 8; step++) {
+      const y = baseY - step * 66 - heightOffset;
+
+      const laneDelta = ((step + i) % 4 === 0) ? 1 : (((step + i) % 5 === 0) ? -1 : 0);
+      lane = Math.max(0, Math.min(laneX.length - 1, lane + laneDelta));
+
+      let x = laneX[lane] + ((i % 3) - 1) * 8;
+      x = Math.max(prevPlatform.x - 130, Math.min(prevPlatform.x + 140, x));
+
+      const isElevator = step === 3 || (step === 6 && i >= 5);
+      const isCrumble = step === 5 || (step === 7 && i >= 10);
       const type = isElevator ? 7 : (isCrumble ? 2 : 0);
-      const width = isElevator ? 96 : 108;
+      const width = isElevator ? 106 : 122;
 
       const platform = { x, y, w: width, h: 20, type };
       if (type === 7) {
-        platform.minY = y - 42;
-        platform.maxY = y + 42;
-        platform.speed = 0.9 + (i % 3) * 0.18;
+        const amp = i >= 10 ? 30 : 24;
+        platform.minY = y - amp;
+        platform.maxY = y + amp;
+        platform.speed = 0.55 + (i % 4) * 0.1;
         platform.moveDir = ((i + step) % 2 === 0) ? 1 : -1;
       }
       platforms.push(platform);
 
-      coins.push({ x: x + Math.max(8, width / 2 - 8), y: y - 36, w: 16, h: 16, collected: false });
+      coins.push({ x: x + Math.floor(width / 2) - 8, y: y - 34, w: 16, h: 16, collected: false });
 
-      if (step % 2 === 0) {
-        spikes.push({ x: x - 36, y: y + 20, w: 30, h: 16, type: 0 });
+      // Put spikes beside the route rather than directly on intended landing paths.
+      if (step % 3 === 0) {
+        const sideX = x + width + 16;
+        spikes.push({ x: sideX, y: y + 20, w: 26, h: 16, type: 0 });
       }
+
+      prevPlatform = platform;
     }
 
-    const finishY = Math.max(46, 90 - Math.floor(i * 1.5));
-    const finishX = 520 + ((i % 3) - 1) * 70;
-    platforms.push({ x: finishX, y: finishY, w: 250, h: 40, type: 0 });
+    const finishY = Math.max(40, prevPlatform.y - 82);
+    const finishX = Math.max(prevPlatform.x - 30, Math.min(prevPlatform.x + 40, prevPlatform.x + ((i % 2 === 0) ? 25 : -20)));
+    platforms.push({ x: finishX, y: finishY, w: 240, h: 40, type: 0 });
 
-    if (i >= 3) {
+    if (i >= 6) {
       obstacles.push({
-        x: 520,
-        y: 360 - Math.floor(i * 6),
+        x: prevPlatform.x - 55,
+        y: prevPlatform.y - 55,
         w: 24,
         h: 24,
-        vx: (i % 2 === 0 ? 1 : -1) * (1.8 + (i / 16)),
-        minX: 460,
-        maxX: 620,
+        vx: (i % 2 === 0 ? 1 : -1) * 1.6,
+        minX: prevPlatform.x - 80,
+        maxX: prevPlatform.x + 30,
         type: 'spike'
       });
     }
 
-    if (i >= 8) {
-      obstacles.push({
-        x: 700,
-        y: 250 - Math.floor(i * 3),
-        w: 24,
-        h: 24,
-        vx: (i % 2 === 0 ? -1 : 1) * 2.0,
-        minX: 640,
-        maxX: 780,
-        type: 'spike'
-      });
-    }
-
-    if (i % 4 === 1) {
-      powerups.push({ x: 500, y: 300 - Math.floor(i * 4), w: 14, h: 14, collected: false, type: 'jumpboost' });
-    } else if (i % 4 === 3) {
-      powerups.push({ x: 640, y: 270 - Math.floor(i * 3), w: 14, h: 14, collected: false, type: 'coinmultiplier' });
+    if (i % 5 === 1) {
+      powerups.push({ x: laneX[2], y: 270 - Math.floor(i * 2), w: 14, h: 14, collected: false, type: 'jumpboost' });
+    } else if (i % 5 === 3) {
+      powerups.push({ x: laneX[3], y: 250 - Math.floor(i * 2), w: 14, h: 14, collected: false, type: 'coinmultiplier' });
     }
 
     levels.push({
@@ -3176,7 +3177,8 @@ function update() {
     if (!pl.visible) return;
     
     if (rectCollide(p, pl)) {
-      const wasAbove = oldY + p.h <= pl.y;
+      const landingTolerance = pl.type === 7 ? 8 + Math.abs(pl.deltaY || 0) : 0;
+      const wasAbove = oldY + p.h <= pl.y + landingTolerance;
       const wasBelow = oldY >= pl.y + pl.h;
       
       if (wasAbove && p.vy >= 0) {
@@ -3211,10 +3213,13 @@ function update() {
   if (p.grounded && groundedPlatform && groundedPlatform.type === 7) {
     const carryDeltaY = Math.max(-ELEVATOR_MAX_DELTA, Math.min(ELEVATOR_MAX_DELTA, groundedPlatform.deltaY || 0));
     if (carryDeltaY !== 0) {
-      const candidate = { x: p.x, y: p.y + carryDeltaY, w: p.w, h: p.h };
-      const blocked = platforms.some(pl => pl !== groundedPlatform && pl.visible && rectCollide(candidate, pl));
-      if (!blocked) {
-        p.y = candidate.y;
+      const onTopNow = Math.abs((p.y + p.h) - groundedPlatform.y) <= 5;
+      if (onTopNow) {
+        const candidate = { x: p.x, y: p.y + carryDeltaY, w: p.w, h: p.h };
+        const blocked = platforms.some(pl => pl !== groundedPlatform && pl.visible && rectCollide(candidate, pl));
+        if (!blocked) {
+          p.y = candidate.y;
+        }
       }
     }
   }
