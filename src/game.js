@@ -191,6 +191,13 @@ const MAGMA_GEYSER_WARNING = 35;
 const MAGMA_GEYSER_ERUPTION = 45;
 const MAGMA_GEYSER_CYCLE = MAGMA_GEYSER_IDLE + MAGMA_GEYSER_WARNING + MAGMA_GEYSER_ERUPTION;
 const ELEVATOR_MAX_DELTA = 3;
+const GLITCH_VISIBLE_TIME = 1200;
+const GLITCH_INVISIBLE_TIME = 400;
+const GLITCH_CYCLE_TIME = GLITCH_VISIBLE_TIME + GLITCH_INVISIBLE_TIME;
+const GLITCH_PLATFORM_WIDTH = 122;
+const GLITCH_COLOR_DARK = '#0f172a';
+const GLITCH_COLOR_NEON = '#ffff00';
+const GLITCH_COLOR_GREEN = '#00ff41';
 // const TILE = 32;              // from game-logic.js
 // const GRAVITY = 0.6;          // from game-logic.js
 // const JUMP_FORCE = -12;       // from game-logic.js
@@ -2428,7 +2435,153 @@ function buildSkyLevels() {
   return levels;
 }
 
+function buildGlitchLevels() {
+  const levels = [];
+  const LEVEL_WIDTH = 1200;
+  const LEVEL_HEIGHT = 480;
+  const STEP_WIDTH = 100; // Horizontal progression steps
+  const PLATFORM_WIDTH = 122;
+  const PLATFORM_HEIGHT = 16;
+  
+  for (let levelIndex = 0; levelIndex < 15; levelIndex++) {
+    const levelNum = levelIndex + 1;
+    const platforms = [];
+    const obstacles = [];
+    const powerups = [];
+    const seed = 9000 + levelIndex;
+    const rng = new SeededRandom(seed);
+    
+    // Difficulty progression
+    const glitchRatio = levelIndex < 3 ? 0.3 : levelIndex < 6 ? 0.45 : levelIndex < 10 ? 0.6 : 0.75;
+    const glitchCount = Math.floor(15 * glitchRatio);
+    const normalCount = 15 - glitchCount;
+    
+    // Spawn platform (safe start)
+    platforms.push({
+      x: 50,
+      y: 440,
+      w: PLATFORM_WIDTH,
+      h: PLATFORM_HEIGHT,
+      type: 0,
+      visible: true
+    });
+    
+    // Generate main path: left-to-right horizontal progression
+    let xPos = 150;
+    const platformIndices = [];
+    for (let i = 0; i < normalCount + glitchCount; i++) {
+      const y = 200 + rng.range(-80, 80); // Vary vertical position
+      const isGlitch = i < glitchCount;
+      
+      platformIndices.push({ x: xPos, y, isGlitch, idx: i });
+      xPos += STEP_WIDTH + rng.range(-20, 40);
+    }
+    
+    // Create actual platforms from indices
+    let lastX = 50;
+    let lastY = 440;
+    let glitchesUsed = 0;
+    
+    for (let i = 0; i < platformIndices.length; i++) {
+      const { x, y, isGlitch } = platformIndices[i];
+      const platformType = isGlitch ? 8 : 0;
+      
+      if (platformType === 0) {
+        // Normal platform
+        platforms.push({
+          x, y,
+          w: PLATFORM_WIDTH,
+          h: PLATFORM_HEIGHT,
+          type: 0,
+          visible: true
+        });
+      } else {
+        // Glitch platform with two positions
+        const posA = { x: x - 40, y };
+        const posB = { x: x + 80, y };
+        platforms.push({
+          x: posA.x,
+          y,
+          w: PLATFORM_WIDTH,
+          h: PLATFORM_HEIGHT,
+          type: 8,
+          visible: true,
+          posA,
+          posB,
+          glitchTimer: 0,
+          currentPos: 0
+        });
+        glitchesUsed++;
+      }
+      
+      lastX = x;
+      lastY = y;
+    }
+    
+    // Finish platform
+    platforms.push({
+      x: lastX + STEP_WIDTH,
+      y: lastY,
+      w: PLATFORM_WIDTH,
+      h: PLATFORM_HEIGHT,
+      type: 0,
+      visible: true,
+      isFinish: true
+    });
+    
+    // Add obstacles (cyber-green hazards)
+    const obstacleCount = 2 + Math.floor(levelIndex / 3);
+    for (let i = 0; i < obstacleCount; i++) {
+      const obstacleIdx = Math.floor(rng.next() * platformIndices.length);
+      const { x, y } = platformIndices[Math.min(obstacleIdx, platformIndices.length - 1)];
+      
+      obstacles.push({
+        x: x - 30 + rng.range(-20, 20),
+        y: y - 40,
+        w: 24,
+        h: 24,
+        color: GLITCH_COLOR_GREEN,
+        vx: (rng.next() - 0.5) * 1.5,
+        minX: Math.max(0, x - 150),
+        maxX: Math.min(LEVEL_WIDTH, x + 150),
+        type: 'spike'
+      });
+    }
+    
+    // Add powerups (jump boosts in middle levels)
+    if (levelIndex % 3 === 1) {
+      const midPlatform = platformIndices[Math.floor(platformIndices.length / 2)];
+      if (midPlatform) {
+        powerups.push({
+          x: midPlatform.x,
+          y: midPlatform.y - 30,
+          w: 14,
+          h: 14,
+          collected: false,
+          type: 'jumpboost'
+        });
+      }
+    }
+    
+    // Validate and sanitize
+    const level = {
+      name: `Glitch ${levelNum}`,
+      platforms,
+      obstacles,
+      powerups,
+      kingdom: 'glitch'
+    };
+    
+    platforms.length = Math.max(platforms.length, 2); // Ensure at least spawn and finish
+    
+    levels.push(level);
+  }
+  
+  return levels;
+}
+
 INITIAL_LEVELS.push(...buildSkyLevels());
+INITIAL_LEVELS.push(...buildGlitchLevels());
 
 // Procedural generation and autopopulation removed: we run exactly the curated INITIAL_LEVELS now.
 
@@ -2717,7 +2870,8 @@ const KINGDOM_MUSIC_TRACK_INDEX = {
   slime: 1,
   ice: 2,
   magma: 3,
-  sky: 4
+  sky: 4,
+  glitch: 5
 };
 const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect']);
 
@@ -2970,7 +3124,7 @@ function unlockAchievement(achievementId) {
 
 // Menu navigation state
 let selectedLevel = 0;
-let selectedKingdom = 0; // 0 = castle, 1 = ice, 2 = slime, 3 = magma, 4 = sky
+let selectedKingdom = 0; // 0 = castle, 1 = ice, 2 = slime, 3 = magma, 4 = sky, 5 = glitch
 let levelSelectScrollY = 0;
 let shopScrollY = 0;
 let selectedSettingsRow = 0;
@@ -3007,7 +3161,7 @@ function tryHandleUiTap(tx, ty) {
 function getLevelSelectMaxScroll() {
   const W = canvas.width;
   const H = canvas.height;
-  const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky'][selectedKingdom];
+  const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky', 'glitch'][selectedKingdom];
   const levelCount = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey).length;
   const levelSize = 80;
   const spacing = 20;
@@ -3178,7 +3332,7 @@ function update() {
     }
 
     // Level selection navigation (Up/Down arrows)
-    const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky'][selectedKingdom];
+    const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky', 'glitch'][selectedKingdom];
     const kingdomLevels = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey);
     if (keys['ArrowUp'] || keys['w']) {
       keys['ArrowUp'] = false;
@@ -3301,6 +3455,36 @@ function update() {
       pl.deltaY = Math.max(-ELEVATOR_MAX_DELTA, Math.min(ELEVATOR_MAX_DELTA, rawDelta));
       if (pl.deltaY !== rawDelta) {
         pl.y = prevY + pl.deltaY;
+      }
+    }
+    if (pl.type === 8) {
+      // Glitch platform: teleport between A and B positions on a timer
+      if (typeof pl.glitchTimer !== 'number') {
+        pl.glitchTimer = 0;
+      }
+      if (typeof pl.visible !== 'boolean') {
+        pl.visible = true;
+      }
+      if (typeof pl.currentPos !== 'number') {
+        pl.currentPos = 0; // 0 = posA, 1 = posB
+      }
+
+      pl.glitchTimer += 1000 / 60; // Convert frame time to milliseconds (assuming 60fps)
+      
+      // Check if we need to toggle visibility/position
+      if (pl.visible && pl.glitchTimer >= GLITCH_VISIBLE_TIME) {
+        pl.visible = false;
+        pl.glitchTimer = 0;
+      } else if (!pl.visible && pl.glitchTimer >= GLITCH_INVISIBLE_TIME) {
+        pl.visible = true;
+        pl.glitchTimer = 0;
+        // Switch position when becoming visible
+        pl.currentPos = 1 - pl.currentPos;
+        if (pl.currentPos === 0) {
+          pl.x = pl.posA.x;
+        } else {
+          pl.x = pl.posB.x;
+        }
       }
     }
   });
@@ -4015,6 +4199,62 @@ function drawKingdomBackground(kingdom, W, H, t) {
         ctx.fillRect(sparkX, sparkY, 2, 2);
       }
     }
+  } else if (kingdom === 'glitch') {
+    // Motherboard-inspired tech background
+    ctx.fillStyle = GLITCH_COLOR_DARK;
+    ctx.fillRect(0, 0, W, H);
+    
+    // Grid pattern (circuit lines)
+    ctx.strokeStyle = 'rgba(255, 255, 0, 0.15)';
+    ctx.lineWidth = 1;
+    const gridSize = 40;
+    for (let x = 0; x < W; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    for (let y = 0; y < H; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+    
+    // Random circuit nodes (pulsing points)
+    ctx.fillStyle = GLITCH_COLOR_NEON;
+    for (let i = 0; i < 20; i++) {
+      const nodeSeed = i * 7919 + t * 0.1;
+      const nodeX = (((nodeSeed * 73) % W) | 0);
+      const nodeY = (((nodeSeed * 131) % H) | 0);
+      const pulse = 1 + Math.sin(t * 0.04 + i) * 0.5;
+      ctx.fillRect(nodeX - 1, nodeY - 1, 3 * pulse, 3 * pulse);
+    }
+    
+    // Glitch effect: random scanlines
+    ctx.strokeStyle = `rgba(255, 255, 0, ${0.05 + Math.sin(t * 0.08) * 0.03})`;
+    ctx.lineWidth = 2;
+    for (let y = 0; y < H; y += 8) {
+      const glitchOffset = Math.sin(t * 0.1 + y * 0.01) * 20;
+      ctx.beginPath();
+      ctx.moveTo(0 + glitchOffset, y);
+      ctx.lineTo(W + glitchOffset, y);
+      ctx.stroke();
+    }
+    
+    // Tech glow bands
+    ctx.fillStyle = 'rgba(0, 255, 65, 0.08)';
+    ctx.fillRect(0, H * 0.15, W, 2);
+    ctx.fillRect(0, H * 0.45, W, 2);
+    ctx.fillRect(0, H * 0.75, W, 2);
+    
+    // Bottom data stream indicator
+    ctx.fillStyle = GLITCH_COLOR_GREEN;
+    for (let i = 0; i < 8; i++) {
+      const blockX = i * (W / 8) + ((t * 0.2) % (W / 8));
+      const blockH = 3 + Math.sin(t * 0.06 + i) * 2;
+      ctx.fillRect(blockX, H - 12, 20, blockH);
+    }
   } else {
     ctx.fillStyle = '#87ceeb';
     ctx.fillRect(0, 0, W, H);
@@ -4242,8 +4482,8 @@ function draw() {
 
   if (state === 'levelselect') {
     // KINGDOM-BASED LEVEL SELECT
-    const kingdomNames = ['Castle Kingdom', 'Ice Kingdom', 'Slime Kingdom', 'Magma Kingdom', 'Sky Kingdom'];
-    const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky'][selectedKingdom];
+    const kingdomNames = ['Castle Kingdom', 'Ice Kingdom', 'Slime Kingdom', 'Magma Kingdom', 'Sky Kingdom', 'Glitch Kingdom'];
+    const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky', 'glitch'][selectedKingdom];
     
     ctx.textAlign = 'center';
     ctx.fillStyle = surf;
@@ -4358,7 +4598,7 @@ function draw() {
       ctx.textAlign = 'center';
       ctx.fillText('>', W - 55, H / 2 + 12);
       registerUiButton(W - 80, H / 2 - 25, 50, 50, () => {
-        selectedKingdom = Math.min(4, selectedKingdom + 1);
+        selectedKingdom = Math.min(5, selectedKingdom + 1);
         selectedLevel = 0;
         levelSelectScrollY = 0;
       });
@@ -4634,6 +4874,49 @@ function draw() {
         ctx.fillRect(pl.x + pl.w / 2 - 6, pl.y - 4, 12, 3);
         ctx.fillRect(pl.x + pl.w / 2 - 2, pl.y + pl.h + 2, 4, 6);
         ctx.fillRect(pl.x + pl.w / 2 - 6, pl.y + pl.h + 2, 12, 3);
+      } else if (pl.type === 8) {
+        // Glitch platform (glitch kingdom): dark blue + neon yellow with flickering effect
+        const glitchIntensity = pl.visible ? 0.3 : 0.8;
+        
+        // Draw dark blue base
+        ctx.fillStyle = GLITCH_COLOR_DARK;
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        
+        if (pl.visible) {
+          // Neon yellow horizontal stripes pattern
+          ctx.fillStyle = GLITCH_COLOR_NEON;
+          for (let i = 1; i < pl.h; i += 6) {
+            ctx.fillRect(pl.x, pl.y + i, pl.w, 2);
+          }
+          
+          // Border
+          ctx.strokeStyle = GLITCH_COLOR_NEON;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+          
+          // Corner indicators
+          ctx.fillStyle = GLITCH_COLOR_NEON;
+          ctx.fillRect(pl.x + 2, pl.y + 2, 4, 4);
+          ctx.fillRect(pl.x + pl.w - 6, pl.y + 2, 4, 4);
+          ctx.fillRect(pl.x + 2, pl.y + pl.h - 6, 4, 4);
+          ctx.fillRect(pl.x + pl.w - 6, pl.y + pl.h - 6, 4, 4);
+        } else {
+          // Glitch effect when invisible: fragmented/corrupted appearance
+          ctx.fillStyle = `rgba(255, 255, 0, 0.4)`;
+          const fragmentCount = 5 + Math.floor(Math.random() * 3);
+          for (let i = 0; i < fragmentCount; i++) {
+            const fragmentX = pl.x + Math.random() * pl.w;
+            const fragmentY = pl.y + Math.random() * pl.h;
+            const fragmentW = 8 + Math.random() * 16;
+            const fragmentH = 3 + Math.random() * 6;
+            ctx.fillRect(fragmentX, fragmentY, fragmentW, fragmentH);
+          }
+          
+          // Faint outline
+          ctx.strokeStyle = `rgba(255, 255, 0, 0.2)`;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+        }
       } else {
         ctx.fillStyle = theme.normal;
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);

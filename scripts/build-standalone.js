@@ -10,7 +10,8 @@ const musicPaths = [
   path.join(rootDir, 'assets', 'music', 'squelchy_basin_run.mp3'),
   path.join(rootDir, 'assets', 'music', 'frozen_ascent.mp3'),
   path.join(rootDir, 'assets', 'music', 'Below_the_Obsidian_Peak.mp3'),
-  path.join(rootDir, 'assets', 'music', 'Seven_Thousand_Feet.mp3')
+  path.join(rootDir, 'assets', 'music', 'Seven_Thousand_Feet.mp3'),
+  path.join(rootDir, 'assets', 'music', 'Crashing_the_Cartridge.mp3')
 ];
 const faviconPath = path.join(rootDir, 'favicon.svg');
 const cssPath = path.join(rootDir, 'src', 'styles.css');
