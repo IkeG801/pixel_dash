@@ -371,6 +371,59 @@ function ensureMinimumPassages(level) {
   return level;
 }
 
+function ensureVerticalClearance(level) {
+  if (level.kingdom !== 'sky') return level;
+  
+  const MIN_VERTICAL_GAP = 25; // Minimum space between stacked platforms
+  const platforms = level.platforms || [];
+  
+  // Sort by Y to process top-down
+  const platformsByY = platforms.slice().sort((a, b) => a.y - b.y);
+  
+  // Check each platform for ones above it with insufficient clearance
+  for (let i = 0; i < platformsByY.length; i++) {
+    const p1 = platformsByY[i];
+    for (let j = i + 1; j < platformsByY.length; j++) {
+      const p2 = platformsByY[j];
+      
+      // Check if they overlap horizontally and are stacked
+      const overlapStart = Math.max(p1.x, p2.x);
+      const overlapEnd = Math.min(p1.x + p1.w, p2.x + p2.w);
+      const overlapWidth = overlapEnd - overlapStart;
+      
+      if (overlapWidth < 10) continue; // Not meaningfully overlapped
+      
+      // p2 is below p1, check clearance
+      const gap = p2.y - (p1.y + p1.h);
+      if (gap >= 0 && gap < MIN_VERTICAL_GAP) {
+        // Push p2 down to create adequate clearance
+        p2.y = p1.y + p1.h + MIN_VERTICAL_GAP;
+      }
+    }
+  }
+  
+  return level;
+}
+
+function fixSpikeBlocking(level) {
+  if (level.kingdom !== 'sky') return level;
+  
+  const platforms = level.platforms || [];
+  const spikes = level.spikes || [];
+  
+  // Find the main play area bounds
+  const minPlatX = Math.min(...platforms.map(p => p.x));
+  const maxPlatX = Math.max(...platforms.map(p => p.x + p.w));
+  const midX = (minPlatX + maxPlatX) / 2;
+  
+  // Relocate all spikes to edges (far left or far right) to avoid blocking passages
+  spikes.forEach(spike => {
+    spike.x = spike.x < midX ? minPlatX - 60 : maxPlatX + 40;
+  });
+  
+  return level;
+}
+
 // Generate level - just returns from INITIAL_LEVELS
 // Validate INITIAL_LEVELS structure
 function validateLevels(levels) {
@@ -417,7 +470,7 @@ function generateLevel(levelNum) {
     powerups: (baseLevel.powerups || []).map(u => ({ ...u }))
   };
 
-  return ensureSpawnPlatform(ensurePlayableJumps(ensureMinimumPassages(sanitizeLevelLayout(clonedLevel))));
+  return ensureSpawnPlatform(ensurePlayableJumps(ensureVerticalClearance(fixSpikeBlocking(ensureMinimumPassages(sanitizeLevelLayout(clonedLevel))))));
 }
 
 // Daily Challenge Functions
