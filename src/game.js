@@ -4590,7 +4590,7 @@ function draw() {
     }
 
     // RIGHT ARROW - go to next kingdom (disabled on last kingdom)
-    if (selectedKingdom < 4) {
+    if (selectedKingdom < 5) {
       ctx.fillStyle = accent;
       ctx.fillRect(W - 80, H / 2 - 25, 50, 50);
       ctx.fillStyle = '#000';
