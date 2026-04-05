@@ -2335,6 +2335,7 @@ function buildSkyLevels() {
     const heightOffset = Math.floor(i * 0.8);  // Reduced from 2.1 to prevent impossible jumps
     let lane = 1 + (i % 2);
     let prevPlatform = { x: 0, y: 500, w: 170 };
+    let elevatorSteps = []; // Track which steps have elevators
 
     for (let step = 1; step <= 8; step++) {
       const y = baseY - step * 66 - heightOffset;
@@ -2348,7 +2349,7 @@ function buildSkyLevels() {
       const isElevator = step === 3 || (step === 6 && i >= 5);
       const isCrumble = step === 5 || (step === 7 && i >= 10);
       const type = isElevator ? 7 : (isCrumble ? 2 : 0);
-      const width = isElevator ? 106 : 122;
+      const width = 122;
 
       const platform = { x, y, w: width, h: 20, type };
       if (type === 7) {
@@ -2357,6 +2358,7 @@ function buildSkyLevels() {
         platform.maxY = y + amp;
         platform.speed = 0.55 + (i % 4) * 0.1;
         platform.moveDir = ((i + step) % 2 === 0) ? 1 : -1;
+        elevatorSteps.push(step);
       }
       platforms.push(platform);
 
@@ -2369,6 +2371,18 @@ function buildSkyLevels() {
       }
 
       prevPlatform = platform;
+    }
+
+    // Add safety platforms after each elevator at the next step height
+    // This ensures there's always a way forward even if you miss the elevator
+    for (const elevStep of elevatorSteps) {
+      const nextStep = elevStep + 1;
+      if (nextStep <= 8) {
+        const nextY = baseY - nextStep * 66 - heightOffset;
+        const nextLane = 1 + ((nextStep + i) % 2);
+        const nextX = laneX[Math.max(0, Math.min(4, nextLane))];
+        platforms.push({ x: nextX, y: nextY, w: 122, h: 20, type: 0 });
+      }
     }
 
     const finishY = Math.max(40, prevPlatform.y - 82);
