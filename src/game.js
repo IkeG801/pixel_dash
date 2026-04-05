@@ -5282,7 +5282,12 @@ function initGame(levelNum = 0) {
   spikes = levelData.spikes ? levelData.spikes.map(s => ({...s})) : [];
   obstacles = levelData.obstacles ? levelData.obstacles.map(o => ({...o})) : [];
   powerups = levelData.powerups ? levelData.powerups.map(p => ({...p})) : [];
-  player = { x: 50, y: 440, w: 20, h: 28, vx: 0, vy: 0, grounded: false, facing: 1, jumpBuffer: 0, coyoteTime: 0 };
+  
+  // Spawn player on the spawn platform (first platform)
+  const spawnPlatform = platforms[0];
+  const spawnX = spawnPlatform ? spawnPlatform.x + spawnPlatform.w / 2 - 10 : 50;
+  const spawnY = spawnPlatform ? spawnPlatform.y - 28 : 440;
+  player = { x: spawnX, y: spawnY, w: 20, h: 28, vx: 0, vy: 0, grounded: false, facing: 1, jumpBuffer: 0, coyoteTime: 0 };
   camera = { x: 0, y: 0 };
   time = 0;
   deathY = 700;
@@ -5320,7 +5325,12 @@ function startDailyChallenge(silent = false) {
   spikes = levelData.spikes ? levelData.spikes.map(s => ({ ...s })) : [];
   obstacles = levelData.obstacles ? levelData.obstacles.map(o => ({ ...o })) : [];
   powerups = levelData.powerups ? levelData.powerups.map(p => ({ ...p })) : [];
-  player = { x: 50, y: 440, w: 20, h: 28, vx: 0, vy: 0, grounded: false, facing: 1, jumpBuffer: 0, coyoteTime: 0 };
+  
+  // Spawn player on the spawn platform (first platform)
+  const spawnPlatform = platforms[0];
+  const spawnX = spawnPlatform ? spawnPlatform.x + spawnPlatform.w / 2 - 10 : 50;
+  const spawnY = spawnPlatform ? spawnPlatform.y - 28 : 440;
+  player = { x: spawnX, y: spawnY, w: 20, h: 28, vx: 0, vy: 0, grounded: false, facing: 1, jumpBuffer: 0, coyoteTime: 0 };
   camera = { x: 0, y: 0 };
   time = 0;
   deathY = 700;
