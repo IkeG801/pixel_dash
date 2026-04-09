@@ -192,6 +192,7 @@ const MAGMA_GEYSER_ERUPTION = 45;
 const MAGMA_GEYSER_CYCLE = MAGMA_GEYSER_IDLE + MAGMA_GEYSER_WARNING + MAGMA_GEYSER_ERUPTION;
 const ELEVATOR_MAX_DELTA = 3;
 const GLITCH_VISIBLE_TIME = 1200;
+const GLITCH_WARNING_TIME = 250;
 const GLITCH_INVISIBLE_TIME = 400;
 const GLITCH_CYCLE_TIME = GLITCH_VISIBLE_TIME + GLITCH_INVISIBLE_TIME;
 const GLITCH_PLATFORM_WIDTH = 122;
@@ -2438,66 +2439,37 @@ function buildSkyLevels() {
 function buildGlitchLevels() {
   const levels = [];
   const LEVEL_WIDTH = 1200;
-  const LEVEL_HEIGHT = 480;
-  const STEP_WIDTH = 100; // Horizontal progression steps
   const PLATFORM_WIDTH = 122;
   const PLATFORM_HEIGHT = 16;
-  
+
   for (let levelIndex = 0; levelIndex < 15; levelIndex++) {
     const levelNum = levelIndex + 1;
     const platforms = [];
     const obstacles = [];
     const powerups = [];
-    const seed = 9000 + levelIndex;
-    const rng = new SeededRandom(seed);
-    
-    // Difficulty progression
-    const glitchRatio = levelIndex < 3 ? 0.3 : levelIndex < 6 ? 0.45 : levelIndex < 10 ? 0.6 : 0.75;
-    const glitchCount = Math.floor(15 * glitchRatio);
-    const normalCount = 15 - glitchCount;
-    
-    // Spawn platform (safe start) - placed at bottom of screen
-    platforms.push({
+    const rng = new SeededRandom(9000 + levelIndex);
+
+    const spawnPlatform = {
       x: 50,
       y: 460,
       w: PLATFORM_WIDTH,
       h: PLATFORM_HEIGHT,
       type: 0,
       visible: true
-    });
-    
-    // Generate main path: left-to-right horizontal progression
-    let xPos = 200;
-    const platformIndices = [];
-    for (let i = 0; i < normalCount + glitchCount; i++) {
-      const y = 300 + rng.range(-60, 60); // Mid-level vertical variation (y: 240-360)
-      const isGlitch = i < glitchCount;
-      
-      platformIndices.push({ x: xPos, y, isGlitch, idx: i });
-      xPos += STEP_WIDTH + rng.range(-20, 40);
-    }
-    
-    // Create actual platforms from indices
-    let lastX = 50;
-    let lastY = 460;
-    
-    for (let i = 0; i < platformIndices.length; i++) {
-      const { x, y, isGlitch } = platformIndices[i];
-      const platformType = isGlitch ? 8 : 0;
-      
-      if (platformType === 0) {
-        // Normal platform
-        platforms.push({
-          x, y,
-          w: PLATFORM_WIDTH,
-          h: PLATFORM_HEIGHT,
-          type: 0,
-          visible: true
-        });
-      } else {
-        // Glitch platform with two positions
-        const posA = { x: x - 40, y };
-        const posB = { x: x + 80, y };
+    };
+    platforms.push(spawnPlatform);
+
+    const pathY = 320 + rng.range(-20, 20);
+    const pathXs = [180, 300, 420, 540, 660, 780, 900];
+    const glitchIndex = 3 + (levelIndex % 2);
+
+    for (let i = 0; i < pathXs.length; i++) {
+      const x = pathXs[i];
+      const y = pathY + (i % 2 === 0 ? -12 : 12);
+
+      if (i === glitchIndex) {
+        const posA = { x, y };
+        const posB = { x: x + 160, y };
         platforms.push({
           x: posA.x,
           y,
@@ -2508,49 +2480,51 @@ function buildGlitchLevels() {
           posA,
           posB,
           glitchTimer: 0,
-          currentPos: 0
+          currentPos: 0,
+          glitchState: 'visible'
+        });
+      } else {
+        platforms.push({
+          x,
+          y,
+          w: PLATFORM_WIDTH,
+          h: PLATFORM_HEIGHT,
+          type: 0,
+          visible: true
         });
       }
-      
-      lastX = x;
-      lastY = y;
     }
-    
-    // Finish platform - place at far right end of level
+
     platforms.push({
-      x: 1050,
-      y: 300,
+      x: LEVEL_WIDTH - 150,
+      y: pathY,
       w: PLATFORM_WIDTH,
       h: PLATFORM_HEIGHT,
       type: 0,
       visible: true,
       isFinish: true
     });
-    
-    // Add obstacles (cyber-green hazards)
-    const obstacleCount = 2 + Math.floor(levelIndex / 3);
+
+    const obstacleCount = 2 + Math.floor(levelIndex / 4);
     for (let i = 0; i < obstacleCount; i++) {
-      const obstacleIdx = Math.floor(rng.next() * platformIndices.length);
-      const { x, y } = platformIndices[Math.min(obstacleIdx, platformIndices.length - 1)];
-      
+      const anchorPlatform = platforms[1 + Math.min(i + 1, pathXs.length - 1)];
       obstacles.push({
-        x: x - 30 + rng.range(-20, 20),
-        y: y - 60,
+        x: anchorPlatform.x + rng.range(-10, 10),
+        y: anchorPlatform.y - 32,
         w: 24,
         h: 24,
         color: GLITCH_COLOR_GREEN,
         vx: (rng.next() - 0.5) * 1.5,
-        minX: Math.max(0, x - 150),
-        maxX: Math.min(LEVEL_WIDTH, x + 150),
+        minX: Math.max(0, anchorPlatform.x - 120),
+        maxX: Math.min(LEVEL_WIDTH, anchorPlatform.x + 120),
         type: 'spike'
       });
     }
-    
-    // Add powerups (jump boosts in middle levels)
-    if (levelIndex % 3 === 1 && platformIndices.length > 0) {
-      const midPlatform = platformIndices[Math.floor(platformIndices.length / 2)];
+
+    if (levelIndex % 3 === 1) {
+      const midPlatform = platforms[Math.floor(platforms.length / 2)];
       powerups.push({
-        x: midPlatform.x,
+        x: midPlatform.x + 8,
         y: midPlatform.y - 30,
         w: 14,
         h: 14,
@@ -2558,19 +2532,16 @@ function buildGlitchLevels() {
         type: 'jumpboost'
       });
     }
-    
-    // Create level
-    const level = {
+
+    levels.push({
       name: `Glitch ${levelNum}`,
       platforms,
       obstacles,
       powerups,
       kingdom: 'glitch'
-    };
-    
-    levels.push(level);
+    });
   }
-  
+
   return levels;
 }
 
@@ -3462,15 +3433,25 @@ function update() {
       if (typeof pl.currentPos !== 'number') {
         pl.currentPos = 0; // 0 = posA, 1 = posB
       }
+      if (typeof pl.glitchState !== 'string') {
+        pl.glitchState = 'visible';
+      }
 
       pl.glitchTimer += 1000 / 60; // Convert frame time to milliseconds (assuming 60fps)
-      
+
+      const warningStart = GLITCH_VISIBLE_TIME - GLITCH_WARNING_TIME;
+      if (pl.visible && pl.glitchTimer >= warningStart && pl.glitchTimer < GLITCH_VISIBLE_TIME) {
+        pl.glitchState = 'warning';
+      }
+
       // Check if we need to toggle visibility/position
       if (pl.visible && pl.glitchTimer >= GLITCH_VISIBLE_TIME) {
         pl.visible = false;
+        pl.glitchState = 'invisible';
         pl.glitchTimer = 0;
       } else if (!pl.visible && pl.glitchTimer >= GLITCH_INVISIBLE_TIME) {
         pl.visible = true;
+        pl.glitchState = 'visible';
         pl.glitchTimer = 0;
         // Switch position when becoming visible
         pl.currentPos = 1 - pl.currentPos;
@@ -4870,13 +4851,29 @@ function draw() {
         ctx.fillRect(pl.x + pl.w / 2 - 6, pl.y + pl.h + 2, 12, 3);
       } else if (pl.type === 8) {
         // Glitch platform (glitch kingdom): dark blue + neon yellow with flickering effect
-        const glitchIntensity = pl.visible ? 0.3 : 0.8;
-        
         // Draw dark blue base
         ctx.fillStyle = GLITCH_COLOR_DARK;
         ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
         
         if (pl.visible) {
+          if (pl.glitchState === 'warning') {
+            ctx.save();
+            const shakeX = Math.sin(time * 0.5) * 2;
+            const shakeY = Math.cos(time * 0.45) * 1;
+            ctx.translate(shakeX, shakeY);
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.18)';
+            ctx.fillRect(pl.x - 2, pl.y - 2, pl.w + 4, pl.h + 4);
+            ctx.strokeStyle = GLITCH_COLOR_NEON;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+            for (let i = 1; i < pl.h; i += 4) {
+              const stripeColor = ((Math.floor(time * 0.2) + i) % 2 === 0) ? GLITCH_COLOR_NEON : '#f8f8a0';
+              ctx.fillStyle = stripeColor;
+              ctx.fillRect(pl.x, pl.y + i, pl.w, 2);
+            }
+            ctx.restore();
+          }
+
           // Neon yellow horizontal stripes pattern
           ctx.fillStyle = GLITCH_COLOR_NEON;
           for (let i = 1; i < pl.h; i += 6) {
@@ -4895,19 +4892,19 @@ function draw() {
           ctx.fillRect(pl.x + 2, pl.y + pl.h - 6, 4, 4);
           ctx.fillRect(pl.x + pl.w - 6, pl.y + pl.h - 6, 4, 4);
         } else {
-          // Glitch effect when invisible: fragmented/corrupted appearance
-          ctx.fillStyle = `rgba(255, 255, 0, 0.4)`;
-          const fragmentCount = 5 + Math.floor(Math.random() * 3);
+          // Glitch effect while invisible: pixel fragments flicker in and out.
+          ctx.fillStyle = 'rgba(255, 255, 0, 0.35)';
+          const fragmentCount = 5 + Math.floor((time + pl.x + pl.y) % 3);
           for (let i = 0; i < fragmentCount; i++) {
-            const fragmentX = pl.x + Math.random() * pl.w;
-            const fragmentY = pl.y + Math.random() * pl.h;
-            const fragmentW = 8 + Math.random() * 16;
-            const fragmentH = 3 + Math.random() * 6;
+            const fragmentSeed = (i * 97) + Math.floor(time * 4) + pl.x + pl.y;
+            const fragmentX = pl.x + (fragmentSeed % Math.max(1, pl.w - 8));
+            const fragmentY = pl.y + ((fragmentSeed * 3) % Math.max(1, pl.h - 4));
+            const fragmentW = 8 + (fragmentSeed % 12);
+            const fragmentH = 3 + (fragmentSeed % 4);
             ctx.fillRect(fragmentX, fragmentY, fragmentW, fragmentH);
           }
-          
-          // Faint outline
-          ctx.strokeStyle = `rgba(255, 255, 0, 0.2)`;
+
+          ctx.strokeStyle = 'rgba(255, 255, 0, 0.2)';
           ctx.lineWidth = 1;
           ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
         }
