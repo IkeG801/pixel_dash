@@ -2439,7 +2439,7 @@ function buildSkyLevels() {
 
 function buildGlitchLevels() {
   const levels = [];
-  const LEVEL_WIDTH = 1200;
+  const LEVEL_WIDTH = 1900;
   const PLATFORM_WIDTH = 122;
   const PLATFORM_HEIGHT = 16;
 
@@ -2460,45 +2460,98 @@ function buildGlitchLevels() {
     };
     platforms.push(spawnPlatform);
 
-    const pathY = 320 + rng.range(-20, 20);
-    const pathXs = [180, 300, 420, 540, 660, 780, 900];
-    const glitchIndex = 3 + (levelIndex % 2);
+    const baseY = 330 + rng.range(-18, 18);
+    const gapCount = levelIndex < 3 ? 1 : levelIndex < 9 ? 2 : 3;
 
-    for (let i = 0; i < pathXs.length; i++) {
-      const x = pathXs[i];
-      const y = pathY + (i % 2 === 0 ? -12 : 12);
+    // Entry ramp from spawn into glitch route.
+    platforms.push({ x: 170, y: 420, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
+    platforms.push({ x: 300, y: 380, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
 
-      if (i === glitchIndex) {
-        const posA = { x, y };
-        const posB = { x: x + 160, y };
-        platforms.push({
-          x: posA.x,
-          y,
-          w: PLATFORM_WIDTH,
-          h: PLATFORM_HEIGHT,
-          type: 8,
-          visible: true,
-          posA,
-          posB,
-          glitchTimer: 0,
-          currentPos: 0,
-          glitchState: 'visible'
-        });
-      } else {
-        platforms.push({
-          x,
-          y,
-          w: PLATFORM_WIDTH,
-          h: PLATFORM_HEIGHT,
-          type: 0,
-          visible: true
-        });
-      }
+    let cursorX = 450;
+    for (let g = 0; g < gapCount; g++) {
+      const gapSize = 260 + g * 45 + (levelIndex % 3) * 20;
+      const leftLedgeY = baseY + (g % 2 === 0 ? -10 : 12);
+      const rightLedgeY = baseY + (g % 2 === 0 ? 14 : -8);
+
+      const leftLedge = {
+        x: cursorX,
+        y: leftLedgeY,
+        w: PLATFORM_WIDTH,
+        h: PLATFORM_HEIGHT,
+        type: 0,
+        visible: true
+      };
+      platforms.push(leftLedge);
+
+      // Glitch platform lives over the empty pit and teleports to another empty point.
+      const posA = { x: cursorX + 90, y: baseY - 26 + (g % 2 === 0 ? -8 : 8) };
+      const posB = { x: cursorX + gapSize - 90, y: baseY - 26 + (g % 2 === 0 ? 8 : -8) };
+      platforms.push({
+        x: posA.x,
+        y: posA.y,
+        w: PLATFORM_WIDTH,
+        h: PLATFORM_HEIGHT,
+        type: 8,
+        visible: true,
+        posA,
+        posB,
+        glitchTimer: 0,
+        currentPos: 0,
+        glitchState: 'visible'
+      });
+
+      const rightLedge = {
+        x: cursorX + gapSize,
+        y: rightLedgeY,
+        w: PLATFORM_WIDTH,
+        h: PLATFORM_HEIGHT,
+        type: 0,
+        visible: true
+      };
+      platforms.push(rightLedge);
+
+      // Spikes punish ledge camping and bad timing near each pit.
+      obstacles.push({
+        x: leftLedge.x + leftLedge.w - 18,
+        y: leftLedge.y - 24,
+        w: 20,
+        h: 20,
+        color: GLITCH_COLOR_GREEN,
+        vx: 0,
+        minX: leftLedge.x + leftLedge.w - 18,
+        maxX: leftLedge.x + leftLedge.w - 18,
+        type: 'spike'
+      });
+      obstacles.push({
+        x: rightLedge.x - 2,
+        y: rightLedge.y - 24,
+        w: 20,
+        h: 20,
+        color: GLITCH_COLOR_GREEN,
+        vx: 0,
+        minX: rightLedge.x - 2,
+        maxX: rightLedge.x - 2,
+        type: 'spike'
+      });
+
+      // Recovery platform after each major gap.
+      platforms.push({
+        x: rightLedge.x + 140,
+        y: rightLedge.y + (g % 2 === 0 ? -12 : 10),
+        w: PLATFORM_WIDTH,
+        h: PLATFORM_HEIGHT,
+        type: 0,
+        visible: true
+      });
+
+      cursorX = rightLedge.x + 300;
     }
 
+    const finishX = LEVEL_WIDTH - 150;
+    const finishY = baseY;
     platforms.push({
-      x: LEVEL_WIDTH - 150,
-      y: pathY,
+      x: finishX,
+      y: finishY,
       w: PLATFORM_WIDTH,
       h: PLATFORM_HEIGHT,
       type: 0,
@@ -2506,23 +2559,11 @@ function buildGlitchLevels() {
       isFinish: true
     });
 
-    const obstacleCount = 2 + Math.floor(levelIndex / 4);
-    for (let i = 0; i < obstacleCount; i++) {
-      const anchorPlatform = platforms[1 + Math.min(i + 1, pathXs.length - 1)];
-      obstacles.push({
-        x: anchorPlatform.x + rng.range(-10, 10),
-        y: anchorPlatform.y - 32,
-        w: 24,
-        h: 24,
-        color: GLITCH_COLOR_GREEN,
-        vx: (rng.next() - 0.5) * 1.5,
-        minX: Math.max(0, anchorPlatform.x - 120),
-        maxX: Math.min(LEVEL_WIDTH, anchorPlatform.x + 120),
-        type: 'spike'
-      });
-    }
+    // Final approach so finish is reachable after last gap sequence.
+    platforms.push({ x: finishX - 280, y: finishY + 18, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
+    platforms.push({ x: finishX - 140, y: finishY - 10, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
 
-    if (levelIndex % 3 === 1) {
+    if (levelIndex % 3 === 1 && platforms.length > 6) {
       const midPlatform = platforms[Math.floor(platforms.length / 2)];
       powerups.push({
         x: midPlatform.x + 8,
