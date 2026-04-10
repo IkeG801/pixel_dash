@@ -11,6 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
+const GAME_VERSION = 'v.0.8.6';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -4312,6 +4313,10 @@ function draw() {
     ctx.fillStyle = surf;
     ctx.font = 'bold 48px Silkscreen, Arial, sans-serif';
     ctx.fillText(title, W / 2, H / 2 - 100);
+
+    ctx.fillStyle = txt;
+    ctx.font = '12px Silkscreen, Arial, sans-serif';
+    ctx.fillText(GAME_VERSION, W / 2, H / 2 - 72);
 
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';

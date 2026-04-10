@@ -2,6 +2,12 @@
 
 A fast-paced pixel-art platformer game built with vanilla JavaScript and Canvas. Navigate through challenging levels, collect coins, and unlock special cube skins!
 
+## Current Version
+
+- **v.0.8.6**
+- Displayed on the home screen (main menu)
+- Update this version string before each commit and push
+
 ## Features
 
 ### Game Mechanics
@@ -11,7 +17,9 @@ A fast-paced pixel-art platformer game built with vanilla JavaScript and Canvas.
   - Crumbling platforms (disappear after landing)
   - Bouncy platforms (slime - extra bounce height)
   - Ice platforms (slippery surface)
-  - Fan platforms (provide upward boost)
+  - Magma geyser platforms (warning + eruption hazard cycle)
+  - Elevator platforms (vertical travel in Sky Kingdom)
+  - Glitch platforms (single A↔B teleport platform with warning phase)
 
 - **Collectibles & Power-ups**:
   - Coins (earn currency for cube skins)
@@ -19,7 +27,13 @@ A fast-paced pixel-art platformer game built with vanilla JavaScript and Canvas.
   - Coin Multiplier (double coin rewards)
   - Fly Mode (temporary flight ability)
 
-- **13+ Curated Levels**: Progressive difficulty from "Getting Started" to "Slime Bounce"
+- **90 Curated Levels Across 6 Kingdoms**:
+  - Castle Kingdom (15)
+  - Ice Kingdom (15)
+  - Slime Kingdom (15)
+  - Magma Kingdom (15)
+  - Sky Kingdom (15)
+  - Glitch Kingdom (15)
 
 ### Customization
 - **Cube Skins Shop**: Unlock 20+ different cube designs with unique visual effects
@@ -87,7 +101,7 @@ pixel_dash/
 1. **Reach the Flag**: Navigate to the end flag to complete each level
 2. **Collect Coins**: Gather coins for currency
 3. **Unlock Skins**: Use coins to unlock unique cube designs
-4. **Progress**: Complete all 13 levels to master the game
+4. **Progress**: Complete all 90 levels to master the kingdoms
 
 ## Game States
 
@@ -97,6 +111,7 @@ pixel_dash/
 - **Game Over**: Fell or hit hazards, retry level
 - **Shop**: Browse and purchase cube skins
 - **Level Select**: Choose any unlocked level
+- **Settings**: Audio controls and tuning
 
 ## Technical Details
 
@@ -256,14 +271,21 @@ Project creator: Isaac (IkeG801)
   - Jest + jest-environment-jsdom (automated testing)
   - HTML5 Canvas API, Web Audio API, and localStorage API (runtime platform features)
 
+## Recent Major Updates
+
+- Added Magma Kingdom with lava/volcano visuals and magma geyser hazards
+- Added Sky Kingdom with vertical layouts and elevator platform mechanics
+- Added Glitch Kingdom with motherboard aesthetic, cyber-neon palette, and glitch platform teleport logic
+- Added kingdom-specific background rendering and per-kingdom music routing
+- Added geometry sanity checks for level playability and spawn safety
+- Added standalone build output with embedded assets/music
+
 ## Roadmap
 
-- [ ] Daily challenge procedural levels
 - [ ] Leaderboard system
-- [ ] Achievement tracking
+- [ ] Achievement expansion
 - [ ] Level editor
-- [ ] Sound toggle
-- [ ] Settings menu
+- [ ] Additional challenge modifiers
 - [ ] Difficulty modes
 
 ## Support
