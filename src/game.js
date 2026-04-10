@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.8.6';
+const GAME_VERSION = 'v.0.8.7';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
