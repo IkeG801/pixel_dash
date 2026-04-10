@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.0';
+const GAME_VERSION = 'v.0.9.1';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -2439,7 +2439,7 @@ function buildSkyLevels() {
 
 function buildGlitchLevels() {
   const levels = [];
-  const LEVEL_WIDTH = 1900;
+  const LEVEL_WIDTH = 2800;
   const PLATFORM_WIDTH = 122;
   const PLATFORM_HEIGHT = 16;
 
@@ -2462,16 +2462,15 @@ function buildGlitchLevels() {
     platforms.push(spawnPlatform);
 
     const baseY = 330 + rng.range(-18, 18);
-    const gapCount = levelIndex < 5 ? 1 : 2;
-    const voidClearance = 165;
+    const gapCount = levelIndex < 4 ? 2 : 3;
 
     // Entry ramp from spawn into glitch route.
     platforms.push({ x: 170, y: 420, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
     platforms.push({ x: 300, y: 380, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
 
-    let cursorX = 450;
+    let cursorX = 440;
     for (let g = 0; g < gapCount; g++) {
-      const gapSize = 540 + g * 40 + (levelIndex % 3) * 20;
+      const gapSize = 760 + g * 70 + (levelIndex % 3) * 35;
       const leftLedgeY = baseY + (g % 2 === 0 ? -10 : 12);
       const rightLedgeY = baseY + (g % 2 === 0 ? 14 : -8);
 
@@ -2485,11 +2484,12 @@ function buildGlitchLevels() {
       };
       platforms.push(leftLedge);
 
-      // Glitch platform lives only in the center void, away from ledges.
-      const leftVoidX = leftLedge.x + leftLedge.w + voidClearance;
-      const rightVoidX = cursorX + gapSize - voidClearance - PLATFORM_WIDTH;
-      const posA = { x: leftVoidX, y: baseY - 28 + (g % 2 === 0 ? -8 : 8) };
-      const posB = { x: rightVoidX, y: baseY - 28 + (g % 2 === 0 ? 8 : -8) };
+      // Glitch platform lives over a long void section with no normal platforms nearby.
+      const voidPadding = 48;
+      const leftVoidX = leftLedge.x + leftLedge.w + voidPadding;
+      const rightVoidX = leftLedge.x + gapSize - voidPadding - PLATFORM_WIDTH;
+      const posA = { x: leftVoidX, y: baseY - 30 + (g % 2 === 0 ? -8 : 8) };
+      const posB = { x: rightVoidX, y: baseY - 30 + (g % 2 === 0 ? 8 : -8) };
       platforms.push({
         x: posA.x,
         y: posA.y,
@@ -2505,7 +2505,7 @@ function buildGlitchLevels() {
       });
 
       const rightLedge = {
-        x: cursorX + gapSize,
+        x: leftLedge.x + gapSize,
         y: rightLedgeY,
         w: PLATFORM_WIDTH,
         h: PLATFORM_HEIGHT,
@@ -2531,7 +2531,7 @@ function buildGlitchLevels() {
       });
 
       // Moving saws sweep near pit edges.
-      const sawTravel = 85 + g * 18;
+      const sawTravel = 140 + g * 20;
       const sawSpeed = 1.6 + Math.min(0.9, levelIndex * 0.05);
       obstacles.push({
         x: leftLedge.x + leftLedge.w - 40,
@@ -2558,7 +2558,7 @@ function buildGlitchLevels() {
 
       // Recovery platform after each major gap, kept away from glitch platform positions.
       platforms.push({
-        x: rightLedge.x + 190,
+        x: rightLedge.x + 220,
         y: rightLedge.y + (g % 2 === 0 ? -12 : 10),
         w: PLATFORM_WIDTH,
         h: PLATFORM_HEIGHT,
@@ -2566,11 +2566,16 @@ function buildGlitchLevels() {
         visible: true
       });
 
-      cursorX = rightLedge.x + 240;
+      cursorX = rightLedge.x + 360;
     }
 
-    const finishX = LEVEL_WIDTH - 150;
     const finishY = baseY;
+    const finalApproachX = cursorX + 140;
+    const finishX = Math.min(LEVEL_WIDTH - 150, finalApproachX + 320);
+
+    // Final approach so finish is reachable after last gap sequence.
+    platforms.push({ x: finalApproachX, y: finishY + 18, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
+    platforms.push({ x: finalApproachX + 150, y: finishY - 10, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
     platforms.push({
       x: finishX,
       y: finishY,
@@ -2580,10 +2585,6 @@ function buildGlitchLevels() {
       visible: true,
       isFinish: true
     });
-
-    // Final approach so finish is reachable after last gap sequence.
-    platforms.push({ x: finishX - 280, y: finishY + 18, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
-    platforms.push({ x: finishX - 140, y: finishY - 10, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
 
     if (levelIndex % 3 === 1 && platforms.length > 6) {
       const midPlatform = platforms[Math.floor(platforms.length / 2)];
