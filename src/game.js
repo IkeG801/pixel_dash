@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.8.7';
+const GAME_VERSION = 'v.0.8.9';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -2446,6 +2446,7 @@ function buildGlitchLevels() {
   for (let levelIndex = 0; levelIndex < 15; levelIndex++) {
     const levelNum = levelIndex + 1;
     const platforms = [];
+    const spikes = [];
     const obstacles = [];
     const powerups = [];
     const rng = new SeededRandom(9000 + levelIndex);
@@ -2469,7 +2470,7 @@ function buildGlitchLevels() {
 
     let cursorX = 450;
     for (let g = 0; g < gapCount; g++) {
-      const gapSize = 260 + g * 45 + (levelIndex % 3) * 20;
+      const gapSize = 370 + g * 55 + (levelIndex % 3) * 25;
       const leftLedgeY = baseY + (g % 2 === 0 ? -10 : 12);
       const rightLedgeY = baseY + (g % 2 === 0 ? 14 : -8);
 
@@ -2484,8 +2485,8 @@ function buildGlitchLevels() {
       platforms.push(leftLedge);
 
       // Glitch platform lives over the empty pit and teleports to another empty point.
-      const posA = { x: cursorX + 90, y: baseY - 26 + (g % 2 === 0 ? -8 : 8) };
-      const posB = { x: cursorX + gapSize - 90, y: baseY - 26 + (g % 2 === 0 ? 8 : -8) };
+      const posA = { x: cursorX + 170, y: baseY - 28 + (g % 2 === 0 ? -8 : 8) };
+      const posB = { x: cursorX + gapSize - 170, y: baseY - 28 + (g % 2 === 0 ? 8 : -8) };
       platforms.push({
         x: posA.x,
         y: posA.y,
@@ -2510,33 +2511,51 @@ function buildGlitchLevels() {
       };
       platforms.push(rightLedge);
 
-      // Spikes punish ledge camping and bad timing near each pit.
-      obstacles.push({
+      // Real spikes on ledges punish bad timing before/after each void crossing.
+      spikes.push({
         x: leftLedge.x + leftLedge.w - 18,
-        y: leftLedge.y - 24,
-        w: 20,
+        y: leftLedge.y - 20,
+        w: 22,
         h: 20,
-        color: GLITCH_COLOR_GREEN,
-        vx: 0,
-        minX: leftLedge.x + leftLedge.w - 18,
-        maxX: leftLedge.x + leftLedge.w - 18,
-        type: 'spike'
+        type: 0
       });
-      obstacles.push({
-        x: rightLedge.x - 2,
-        y: rightLedge.y - 24,
-        w: 20,
+      spikes.push({
+        x: rightLedge.x - 4,
+        y: rightLedge.y - 20,
+        w: 22,
         h: 20,
-        color: GLITCH_COLOR_GREEN,
-        vx: 0,
-        minX: rightLedge.x - 2,
-        maxX: rightLedge.x - 2,
-        type: 'spike'
+        type: 0
       });
 
-      // Recovery platform after each major gap.
+      // Moving saws sweep near pit edges.
+      const sawTravel = 85 + g * 18;
+      const sawSpeed = 1.6 + Math.min(0.9, levelIndex * 0.05);
+      obstacles.push({
+        x: leftLedge.x + leftLedge.w - 40,
+        y: leftLedge.y - 30,
+        w: 20,
+        h: 20,
+        color: GLITCH_COLOR_GREEN,
+        vx: sawSpeed,
+        minX: leftLedge.x + leftLedge.w - 40,
+        maxX: leftLedge.x + leftLedge.w - 40 + sawTravel,
+        type: 'saw'
+      });
+      obstacles.push({
+        x: rightLedge.x - sawTravel + 20,
+        y: rightLedge.y - 30,
+        w: 20,
+        h: 20,
+        color: GLITCH_COLOR_GREEN,
+        vx: -sawSpeed,
+        minX: rightLedge.x - sawTravel + 20,
+        maxX: rightLedge.x + 20,
+        type: 'saw'
+      });
+
+      // Recovery platform after each major gap, kept away from glitch platform positions.
       platforms.push({
-        x: rightLedge.x + 140,
+        x: rightLedge.x + 220,
         y: rightLedge.y + (g % 2 === 0 ? -12 : 10),
         w: PLATFORM_WIDTH,
         h: PLATFORM_HEIGHT,
@@ -2578,6 +2597,7 @@ function buildGlitchLevels() {
     levels.push({
       name: `Glitch ${levelNum}`,
       platforms,
+      spikes,
       obstacles,
       powerups,
       kingdom: 'glitch'
