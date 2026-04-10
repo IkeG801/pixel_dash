@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.1';
+const GAME_VERSION = 'v.0.9.2';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -2439,9 +2439,10 @@ function buildSkyLevels() {
 
 function buildGlitchLevels() {
   const levels = [];
-  const LEVEL_WIDTH = 2800;
+  const LEVEL_WIDTH = 3200;
   const PLATFORM_WIDTH = 122;
   const PLATFORM_HEIGHT = 16;
+  const laneY = [380, 346, 312, 278];
 
   for (let levelIndex = 0; levelIndex < 15; levelIndex++) {
     const levelNum = levelIndex + 1;
@@ -2449,7 +2450,7 @@ function buildGlitchLevels() {
     const spikes = [];
     const obstacles = [];
     const powerups = [];
-    const rng = new SeededRandom(9000 + levelIndex);
+    const tier = levelIndex < 5 ? 0 : levelIndex < 10 ? 1 : 2;
 
     const spawnPlatform = {
       x: 50,
@@ -2461,18 +2462,18 @@ function buildGlitchLevels() {
     };
     platforms.push(spawnPlatform);
 
-    const baseY = 330 + rng.range(-18, 18);
-    const gapCount = levelIndex < 4 ? 2 : 3;
+    const segmentCount = tier === 0 ? 2 : 3;
+    const patternSeed = levelIndex % laneY.length;
 
     // Entry ramp from spawn into glitch route.
-    platforms.push({ x: 170, y: 420, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
-    platforms.push({ x: 300, y: 380, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
+    platforms.push({ x: 170, y: 430, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
+    platforms.push({ x: 320, y: 398, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
 
-    let cursorX = 440;
-    for (let g = 0; g < gapCount; g++) {
-      const gapSize = 760 + g * 70 + (levelIndex % 3) * 35;
-      const leftLedgeY = baseY + (g % 2 === 0 ? -10 : 12);
-      const rightLedgeY = baseY + (g % 2 === 0 ? 14 : -8);
+    let cursorX = 500;
+    for (let g = 0; g < segmentCount; g++) {
+      const leftLedgeY = laneY[(patternSeed + g) % laneY.length];
+      const rightLedgeY = laneY[(patternSeed + g + 1) % laneY.length];
+      const gapSize = 740 + (tier * 120) + (g * 85);
 
       const leftLedge = {
         x: cursorX,
@@ -2484,12 +2485,14 @@ function buildGlitchLevels() {
       };
       platforms.push(leftLedge);
 
-      // Glitch platform lives over a long void section with no normal platforms nearby.
-      const voidPadding = 48;
-      const leftVoidX = leftLedge.x + leftLedge.w + voidPadding;
-      const rightVoidX = leftLedge.x + gapSize - voidPadding - PLATFORM_WIDTH;
-      const posA = { x: leftVoidX, y: baseY - 30 + (g % 2 === 0 ? -8 : 8) };
-      const posB = { x: rightVoidX, y: baseY - 30 + (g % 2 === 0 ? 8 : -8) };
+      // Intentional void-only bridge: one glitch platform with long A↔B travel.
+      const voidStartX = leftLedge.x + leftLedge.w;
+      const voidEndX = leftLedge.x + gapSize;
+      const bridgeY = Math.min(leftLedgeY, rightLedgeY) - 26;
+      const posA = { x: voidStartX + 70, y: bridgeY };
+      const targetTravel = 360 + tier * 70 + g * 40;
+      const maxPosB = voidEndX - 70 - PLATFORM_WIDTH;
+      const posB = { x: Math.min(maxPosB, posA.x + targetTravel), y: bridgeY };
       platforms.push({
         x: posA.x,
         y: posA.y,
@@ -2505,7 +2508,7 @@ function buildGlitchLevels() {
       });
 
       const rightLedge = {
-        x: leftLedge.x + gapSize,
+        x: voidEndX,
         y: rightLedgeY,
         w: PLATFORM_WIDTH,
         h: PLATFORM_HEIGHT,
@@ -2531,8 +2534,8 @@ function buildGlitchLevels() {
       });
 
       // Moving saws sweep near pit edges.
-      const sawTravel = 140 + g * 20;
-      const sawSpeed = 1.6 + Math.min(0.9, levelIndex * 0.05);
+      const sawTravel = 120 + g * 25;
+      const sawSpeed = 1.7 + tier * 0.25 + g * 0.08;
       obstacles.push({
         x: leftLedge.x + leftLedge.w - 40,
         y: leftLedge.y - 30,
@@ -2556,22 +2559,22 @@ function buildGlitchLevels() {
         type: 'saw'
       });
 
-      // Recovery platform after each major gap, kept away from glitch platform positions.
+      // Recovery platform after each major gap (outside void section).
       platforms.push({
-        x: rightLedge.x + 220,
-        y: rightLedge.y + (g % 2 === 0 ? -12 : 10),
+        x: rightLedge.x + 210,
+        y: rightLedge.y + (g % 2 === 0 ? -10 : 10),
         w: PLATFORM_WIDTH,
         h: PLATFORM_HEIGHT,
         type: 0,
         visible: true
       });
 
-      cursorX = rightLedge.x + 360;
+      cursorX = rightLedge.x + 390;
     }
 
-    const finishY = baseY;
-    const finalApproachX = cursorX + 140;
-    const finishX = Math.min(LEVEL_WIDTH - 150, finalApproachX + 320);
+    const finishY = laneY[(patternSeed + segmentCount + 1) % laneY.length];
+    const finalApproachX = cursorX + 120;
+    const finishX = Math.min(LEVEL_WIDTH - 150, finalApproachX + 340);
 
     // Final approach so finish is reachable after last gap sequence.
     platforms.push({ x: finalApproachX, y: finishY + 18, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
