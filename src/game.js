@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.8.9';
+const GAME_VERSION = 'v.0.9.0';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -2462,7 +2462,8 @@ function buildGlitchLevels() {
     platforms.push(spawnPlatform);
 
     const baseY = 330 + rng.range(-18, 18);
-    const gapCount = levelIndex < 3 ? 1 : levelIndex < 9 ? 2 : 3;
+    const gapCount = levelIndex < 5 ? 1 : 2;
+    const voidClearance = 165;
 
     // Entry ramp from spawn into glitch route.
     platforms.push({ x: 170, y: 420, w: PLATFORM_WIDTH, h: PLATFORM_HEIGHT, type: 0, visible: true });
@@ -2470,7 +2471,7 @@ function buildGlitchLevels() {
 
     let cursorX = 450;
     for (let g = 0; g < gapCount; g++) {
-      const gapSize = 370 + g * 55 + (levelIndex % 3) * 25;
+      const gapSize = 540 + g * 40 + (levelIndex % 3) * 20;
       const leftLedgeY = baseY + (g % 2 === 0 ? -10 : 12);
       const rightLedgeY = baseY + (g % 2 === 0 ? 14 : -8);
 
@@ -2484,9 +2485,11 @@ function buildGlitchLevels() {
       };
       platforms.push(leftLedge);
 
-      // Glitch platform lives over the empty pit and teleports to another empty point.
-      const posA = { x: cursorX + 170, y: baseY - 28 + (g % 2 === 0 ? -8 : 8) };
-      const posB = { x: cursorX + gapSize - 170, y: baseY - 28 + (g % 2 === 0 ? 8 : -8) };
+      // Glitch platform lives only in the center void, away from ledges.
+      const leftVoidX = leftLedge.x + leftLedge.w + voidClearance;
+      const rightVoidX = cursorX + gapSize - voidClearance - PLATFORM_WIDTH;
+      const posA = { x: leftVoidX, y: baseY - 28 + (g % 2 === 0 ? -8 : 8) };
+      const posB = { x: rightVoidX, y: baseY - 28 + (g % 2 === 0 ? 8 : -8) };
       platforms.push({
         x: posA.x,
         y: posA.y,
@@ -2555,7 +2558,7 @@ function buildGlitchLevels() {
 
       // Recovery platform after each major gap, kept away from glitch platform positions.
       platforms.push({
-        x: rightLedge.x + 220,
+        x: rightLedge.x + 190,
         y: rightLedge.y + (g % 2 === 0 ? -12 : 10),
         w: PLATFORM_WIDTH,
         h: PLATFORM_HEIGHT,
@@ -2563,7 +2566,7 @@ function buildGlitchLevels() {
         visible: true
       });
 
-      cursorX = rightLedge.x + 300;
+      cursorX = rightLedge.x + 240;
     }
 
     const finishX = LEVEL_WIDTH - 150;
