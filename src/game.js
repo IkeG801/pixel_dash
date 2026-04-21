@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.6';
+const GAME_VERSION = 'v.0.9.7';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -3191,18 +3191,52 @@ function tryHandleUiTap(tx, ty) {
   return false;
 }
 
+function getViewportClass(W) {
+  if (W < 600) return 'smartphone';
+  if (W < 1024) return 'tablet';
+  return 'pc';
+}
+
+function getLevelSelectLayoutMetrics(W, H, levelCount) {
+  const viewport = getViewportClass(W);
+  const levelSize = viewport === 'smartphone' ? 72 : viewport === 'tablet' ? 78 : 80;
+  const spacingX = viewport === 'smartphone' ? 22 : viewport === 'tablet' ? 28 : 34;
+  const spacingY = viewport === 'smartphone' ? 62 : viewport === 'tablet' ? 64 : 66;
+  const maxLevelsPerRow = viewport === 'smartphone' ? 3 : viewport === 'tablet' ? 5 : 6;
+  const levelsPerRow = Math.max(1, Math.min(maxLevelsPerRow, Math.floor((W - 60) / (levelSize + spacingX))));
+  const levelRows = Math.ceil(levelCount / levelsPerRow);
+  const rowStep = levelSize + spacingY;
+  const contentHeight = levelRows * rowStep;
+  const clipTop = 120;
+  const clipBottomPadding = 60;
+  const visibleHeight = H - (clipTop + clipBottomPadding);
+  const maxScroll = Math.max(0, contentHeight - visibleHeight);
+  const centeredOffset = Math.max(0, (visibleHeight - contentHeight) / 2);
+  const gridStartY = clipTop + 20 + centeredOffset;
+
+  return {
+    levelSize,
+    spacingX,
+    spacingY,
+    levelsPerRow,
+    levelRows,
+    rowStep,
+    contentHeight,
+    visibleHeight,
+    maxScroll,
+    clipTop,
+    clipBottomPadding,
+    gridStartY
+  };
+}
+
 function getLevelSelectMaxScroll() {
   const W = canvas.width;
   const H = canvas.height;
   const kingdomKey = ['castle', 'ice', 'slime', 'magma', 'sky', 'glitch'][selectedKingdom];
   const levelCount = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey).length;
-  const levelSize = 80;
-  const spacing = 20;
-  const levelsPerRow = Math.max(1, Math.floor((W - 40) / (levelSize + spacing)));
-  const levelRows = Math.ceil(levelCount / levelsPerRow);
-  const contentHeight = levelRows * (levelSize + spacing + 50);
-  const visibleHeight = H - 180;
-  return Math.max(0, contentHeight - visibleHeight);
+  const layout = getLevelSelectLayoutMetrics(W, H, levelCount);
+  return layout.maxScroll;
 }
 
 function getShopMaxScroll() {
@@ -4376,16 +4410,23 @@ function draw() {
   }
 
   if (state === 'menu') {
+    const viewport = getViewportClass(W);
+    const titleFontSize = viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48;
+    const bodyFontSize = viewport === 'smartphone' ? 12 : 14;
+    const ctaFontSize = viewport === 'smartphone' ? 15 : 20;
+    const buttonW = viewport === 'smartphone' ? 96 : 100;
+    const buttonH = viewport === 'smartphone' ? 38 : 40;
+
     const menuTop = Math.max(24, Math.floor(H * 0.05));
-    let titleY = menuTop + 38;
-    let versionY = titleY + 24;
-    let controlsY1 = versionY + 44;
-    let controlsY2 = controlsY1 + 24;
-    let ctaY = controlsY2 + 44;
-    let row1Y = ctaY + 30;
-    let row2Y = row1Y + 64;
-    let statsY = row2Y + 62;
-    let hintY = statsY + 24;
+    let titleY = menuTop + (viewport === 'smartphone' ? 30 : 38);
+    let versionY = titleY + (viewport === 'smartphone' ? 20 : 24);
+    let controlsY1 = versionY + (viewport === 'smartphone' ? 34 : 44);
+    let controlsY2 = controlsY1 + (viewport === 'smartphone' ? 20 : 24);
+    let ctaY = controlsY2 + (viewport === 'smartphone' ? 34 : 44);
+    let row1Y = ctaY + (viewport === 'smartphone' ? 22 : 30);
+    let row2Y = row1Y + (viewport === 'smartphone' ? 54 : 64);
+    let statsY = row2Y + (viewport === 'smartphone' ? 52 : 62);
+    let hintY = statsY + (viewport === 'smartphone' ? 20 : 24);
 
     const bottomTarget = H - 12;
     const overflow = Math.max(0, hintY - bottomTarget);
@@ -4403,7 +4444,7 @@ function draw() {
 
     ctx.textAlign = 'center';
     ctx.fillStyle = surf;
-    ctx.font = 'bold 48px Silkscreen, Arial, sans-serif';
+    ctx.font = `bold ${titleFontSize}px Silkscreen, Arial, sans-serif`;
     ctx.fillText(title, W / 2, titleY);
 
     ctx.fillStyle = txt;
@@ -4411,30 +4452,31 @@ function draw() {
     ctx.fillText(GAME_VERSION, W / 2, versionY);
 
     ctx.fillStyle = txt;
-    ctx.font = '14px Silkscreen, Arial, sans-serif';
+    ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.fillText('Arrow keys or WASD to move', W / 2, controlsY1);
     ctx.fillText('Up / W / Space to jump', W / 2, controlsY2);
 
     ctx.fillStyle = sec;
-    ctx.font = 'bold 20px Silkscreen';
+    ctx.font = `bold ${ctaFontSize}px Silkscreen`;
     const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
     ctx.globalAlpha = pulse;
     ctx.fillText('[ PRESS SPACE OR TAP TO START ]', W / 2, ctaY);
     ctx.globalAlpha = 1;
-    registerUiButton(W / 2 - 200, ctaY - 24, 400, 40, () => initGame(0));
+    const ctaButtonW = viewport === 'smartphone' ? 320 : 400;
+    registerUiButton(W / 2 - ctaButtonW / 2, ctaY - 24, ctaButtonW, 40, () => initGame(0));
 
     // Menu buttons with labels
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - 130, row1Y, 100, 40);
+    ctx.fillRect(W / 2 - (buttonW + 30), row1Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
     ctx.textAlign = 'center';
-    ctx.fillText('LEVELS', W / 2 - 80, row1Y + 25);
+    ctx.fillText('LEVELS', W / 2 - (buttonW + 30) + buttonW / 2, row1Y + 25);
     ctx.fillStyle = txt;
-    ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[L]', W / 2 - 80, row1Y + 45);
-    registerUiButton(W / 2 - 130, row1Y, 100, 40, () => {
+    ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
+    ctx.fillText('[L]', W / 2 - (buttonW + 30) + buttonW / 2, row1Y + 45);
+    registerUiButton(W / 2 - (buttonW + 30), row1Y, buttonW, buttonH, () => {
       state = 'levelselect';
       selectedLevel = 0;
       levelSelectScrollY = 0;
@@ -4442,41 +4484,41 @@ function draw() {
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 + 30, row1Y, 100, 40);
+    ctx.fillRect(W / 2 + 30, row1Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
     ctx.textAlign = 'center';
-    ctx.fillText('SHOP', W / 2 + 80, row1Y + 25);
+    ctx.fillText('SHOP', W / 2 + 30 + buttonW / 2, row1Y + 25);
     ctx.fillStyle = txt;
-    ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[S]', W / 2 + 80, row1Y + 45);
-    registerUiButton(W / 2 + 30, row1Y, 100, 40, () => {
+    ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
+    ctx.fillText('[S]', W / 2 + 30 + buttonW / 2, row1Y + 45);
+    registerUiButton(W / 2 + 30, row1Y, buttonW, buttonH, () => {
       state = 'shop';
       shopScrollY = 0;
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 + 30, row2Y, 100, 40);
+    ctx.fillRect(W / 2 + 30, row2Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('AUDIO', W / 2 + 80, row2Y + 25);
+    ctx.fillText('AUDIO', W / 2 + 30 + buttonW / 2, row2Y + 25);
     ctx.fillStyle = txt;
-    ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[O]', W / 2 + 80, row2Y + 45);
-    registerUiButton(W / 2 + 30, row2Y, 100, 40, () => {
+    ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
+    ctx.fillText('[O]', W / 2 + 30 + buttonW / 2, row2Y + 45);
+    registerUiButton(W / 2 + 30, row2Y, buttonW, buttonH, () => {
       selectedSettingsRow = 0;
       state = 'settings';
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - 130, row2Y, 100, 40);
+    ctx.fillRect(W / 2 - (buttonW + 30), row2Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('DAILY', W / 2 - 80, row2Y + 25);
+    ctx.fillText('DAILY', W / 2 - (buttonW + 30) + buttonW / 2, row2Y + 25);
     ctx.fillStyle = txt;
-    ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[D]', W / 2 - 80, row2Y + 45);
-    registerUiButton(W / 2 - 130, row2Y, 100, 40, () => {
+    ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
+    ctx.fillText('[D]', W / 2 - (buttonW + 30) + buttonW / 2, row2Y + 45);
+    registerUiButton(W / 2 - (buttonW + 30), row2Y, buttonW, buttonH, () => {
       startDailyChallenge();
     });
 
@@ -4564,16 +4606,13 @@ function draw() {
 
     // Get levels for current kingdom
     const kingdomLevels = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey);
-    const levelSize = 80;
-    const spacingX = 34;
-    const spacingY = 66;
-    const maxLevelsPerRow = 6;
-    const levelsPerRow = Math.max(1, Math.min(maxLevelsPerRow, Math.floor((W - 60) / (levelSize + spacingX))));
-    const levelRows = Math.ceil(kingdomLevels.length / levelsPerRow);
-    const rowStep = levelSize + spacingY;
-    const contentHeight = levelRows * rowStep;
-    const visibleHeight = H - 180;
-    const maxScroll = Math.max(0, contentHeight - visibleHeight);
+    const levelLayout = getLevelSelectLayoutMetrics(W, H, kingdomLevels.length);
+    const levelSize = levelLayout.levelSize;
+    const spacingX = levelLayout.spacingX;
+    const levelsPerRow = levelLayout.levelsPerRow;
+    const rowStep = levelLayout.rowStep;
+    const visibleHeight = levelLayout.visibleHeight;
+    const maxScroll = levelLayout.maxScroll;
 
     const drawWrappedLevelName = (name, centerX, baseY, maxWidth) => {
       const words = String(name || '').split(' ');
@@ -4608,7 +4647,7 @@ function draw() {
 
     ctx.save();
     ctx.beginPath();
-    ctx.rect(0, 120, W, visibleHeight);
+    ctx.rect(0, levelLayout.clipTop, W, visibleHeight);
     ctx.clip();
 
     for (let i = 0; i < kingdomLevels.length; i++) {
@@ -4616,9 +4655,9 @@ function draw() {
       const row = Math.floor(i / levelsPerRow);
       const totalRowWidth = levelsPerRow * levelSize + (levelsPerRow - 1) * spacingX;
       const lx = W / 2 - totalRowWidth / 2 + col * (levelSize + spacingX);
-      const ly = 140 + row * rowStep - levelSelectScrollY;
+      const ly = levelLayout.gridStartY + row * rowStep - levelSelectScrollY;
 
-      if (ly + levelSize < 120 || ly > H - 60) continue;
+      if (ly + levelSize < levelLayout.clipTop || ly > H - levelLayout.clipBottomPadding) continue;
 
       const isSelected = i === selectedLevel;
       const levelData = kingdomLevels[i];
