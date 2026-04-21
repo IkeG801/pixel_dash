@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.4';
+const GAME_VERSION = 'v.0.9.5';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -2485,11 +2485,11 @@ function buildGlitchLevels() {
       };
       platforms.push(leftLedge);
 
-      // Intentional void-only bridge: one glitch platform with long A↔B travel.
+      // Intentional void-only bridge: one glitch platform with reliable entry/exit windows.
       const voidStartX = leftLedge.x + leftLedge.w;
       const voidEndX = leftLedge.x + gapSize;
-      const bridgeY = Math.min(leftLedgeY, rightLedgeY) - 26;
-      const edgePadding = 74;
+      const bridgeY = Math.min(leftLedgeY, rightLedgeY) - 10;
+      const edgePadding = 22;
       const posA = { x: voidStartX + edgePadding, y: bridgeY };
       const posB = { x: voidEndX - edgePadding - PLATFORM_WIDTH, y: bridgeY };
       platforms.push({
@@ -2518,14 +2518,14 @@ function buildGlitchLevels() {
 
       // Real spikes on ledges punish bad timing before/after each void crossing.
       spikes.push({
-        x: leftLedge.x + leftLedge.w - 56,
+        x: leftLedge.x + 12,
         y: leftLedge.y - 20,
         w: 22,
         h: 20,
         type: 0
       });
       spikes.push({
-        x: rightLedge.x + 34,
+        x: rightLedge.x + rightLedge.w - 34,
         y: rightLedge.y - 20,
         w: 22,
         h: 20,
@@ -2536,25 +2536,25 @@ function buildGlitchLevels() {
       const sawTravel = 120 + g * 25;
       const sawSpeed = 1.7 + tier * 0.25 + g * 0.08;
       obstacles.push({
-        x: leftLedge.x + leftLedge.w - 40,
+        x: leftLedge.x + 46,
         y: leftLedge.y - 30,
         w: 20,
         h: 20,
         color: GLITCH_COLOR_GREEN,
-        vx: sawSpeed,
-        minX: leftLedge.x + leftLedge.w - 40,
-        maxX: leftLedge.x + leftLedge.w - 40 + sawTravel,
+        vx: -sawSpeed,
+        minX: leftLedge.x + 16,
+        maxX: leftLedge.x + 16 + sawTravel,
         type: 'saw'
       });
       obstacles.push({
-        x: rightLedge.x - sawTravel + 20,
+        x: rightLedge.x + rightLedge.w - 36,
         y: rightLedge.y - 30,
         w: 20,
         h: 20,
         color: GLITCH_COLOR_GREEN,
-        vx: -sawSpeed,
-        minX: rightLedge.x - sawTravel + 20,
-        maxX: rightLedge.x + 20,
+        vx: sawSpeed,
+        minX: rightLedge.x + rightLedge.w - 36 - sawTravel,
+        maxX: rightLedge.x + rightLedge.w - 36,
         type: 'saw'
       });
 
