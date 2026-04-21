@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.5';
+const GAME_VERSION = 'v.0.9.6';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -4376,40 +4376,65 @@ function draw() {
   }
 
   if (state === 'menu') {
+    const menuTop = Math.max(24, Math.floor(H * 0.05));
+    let titleY = menuTop + 38;
+    let versionY = titleY + 24;
+    let controlsY1 = versionY + 44;
+    let controlsY2 = controlsY1 + 24;
+    let ctaY = controlsY2 + 44;
+    let row1Y = ctaY + 30;
+    let row2Y = row1Y + 64;
+    let statsY = row2Y + 62;
+    let hintY = statsY + 24;
+
+    const bottomTarget = H - 12;
+    const overflow = Math.max(0, hintY - bottomTarget);
+    if (overflow > 0) {
+      titleY -= overflow;
+      versionY -= overflow;
+      controlsY1 -= overflow;
+      controlsY2 -= overflow;
+      ctaY -= overflow;
+      row1Y -= overflow;
+      row2Y -= overflow;
+      statsY -= overflow;
+      hintY -= overflow;
+    }
+
     ctx.textAlign = 'center';
     ctx.fillStyle = surf;
     ctx.font = 'bold 48px Silkscreen, Arial, sans-serif';
-    ctx.fillText(title, W / 2, H / 2 - 100);
+    ctx.fillText(title, W / 2, titleY);
 
     ctx.fillStyle = txt;
     ctx.font = '12px Silkscreen, Arial, sans-serif';
-    ctx.fillText(GAME_VERSION, W / 2, H / 2 - 72);
+    ctx.fillText(GAME_VERSION, W / 2, versionY);
 
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Arrow keys or WASD to move', W / 2, H / 2 + 50);
-    ctx.fillText('Up / W / Space to jump', W / 2, H / 2 + 80);
+    ctx.fillText('Arrow keys or WASD to move', W / 2, controlsY1);
+    ctx.fillText('Up / W / Space to jump', W / 2, controlsY2);
 
     ctx.fillStyle = sec;
     ctx.font = 'bold 20px Silkscreen';
     const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
     ctx.globalAlpha = pulse;
-    ctx.fillText('[ PRESS SPACE OR TAP TO START ]', W / 2, H / 2 + 160);
+    ctx.fillText('[ PRESS SPACE OR TAP TO START ]', W / 2, ctaY);
     ctx.globalAlpha = 1;
-    registerUiButton(W / 2 - 200, H / 2 + 135, 400, 40, () => initGame(0));
+    registerUiButton(W / 2 - 200, ctaY - 24, 400, 40, () => initGame(0));
 
     // Menu buttons with labels
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - 130, H / 2 + 220, 100, 40);
+    ctx.fillRect(W / 2 - 130, row1Y, 100, 40);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
     ctx.textAlign = 'center';
-    ctx.fillText('LEVELS', W / 2 - 80, H / 2 + 245);
+    ctx.fillText('LEVELS', W / 2 - 80, row1Y + 25);
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[L]', W / 2 - 80, H / 2 + 265);
-    registerUiButton(W / 2 - 130, H / 2 + 220, 100, 40, () => {
+    ctx.fillText('[L]', W / 2 - 80, row1Y + 45);
+    registerUiButton(W / 2 - 130, row1Y, 100, 40, () => {
       state = 'levelselect';
       selectedLevel = 0;
       levelSelectScrollY = 0;
@@ -4417,41 +4442,41 @@ function draw() {
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 + 30, H / 2 + 220, 100, 40);
+    ctx.fillRect(W / 2 + 30, row1Y, 100, 40);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
     ctx.textAlign = 'center';
-    ctx.fillText('SHOP', W / 2 + 80, H / 2 + 245);
+    ctx.fillText('SHOP', W / 2 + 80, row1Y + 25);
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[S]', W / 2 + 80, H / 2 + 265);
-    registerUiButton(W / 2 + 30, H / 2 + 220, 100, 40, () => {
+    ctx.fillText('[S]', W / 2 + 80, row1Y + 45);
+    registerUiButton(W / 2 + 30, row1Y, 100, 40, () => {
       state = 'shop';
       shopScrollY = 0;
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 + 30, H / 2 + 285, 100, 40);
+    ctx.fillRect(W / 2 + 30, row2Y, 100, 40);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('AUDIO', W / 2 + 80, H / 2 + 310);
+    ctx.fillText('AUDIO', W / 2 + 80, row2Y + 25);
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[O]', W / 2 + 80, H / 2 + 330);
-    registerUiButton(W / 2 + 30, H / 2 + 285, 100, 40, () => {
+    ctx.fillText('[O]', W / 2 + 80, row2Y + 45);
+    registerUiButton(W / 2 + 30, row2Y, 100, 40, () => {
       selectedSettingsRow = 0;
       state = 'settings';
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - 130, H / 2 + 285, 100, 40);
+    ctx.fillRect(W / 2 - 130, row2Y, 100, 40);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('DAILY', W / 2 - 80, H / 2 + 310);
+    ctx.fillText('DAILY', W / 2 - 80, row2Y + 25);
     ctx.fillStyle = txt;
     ctx.font = '14px Silkscreen, Arial, sans-serif';
-    ctx.fillText('[D]', W / 2 - 80, H / 2 + 330);
-    registerUiButton(W / 2 - 130, H / 2 + 285, 100, 40, () => {
+    ctx.fillText('[D]', W / 2 - 80, row2Y + 45);
+    registerUiButton(W / 2 - 130, row2Y, 100, 40, () => {
       startDailyChallenge();
     });
 
@@ -4460,8 +4485,8 @@ function draw() {
     const todayDate = getTodayDate();
     const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
     const bestText = bestDaily > 0 ? `${bestDaily}s` : '--';
-    ctx.fillText(`Daily Best: ${bestText}`, W / 2, H / 2 + 365);
-    ctx.fillText('Audio settings: [O] / AUDIO button', W / 2, H / 2 + 393);
+    ctx.fillText(`Daily Best: ${bestText}`, W / 2, statsY);
+    ctx.fillText('Audio settings: [O] / AUDIO button', W / 2, hintY);
 
     return;
   }
