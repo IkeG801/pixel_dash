@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.3';
+const GAME_VERSION = 'v.0.9.4';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -2462,7 +2462,7 @@ function buildGlitchLevels() {
     };
     platforms.push(spawnPlatform);
 
-    const segmentCount = tier === 0 ? 2 : 3;
+    const segmentCount = tier === 0 ? 2 : tier === 1 ? 3 : 2;
     const patternSeed = levelIndex % laneY.length;
 
     // Entry ramp from spawn into glitch route.
@@ -2473,7 +2473,7 @@ function buildGlitchLevels() {
     for (let g = 0; g < segmentCount; g++) {
       const leftLedgeY = laneY[(patternSeed + g) % laneY.length];
       const rightLedgeY = laneY[(patternSeed + g + 1) % laneY.length];
-      const gapSize = 740 + (tier * 120) + (g * 85);
+      const gapSize = 700 + (tier * 110) + (g * 80);
 
       const leftLedge = {
         x: cursorX,
@@ -2489,10 +2489,9 @@ function buildGlitchLevels() {
       const voidStartX = leftLedge.x + leftLedge.w;
       const voidEndX = leftLedge.x + gapSize;
       const bridgeY = Math.min(leftLedgeY, rightLedgeY) - 26;
-      const posA = { x: voidStartX + 70, y: bridgeY };
-      const targetTravel = 360 + tier * 70 + g * 40;
-      const maxPosB = voidEndX - 70 - PLATFORM_WIDTH;
-      const posB = { x: Math.min(maxPosB, posA.x + targetTravel), y: bridgeY };
+      const edgePadding = 74;
+      const posA = { x: voidStartX + edgePadding, y: bridgeY };
+      const posB = { x: voidEndX - edgePadding - PLATFORM_WIDTH, y: bridgeY };
       platforms.push({
         x: posA.x,
         y: posA.y,
@@ -2519,14 +2518,14 @@ function buildGlitchLevels() {
 
       // Real spikes on ledges punish bad timing before/after each void crossing.
       spikes.push({
-        x: leftLedge.x + leftLedge.w - 18,
+        x: leftLedge.x + leftLedge.w - 56,
         y: leftLedge.y - 20,
         w: 22,
         h: 20,
         type: 0
       });
       spikes.push({
-        x: rightLedge.x - 4,
+        x: rightLedge.x + 34,
         y: rightLedge.y - 20,
         w: 22,
         h: 20,
@@ -4541,12 +4540,46 @@ function draw() {
     // Get levels for current kingdom
     const kingdomLevels = INITIAL_LEVELS.filter(l => l.kingdom === kingdomKey);
     const levelSize = 80;
-    const spacing = 20;
-    const levelsPerRow = Math.floor((W - 40) / (levelSize + spacing));
+    const spacingX = 34;
+    const spacingY = 66;
+    const maxLevelsPerRow = 6;
+    const levelsPerRow = Math.max(1, Math.min(maxLevelsPerRow, Math.floor((W - 60) / (levelSize + spacingX))));
     const levelRows = Math.ceil(kingdomLevels.length / levelsPerRow);
-    const contentHeight = levelRows * (levelSize + spacing + 50);
+    const rowStep = levelSize + spacingY;
+    const contentHeight = levelRows * rowStep;
     const visibleHeight = H - 180;
     const maxScroll = Math.max(0, contentHeight - visibleHeight);
+
+    const drawWrappedLevelName = (name, centerX, baseY, maxWidth) => {
+      const words = String(name || '').split(' ');
+      const lines = [];
+      let currentLine = '';
+      for (let wi = 0; wi < words.length; wi++) {
+        const testLine = currentLine ? `${currentLine} ${words[wi]}` : words[wi];
+        if (ctx.measureText(testLine).width <= maxWidth || !currentLine) {
+          currentLine = testLine;
+        } else {
+          lines.push(currentLine);
+          currentLine = words[wi];
+        }
+      }
+      if (currentLine) lines.push(currentLine);
+
+      const maxLines = 2;
+      const displayLines = lines.slice(0, maxLines);
+      if (lines.length > maxLines && displayLines.length > 0) {
+        let last = displayLines[maxLines - 1];
+        while (last.length > 0 && ctx.measureText(`${last}...`).width > maxWidth) {
+          last = last.slice(0, -1);
+        }
+        displayLines[maxLines - 1] = `${last}...`;
+      }
+
+      const lineHeight = 12;
+      for (let li = 0; li < displayLines.length; li++) {
+        ctx.fillText(displayLines[li], centerX, baseY + li * lineHeight);
+      }
+    };
 
     ctx.save();
     ctx.beginPath();
@@ -4556,8 +4589,9 @@ function draw() {
     for (let i = 0; i < kingdomLevels.length; i++) {
       const col = i % levelsPerRow;
       const row = Math.floor(i / levelsPerRow);
-      const lx = W / 2 - (levelsPerRow * (levelSize + spacing)) / 2 + col * (levelSize + spacing);
-      const ly = 140 + row * (levelSize + spacing + 50) - levelSelectScrollY;
+      const totalRowWidth = levelsPerRow * levelSize + (levelsPerRow - 1) * spacingX;
+      const lx = W / 2 - totalRowWidth / 2 + col * (levelSize + spacingX);
+      const ly = 140 + row * rowStep - levelSelectScrollY;
 
       if (ly + levelSize < 120 || ly > H - 60) continue;
 
@@ -4586,9 +4620,9 @@ function draw() {
 
       // Draw level name below
       ctx.fillStyle = txt;
-      ctx.font = '14px Silkscreen, Arial, sans-serif';
+      ctx.font = '11px Silkscreen, Arial, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(levelData.name, lx + levelSize / 2, ly + levelSize + 20);
+      drawWrappedLevelName(levelData.name, lx + levelSize / 2, ly + levelSize + 16, levelSize + 22);
       registerUiButton(lx, ly, levelSize, levelSize, () => {
         selectedLevel = i;
         initGame(actualLevelIndex);
