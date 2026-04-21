@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.7';
+const GAME_VERSION = 'v.0.9.8';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -126,11 +126,20 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
 function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  const viewportW = window.visualViewport ? Math.floor(window.visualViewport.width) : window.innerWidth;
+  const viewportH = window.visualViewport ? Math.floor(window.visualViewport.height) : window.innerHeight;
+  canvas.width = Math.max(240, viewportW);
+  canvas.height = Math.max(320, viewportH);
+  canvas.style.width = `${canvas.width}px`;
+  canvas.style.height = `${canvas.height}px`;
 }
 resize();
 window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', resize);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', resize);
+  window.visualViewport.addEventListener('scroll', resize);
+}
 
 const keys = {};
 let cheatCode = '';
@@ -3207,12 +3216,12 @@ function getLevelSelectLayoutMetrics(W, H, levelCount) {
   const levelRows = Math.ceil(levelCount / levelsPerRow);
   const rowStep = levelSize + spacingY;
   const contentHeight = levelRows * rowStep;
-  const clipTop = 120;
-  const clipBottomPadding = 60;
+  const clipTop = viewport === 'smartphone' ? 102 : 120;
+  const clipBottomPadding = viewport === 'smartphone' ? 84 : 60;
   const visibleHeight = H - (clipTop + clipBottomPadding);
   const maxScroll = Math.max(0, contentHeight - visibleHeight);
   const centeredOffset = Math.max(0, (visibleHeight - contentHeight) / 2);
-  const gridStartY = clipTop + 20 + centeredOffset;
+  const gridStartY = clipTop + (viewport === 'smartphone' ? 14 : 20) + centeredOffset;
 
   return {
     levelSize,
@@ -4414,7 +4423,10 @@ function draw() {
     const titleFontSize = viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48;
     const bodyFontSize = viewport === 'smartphone' ? 12 : 14;
     const ctaFontSize = viewport === 'smartphone' ? 15 : 20;
-    const buttonW = viewport === 'smartphone' ? 96 : 100;
+    const buttonGap = viewport === 'smartphone' ? 18 : 30;
+    const buttonW = viewport === 'smartphone'
+      ? Math.max(84, Math.min(108, Math.floor((W - 80 - buttonGap) / 2)))
+      : 100;
     const buttonH = viewport === 'smartphone' ? 38 : 40;
 
     const menuTop = Math.max(24, Math.floor(H * 0.05));
@@ -4463,20 +4475,23 @@ function draw() {
     ctx.globalAlpha = pulse;
     ctx.fillText('[ PRESS SPACE OR TAP TO START ]', W / 2, ctaY);
     ctx.globalAlpha = 1;
-    const ctaButtonW = viewport === 'smartphone' ? 320 : 400;
+    const ctaButtonW = Math.min(viewport === 'smartphone' ? 320 : 400, W - 32);
     registerUiButton(W / 2 - ctaButtonW / 2, ctaY - 24, ctaButtonW, 40, () => initGame(0));
+
+    const leftButtonX = W / 2 - buttonGap / 2 - buttonW;
+    const rightButtonX = W / 2 + buttonGap / 2;
 
     // Menu buttons with labels
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - (buttonW + 30), row1Y, buttonW, buttonH);
+    ctx.fillRect(leftButtonX, row1Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
     ctx.textAlign = 'center';
-    ctx.fillText('LEVELS', W / 2 - (buttonW + 30) + buttonW / 2, row1Y + 25);
+    ctx.fillText('LEVELS', leftButtonX + buttonW / 2, row1Y + 25);
     ctx.fillStyle = txt;
     ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
-    ctx.fillText('[L]', W / 2 - (buttonW + 30) + buttonW / 2, row1Y + 45);
-    registerUiButton(W / 2 - (buttonW + 30), row1Y, buttonW, buttonH, () => {
+    ctx.fillText('[L]', leftButtonX + buttonW / 2, row1Y + 45);
+    registerUiButton(leftButtonX, row1Y, buttonW, buttonH, () => {
       state = 'levelselect';
       selectedLevel = 0;
       levelSelectScrollY = 0;
@@ -4484,41 +4499,41 @@ function draw() {
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 + 30, row1Y, buttonW, buttonH);
+    ctx.fillRect(rightButtonX, row1Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
     ctx.textAlign = 'center';
-    ctx.fillText('SHOP', W / 2 + 30 + buttonW / 2, row1Y + 25);
+    ctx.fillText('SHOP', rightButtonX + buttonW / 2, row1Y + 25);
     ctx.fillStyle = txt;
     ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
-    ctx.fillText('[S]', W / 2 + 30 + buttonW / 2, row1Y + 45);
-    registerUiButton(W / 2 + 30, row1Y, buttonW, buttonH, () => {
+    ctx.fillText('[S]', rightButtonX + buttonW / 2, row1Y + 45);
+    registerUiButton(rightButtonX, row1Y, buttonW, buttonH, () => {
       state = 'shop';
       shopScrollY = 0;
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 + 30, row2Y, buttonW, buttonH);
+    ctx.fillRect(rightButtonX, row2Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('AUDIO', W / 2 + 30 + buttonW / 2, row2Y + 25);
+    ctx.fillText('AUDIO', rightButtonX + buttonW / 2, row2Y + 25);
     ctx.fillStyle = txt;
     ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
-    ctx.fillText('[O]', W / 2 + 30 + buttonW / 2, row2Y + 45);
-    registerUiButton(W / 2 + 30, row2Y, buttonW, buttonH, () => {
+    ctx.fillText('[O]', rightButtonX + buttonW / 2, row2Y + 45);
+    registerUiButton(rightButtonX, row2Y, buttonW, buttonH, () => {
       selectedSettingsRow = 0;
       state = 'settings';
     });
 
     ctx.fillStyle = accent;
-    ctx.fillRect(W / 2 - (buttonW + 30), row2Y, buttonW, buttonH);
+    ctx.fillRect(leftButtonX, row2Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
     ctx.font = 'bold 14px Silkscreen';
-    ctx.fillText('DAILY', W / 2 - (buttonW + 30) + buttonW / 2, row2Y + 25);
+    ctx.fillText('DAILY', leftButtonX + buttonW / 2, row2Y + 25);
     ctx.fillStyle = txt;
     ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
-    ctx.fillText('[D]', W / 2 - (buttonW + 30) + buttonW / 2, row2Y + 45);
-    registerUiButton(W / 2 - (buttonW + 30), row2Y, buttonW, buttonH, () => {
+    ctx.fillText('[D]', leftButtonX + buttonW / 2, row2Y + 45);
+    registerUiButton(leftButtonX, row2Y, buttonW, buttonH, () => {
       startDailyChallenge();
     });
 
