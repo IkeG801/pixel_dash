@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.8';
+const GAME_VERSION = 'v.0.9.9';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -125,14 +125,30 @@ if (window.elementSdk) {
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-function resize() {
+function getViewportSize() {
   const viewportW = window.visualViewport ? Math.floor(window.visualViewport.width) : window.innerWidth;
   const viewportH = window.visualViewport ? Math.floor(window.visualViewport.height) : window.innerHeight;
-  canvas.width = Math.max(240, viewportW);
-  canvas.height = Math.max(320, viewportH);
+  return {
+    width: Math.max(240, viewportW),
+    height: Math.max(320, viewportH)
+  };
+}
+
+function resize() {
+  const viewport = getViewportSize();
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
   canvas.style.width = `${canvas.width}px`;
   canvas.style.height = `${canvas.height}px`;
 }
+
+function ensureCanvasSizeSynced() {
+  const viewport = getViewportSize();
+  if (canvas.width !== viewport.width || canvas.height !== viewport.height) {
+    resize();
+  }
+}
+
 resize();
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
@@ -4420,25 +4436,29 @@ function draw() {
 
   if (state === 'menu') {
     const viewport = getViewportClass(W);
-    const titleFontSize = viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48;
-    const bodyFontSize = viewport === 'smartphone' ? 12 : 14;
-    const ctaFontSize = viewport === 'smartphone' ? 15 : 20;
+    const menuScale = Math.max(0.72, Math.min(1.15, Math.min(W / 1200, H / 820)));
+    const titleFontSize = Math.round((viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48) * menuScale);
+    const bodyFontSize = Math.max(10, Math.round((viewport === 'smartphone' ? 12 : 14) * menuScale));
+    const ctaFontSize = Math.max(12, Math.round((viewport === 'smartphone' ? 15 : 20) * menuScale));
     const buttonGap = viewport === 'smartphone' ? 18 : 30;
     const buttonW = viewport === 'smartphone'
       ? Math.max(84, Math.min(108, Math.floor((W - 80 - buttonGap) / 2)))
-      : 100;
-    const buttonH = viewport === 'smartphone' ? 38 : 40;
+      : Math.max(96, Math.min(120, Math.floor(100 * menuScale)));
+    const buttonH = Math.max(34, Math.round((viewport === 'smartphone' ? 38 : 40) * menuScale));
+    const rowGap = Math.max(44, Math.round((viewport === 'smartphone' ? 54 : 64) * menuScale));
+    const controlsGap = Math.max(16, Math.round((viewport === 'smartphone' ? 20 : 24) * menuScale));
 
     const menuTop = Math.max(24, Math.floor(H * 0.05));
     let titleY = menuTop + (viewport === 'smartphone' ? 30 : 38);
-    let versionY = titleY + (viewport === 'smartphone' ? 20 : 24);
-    let controlsY1 = versionY + (viewport === 'smartphone' ? 34 : 44);
-    let controlsY2 = controlsY1 + (viewport === 'smartphone' ? 20 : 24);
-    let ctaY = controlsY2 + (viewport === 'smartphone' ? 34 : 44);
-    let row1Y = ctaY + (viewport === 'smartphone' ? 22 : 30);
-    let row2Y = row1Y + (viewport === 'smartphone' ? 54 : 64);
-    let statsY = row2Y + (viewport === 'smartphone' ? 52 : 62);
-    let hintY = statsY + (viewport === 'smartphone' ? 20 : 24);
+    titleY = Math.round(titleY * menuScale + menuTop * (1 - menuScale));
+    let versionY = titleY + Math.max(16, Math.round((viewport === 'smartphone' ? 20 : 24) * menuScale));
+    let controlsY1 = versionY + Math.max(24, Math.round((viewport === 'smartphone' ? 34 : 44) * menuScale));
+    let controlsY2 = controlsY1 + controlsGap;
+    let ctaY = controlsY2 + Math.max(24, Math.round((viewport === 'smartphone' ? 34 : 44) * menuScale));
+    let row1Y = ctaY + Math.max(18, Math.round((viewport === 'smartphone' ? 22 : 30) * menuScale));
+    let row2Y = row1Y + rowGap;
+    let statsY = row2Y + Math.max(44, Math.round((viewport === 'smartphone' ? 52 : 62) * menuScale));
+    let hintY = statsY + controlsGap;
 
     const bottomTarget = H - 12;
     const overflow = Math.max(0, hintY - bottomTarget);
@@ -4460,7 +4480,7 @@ function draw() {
     ctx.fillText(title, W / 2, titleY);
 
     ctx.fillStyle = txt;
-    ctx.font = '12px Silkscreen, Arial, sans-serif';
+    ctx.font = `${Math.max(10, Math.round(12 * menuScale))}px Silkscreen, Arial, sans-serif`;
     ctx.fillText(GAME_VERSION, W / 2, versionY);
 
     ctx.fillStyle = txt;
@@ -4475,8 +4495,8 @@ function draw() {
     ctx.globalAlpha = pulse;
     ctx.fillText('[ PRESS SPACE OR TAP TO START ]', W / 2, ctaY);
     ctx.globalAlpha = 1;
-    const ctaButtonW = Math.min(viewport === 'smartphone' ? 320 : 400, W - 32);
-    registerUiButton(W / 2 - ctaButtonW / 2, ctaY - 24, ctaButtonW, 40, () => initGame(0));
+    const ctaButtonW = Math.min(Math.round((viewport === 'smartphone' ? 320 : 400) * menuScale), W - 32);
+    registerUiButton(W / 2 - ctaButtonW / 2, ctaY - Math.round(24 * menuScale), ctaButtonW, Math.round(40 * menuScale), () => initGame(0));
 
     const leftButtonX = W / 2 - buttonGap / 2 - buttonW;
     const rightButtonX = W / 2 + buttonGap / 2;
@@ -4485,7 +4505,7 @@ function draw() {
     ctx.fillStyle = accent;
     ctx.fillRect(leftButtonX, row1Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 14px Silkscreen';
+    ctx.font = `bold ${Math.max(11, Math.round(14 * menuScale))}px Silkscreen`;
     ctx.textAlign = 'center';
     ctx.fillText('LEVELS', leftButtonX + buttonW / 2, row1Y + 25);
     ctx.fillStyle = txt;
@@ -4501,7 +4521,7 @@ function draw() {
     ctx.fillStyle = accent;
     ctx.fillRect(rightButtonX, row1Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 14px Silkscreen';
+    ctx.font = `bold ${Math.max(11, Math.round(14 * menuScale))}px Silkscreen`;
     ctx.textAlign = 'center';
     ctx.fillText('SHOP', rightButtonX + buttonW / 2, row1Y + 25);
     ctx.fillStyle = txt;
@@ -4515,7 +4535,7 @@ function draw() {
     ctx.fillStyle = accent;
     ctx.fillRect(rightButtonX, row2Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 14px Silkscreen';
+    ctx.font = `bold ${Math.max(11, Math.round(14 * menuScale))}px Silkscreen`;
     ctx.fillText('AUDIO', rightButtonX + buttonW / 2, row2Y + 25);
     ctx.fillStyle = txt;
     ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
@@ -4528,7 +4548,7 @@ function draw() {
     ctx.fillStyle = accent;
     ctx.fillRect(leftButtonX, row2Y, buttonW, buttonH);
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 14px Silkscreen';
+    ctx.font = `bold ${Math.max(11, Math.round(14 * menuScale))}px Silkscreen`;
     ctx.fillText('DAILY', leftButtonX + buttonW / 2, row2Y + 25);
     ctx.fillStyle = txt;
     ctx.font = `${bodyFontSize}px Silkscreen, Arial, sans-serif`;
@@ -4538,7 +4558,7 @@ function draw() {
     });
 
     ctx.fillStyle = txt;
-    ctx.font = '12px Silkscreen, Arial, sans-serif';
+    ctx.font = `${Math.max(10, Math.round(12 * menuScale))}px Silkscreen, Arial, sans-serif`;
     const todayDate = getTodayDate();
     const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
     const bestText = bestDaily > 0 ? `${bestDaily}s` : '--';
@@ -5673,6 +5693,7 @@ function cleanupTouchListeners() {
 }
 
 function loop() {
+  ensureCanvasSizeSynced();
   update();
   draw();
   requestAnimationFrame(loop);
