@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.9';
+const GAME_VERSION = 'v.0.9.9.2';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -3222,22 +3222,26 @@ function getViewportClass(W) {
   return 'pc';
 }
 
+function getUiScale(W, H) {
+  return Math.max(0.8, Math.min(1.45, Math.min(W / 1080, H / 720)));
+}
+
 function getLevelSelectLayoutMetrics(W, H, levelCount) {
   const viewport = getViewportClass(W);
-  const levelSize = viewport === 'smartphone' ? 72 : viewport === 'tablet' ? 78 : 80;
-  const spacingX = viewport === 'smartphone' ? 22 : viewport === 'tablet' ? 28 : 34;
-  const spacingY = viewport === 'smartphone' ? 62 : viewport === 'tablet' ? 64 : 66;
-  const maxLevelsPerRow = viewport === 'smartphone' ? 3 : viewport === 'tablet' ? 5 : 6;
+  const levelSize = viewport === 'smartphone' ? 72 : viewport === 'tablet' ? 86 : 96;
+  const spacingX = viewport === 'smartphone' ? 22 : viewport === 'tablet' ? 30 : 40;
+  const spacingY = viewport === 'smartphone' ? 62 : viewport === 'tablet' ? 68 : 74;
+  const maxLevelsPerRow = viewport === 'smartphone' ? 3 : viewport === 'tablet' ? 4 : 6;
   const levelsPerRow = Math.max(1, Math.min(maxLevelsPerRow, Math.floor((W - 60) / (levelSize + spacingX))));
   const levelRows = Math.ceil(levelCount / levelsPerRow);
   const rowStep = levelSize + spacingY;
   const contentHeight = levelRows * rowStep;
-  const clipTop = viewport === 'smartphone' ? 102 : 120;
-  const clipBottomPadding = viewport === 'smartphone' ? 84 : 60;
+  const clipTop = viewport === 'smartphone' ? 102 : viewport === 'tablet' ? 116 : 128;
+  const clipBottomPadding = viewport === 'smartphone' ? 84 : viewport === 'tablet' ? 68 : 64;
   const visibleHeight = H - (clipTop + clipBottomPadding);
   const maxScroll = Math.max(0, contentHeight - visibleHeight);
   const centeredOffset = Math.max(0, (visibleHeight - contentHeight) / 2);
-  const gridStartY = clipTop + (viewport === 'smartphone' ? 14 : 20) + centeredOffset;
+  const gridStartY = clipTop + (viewport === 'smartphone' ? 14 : viewport === 'tablet' ? 18 : 24) + centeredOffset;
 
   return {
     levelSize,
@@ -4436,20 +4440,20 @@ function draw() {
 
   if (state === 'menu') {
     const viewport = getViewportClass(W);
-    const menuScale = Math.max(0.72, Math.min(1.15, Math.min(W / 1200, H / 820)));
+    const menuScale = getUiScale(W, H);
     const titleFontSize = Math.round((viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48) * menuScale);
     const bodyFontSize = Math.max(10, Math.round((viewport === 'smartphone' ? 12 : 14) * menuScale));
     const ctaFontSize = Math.max(12, Math.round((viewport === 'smartphone' ? 15 : 20) * menuScale));
     const buttonGap = viewport === 'smartphone' ? 18 : 30;
     const buttonW = viewport === 'smartphone'
       ? Math.max(84, Math.min(108, Math.floor((W - 80 - buttonGap) / 2)))
-      : Math.max(96, Math.min(120, Math.floor(100 * menuScale)));
-    const buttonH = Math.max(34, Math.round((viewport === 'smartphone' ? 38 : 40) * menuScale));
-    const rowGap = Math.max(44, Math.round((viewport === 'smartphone' ? 54 : 64) * menuScale));
-    const controlsGap = Math.max(16, Math.round((viewport === 'smartphone' ? 20 : 24) * menuScale));
+      : Math.max(104, Math.min(132, Math.floor(104 * menuScale)));
+    const buttonH = Math.max(34, Math.round((viewport === 'smartphone' ? 38 : 42) * menuScale));
+    const rowGap = Math.max(44, Math.round((viewport === 'smartphone' ? 54 : 68) * menuScale));
+    const controlsGap = Math.max(16, Math.round((viewport === 'smartphone' ? 20 : 26) * menuScale));
 
     const menuTop = Math.max(24, Math.floor(H * 0.05));
-    let titleY = menuTop + (viewport === 'smartphone' ? 30 : 38);
+    let titleY = menuTop + (viewport === 'smartphone' ? 28 : 38);
     titleY = Math.round(titleY * menuScale + menuTop * (1 - menuScale));
     let versionY = titleY + Math.max(16, Math.round((viewport === 'smartphone' ? 20 : 24) * menuScale));
     let controlsY1 = versionY + Math.max(24, Math.round((viewport === 'smartphone' ? 34 : 44) * menuScale));
