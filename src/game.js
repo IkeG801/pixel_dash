@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.9.2';
+const GAME_VERSION = 'v.0.9.9.3';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -4441,7 +4441,12 @@ function draw() {
   if (state === 'menu') {
     const viewport = getViewportClass(W);
     const menuScale = getUiScale(W, H);
-    const titleFontSize = Math.round((viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48) * menuScale);
+    const titleScaleBoost = viewport === 'smartphone' ? 1.08 : viewport === 'tablet' ? 1.25 : 1.4;
+    const titleBaseSize = viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48;
+    const titleFontSize = Math.max(
+      viewport === 'smartphone' ? 36 : 52,
+      Math.min(96, Math.round(titleBaseSize * menuScale * titleScaleBoost))
+    );
     const bodyFontSize = Math.max(10, Math.round((viewport === 'smartphone' ? 12 : 14) * menuScale));
     const ctaFontSize = Math.max(12, Math.round((viewport === 'smartphone' ? 15 : 20) * menuScale));
     const buttonGap = viewport === 'smartphone' ? 18 : 30;
@@ -4455,7 +4460,7 @@ function draw() {
     const menuTop = Math.max(24, Math.floor(H * 0.05));
     let titleY = menuTop + (viewport === 'smartphone' ? 28 : 38);
     titleY = Math.round(titleY * menuScale + menuTop * (1 - menuScale));
-    let versionY = titleY + Math.max(16, Math.round((viewport === 'smartphone' ? 20 : 24) * menuScale));
+    let versionY = titleY + Math.max(18, Math.round(titleFontSize * 0.55));
     let controlsY1 = versionY + Math.max(24, Math.round((viewport === 'smartphone' ? 34 : 44) * menuScale));
     let controlsY2 = controlsY1 + controlsGap;
     let ctaY = controlsY2 + Math.max(24, Math.round((viewport === 'smartphone' ? 34 : 44) * menuScale));
