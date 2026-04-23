@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.9.3';
+const GAME_VERSION = 'v.0.9.9.4';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -4441,11 +4441,11 @@ function draw() {
   if (state === 'menu') {
     const viewport = getViewportClass(W);
     const menuScale = getUiScale(W, H);
-    const titleScaleBoost = viewport === 'smartphone' ? 1.08 : viewport === 'tablet' ? 1.25 : 1.4;
+    const titleScaleBoost = viewport === 'smartphone' ? 1.16 : viewport === 'tablet' ? 1.45 : 1.75;
     const titleBaseSize = viewport === 'smartphone' ? 38 : viewport === 'tablet' ? 44 : 48;
     const titleFontSize = Math.max(
       viewport === 'smartphone' ? 36 : 52,
-      Math.min(96, Math.round(titleBaseSize * menuScale * titleScaleBoost))
+      Math.min(128, Math.round(titleBaseSize * menuScale * titleScaleBoost))
     );
     const bodyFontSize = Math.max(10, Math.round((viewport === 'smartphone' ? 12 : 14) * menuScale));
     const ctaFontSize = Math.max(12, Math.round((viewport === 'smartphone' ? 15 : 20) * menuScale));
