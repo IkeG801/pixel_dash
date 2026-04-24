@@ -4,7 +4,7 @@ A fast-paced pixel-art platformer game built with vanilla JavaScript and Canvas.
 
 ## Current Version
 
-- **v.0.9.9.4**
+- **v.0.9.9.5**
 - Displayed on the home screen (main menu)
 - Update this version string before each commit and push
 

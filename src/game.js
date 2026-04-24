@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.9.4';
+const GAME_VERSION = 'v.0.9.9.5';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -23,6 +23,7 @@ let playerData = {
   selected_cube: 'classic', 
   owned_cubes: 'classic', 
   level_completed: 0, 
+  completed_levels: '',
   best_score: 0, 
   daily_score: 0, 
   daily_date: '', 
@@ -49,6 +50,7 @@ function loadPlayerData() {
         selected_cube: 'classic', 
         owned_cubes: 'classic', 
         level_completed: 0, 
+        completed_levels: '',
         best_score: 0, 
         daily_score: 0, 
         daily_date: '', 
@@ -85,6 +87,63 @@ function savePlayerData() {
   localStorage.setItem('pixelDashPlayer', JSON.stringify(playerData));
 }
 
+function parseCompletedLevels(rawValue) {
+  const completed = new Set();
+  if (Array.isArray(rawValue)) {
+    for (const value of rawValue) {
+      const levelIndex = Number(value);
+      if (Number.isInteger(levelIndex) && levelIndex >= 0) {
+        completed.add(levelIndex);
+      }
+    }
+    return completed;
+  }
+
+  if (typeof rawValue !== 'string' || rawValue.trim() === '') {
+    return completed;
+  }
+
+  const parts = rawValue.split(',');
+  for (let i = 0; i < parts.length; i++) {
+    const levelIndex = Number(parts[i].trim());
+    if (Number.isInteger(levelIndex) && levelIndex >= 0) {
+      completed.add(levelIndex);
+    }
+  }
+  return completed;
+}
+
+function serializeCompletedLevels(levelSet) {
+  return Array.from(levelSet).sort((a, b) => a - b).join(',');
+}
+
+let completedLevels = new Set();
+
+function syncCompletedLevelsFromPlayerData() {
+  completedLevels = parseCompletedLevels(playerData.completed_levels);
+  const highestContiguousLevel = Number.isInteger(playerData.level_completed)
+    ? Math.max(0, playerData.level_completed)
+    : 0;
+  for (let i = 0; i < highestContiguousLevel; i++) {
+    completedLevels.add(i);
+  }
+  playerData.level_completed = highestContiguousLevel;
+  playerData.completed_levels = serializeCompletedLevels(completedLevels);
+}
+
+function hasCompletedLevel(levelIndex) {
+  return completedLevels.has(levelIndex);
+}
+
+function markLevelCompleted(levelIndex) {
+  if (!Number.isInteger(levelIndex) || levelIndex < 0) return;
+  completedLevels.add(levelIndex);
+  if (playerData.level_completed < levelIndex + 1) {
+    playerData.level_completed = levelIndex + 1;
+  }
+  playerData.completed_levels = serializeCompletedLevels(completedLevels);
+}
+
 function resetSessionCurrencies() {
   playerData.total_coins = 0;
   playerData.challenge_points = 0;
@@ -92,6 +151,7 @@ function resetSessionCurrencies() {
 
 // Load on startup
 loadPlayerData();
+syncCompletedLevelsFromPlayerData();
 playerData.sfxVolume = Number.isFinite(playerData.sfxVolume) ? Math.max(0, Math.min(1, playerData.sfxVolume)) : 0.85;
 playerData.musicVolume = Number.isFinite(playerData.musicVolume) ? Math.max(0, Math.min(1, playerData.musicVolume)) : 0.18;
 resetSessionCurrencies();
@@ -4689,6 +4749,27 @@ function draw() {
       }
     };
 
+    const drawCompletedCheckBadge = (centerX, centerY) => {
+      const radius = 7;
+      ctx.fillStyle = '#22c55e';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#14532d';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.strokeStyle = '#f0fdf4';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(centerX - 3.5, centerY + 0.5);
+      ctx.lineTo(centerX - 1, centerY + 3);
+      ctx.lineTo(centerX + 4, centerY - 3);
+      ctx.stroke();
+    };
+
     ctx.save();
     ctx.beginPath();
     ctx.rect(0, levelLayout.clipTop, W, visibleHeight);
@@ -4706,6 +4787,7 @@ function draw() {
       const isSelected = i === selectedLevel;
       const levelData = kingdomLevels[i];
       const actualLevelIndex = INITIAL_LEVELS.indexOf(levelData);
+      const isCompleted = hasCompletedLevel(actualLevelIndex);
 
       // Draw selection highlight
       if (isSelected) {
@@ -4731,6 +4813,9 @@ function draw() {
       ctx.font = '11px Silkscreen, Arial, sans-serif';
       ctx.textAlign = 'center';
       drawWrappedLevelName(levelData.name, lx + levelSize / 2, ly + levelSize + 16, levelSize + 22);
+      if (isCompleted) {
+        drawCompletedCheckBadge(lx + levelSize + 12, ly + levelSize + 10);
+      }
       registerUiButton(lx, ly, levelSize, levelSize, () => {
         selectedLevel = i;
         initGame(actualLevelIndex);
@@ -5457,7 +5542,7 @@ function draw() {
       }
       
       playerData.total_coins += coins.filter(c => c.collected).length;
-      playerData.level_completed = currentLevel + 1;
+      markLevelCompleted(currentLevel);
       savePlayerData();
       
       if (currentLevel < INITIAL_LEVELS.length - 1) {
