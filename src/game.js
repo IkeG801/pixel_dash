@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.9.5';
+const GAME_VERSION = 'v.0.9.9.7';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -24,6 +24,9 @@ let playerData = {
   owned_cubes: 'classic', 
   level_completed: 0, 
   completed_levels: '',
+  full_game_completed: false,
+  full_game_completed_at: '',
+  full_game_celebration_seen: false,
   best_score: 0, 
   daily_score: 0, 
   daily_date: '', 
@@ -51,6 +54,9 @@ function loadPlayerData() {
         owned_cubes: 'classic', 
         level_completed: 0, 
         completed_levels: '',
+        full_game_completed: false,
+        full_game_completed_at: '',
+        full_game_celebration_seen: false,
         best_score: 0, 
         daily_score: 0, 
         daily_date: '', 
@@ -144,6 +150,50 @@ function markLevelCompleted(levelIndex) {
   playerData.completed_levels = serializeCompletedLevels(completedLevels);
 }
 
+function markAllLevelsCompleted() {
+  completedLevels = new Set(Array.from({ length: INITIAL_LEVELS.length }, (_, levelIndex) => levelIndex));
+  playerData.level_completed = INITIAL_LEVELS.length;
+  playerData.completed_levels = serializeCompletedLevels(completedLevels);
+  playerData.full_game_completed = true;
+  playerData.full_game_completed_at = new Date().toISOString();
+  playerData.full_game_celebration_seen = true;
+}
+
+function getCompletedCampaignLevelCount() {
+  let completedCount = 0;
+  completedLevels.forEach(levelIndex => {
+    if (Number.isInteger(levelIndex) && levelIndex >= 0 && levelIndex < INITIAL_LEVELS.length) {
+      completedCount += 1;
+    }
+  });
+  return completedCount;
+}
+
+function isCampaignFullyCompleted() {
+  return INITIAL_LEVELS.length > 0 && getCompletedCampaignLevelCount() >= INITIAL_LEVELS.length;
+}
+
+function syncFullGameCompletionStatus() {
+  const fullComplete = isCampaignFullyCompleted();
+  const wasComplete = !!playerData.full_game_completed;
+
+  if (fullComplete && !wasComplete) {
+    playerData.full_game_completed = true;
+    playerData.full_game_completed_at = new Date().toISOString();
+    playerData.full_game_celebration_seen = false;
+    return { changed: true, becameComplete: true };
+  }
+
+  if (!fullComplete && wasComplete) {
+    playerData.full_game_completed = false;
+    playerData.full_game_completed_at = '';
+    playerData.full_game_celebration_seen = false;
+    return { changed: true, becameComplete: false };
+  }
+
+  return { changed: false, becameComplete: false };
+}
+
 function resetSessionCurrencies() {
   playerData.total_coins = 0;
   playerData.challenge_points = 0;
@@ -223,8 +273,15 @@ window.addEventListener('keydown', e => {
   keys[e.key] = true; 
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
   
-  // Cheat code detection: "POINTS" or "COINS"
+  // Cheat code detection: "POINTS", "COINS", or "COMPLETE"
   cheatCode += e.key.toUpperCase();
+  if (cheatCode.includes('COMPLETE')) {
+    markAllLevelsCompleted();
+    savePlayerData();
+    state = 'gamecomplete';
+    cheatCode = '';
+    return;
+  }
   if (cheatCode.includes('POINTS')) {
     playerData.challenge_points = (playerData.challenge_points || 0) + 500;
     savePlayerData();
@@ -2991,7 +3048,7 @@ const KINGDOM_MUSIC_TRACK_INDEX = {
   sky: 4,
   glitch: 5
 };
-const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect']);
+const MENU_MUSIC_STATES = new Set(['menu', 'shop', 'settings', 'levelselect', 'gamecomplete']);
 
 function clampVolume(value) {
   return Math.max(0, Math.min(1, value));
@@ -3247,6 +3304,11 @@ let levelSelectScrollY = 0;
 let shopScrollY = 0;
 let selectedSettingsRow = 0;
 
+const completionSyncResult = syncFullGameCompletionStatus();
+if (completionSyncResult.changed) {
+  savePlayerData();
+}
+
 // Home icon bounds for click detection
 let homeIconBounds = { x: 16, y: 0, w: 40, h: 40 };
 let uiButtons = [];
@@ -3399,6 +3461,12 @@ function getMagmaGeyserHazardRect(platform) {
 
 function update() {
   syncBackgroundMusicToState();
+  if (state !== 'playing' && state !== 'dead' && state !== 'levelcomplete') {
+    const completionSync = syncFullGameCompletionStatus();
+    if (completionSync.changed) {
+      savePlayerData();
+    }
+  }
 
   // Menu navigation
   if (state === 'menu') {
@@ -3564,8 +3632,30 @@ function update() {
     return;
   }
 
+  if (state === 'gamecomplete') {
+    if (keys['l'] || keys['L']) {
+      keys['l'] = false;
+      keys['L'] = false;
+      state = 'levelselect';
+      selectedLevel = 0;
+      levelSelectScrollY = 0;
+      selectedKingdom = 0;
+      return;
+    }
+
+    if (keys[' '] || keys['Enter'] || keys['Escape'] || keys['Backspace']) {
+      keys[' '] = false;
+      keys['Enter'] = false;
+      keys['Escape'] = false;
+      keys['Backspace'] = false;
+      state = 'menu';
+      return;
+    }
+    return;
+  }
+
   // Handle Escape key to return to menu from playing, dead, or levelcomplete states
-  if ((state === 'playing' || state === 'dead' || state === 'levelcomplete') && 
+  if ((state === 'playing' || state === 'dead' || state === 'levelcomplete' || state === 'gamecomplete') && 
       (keys['Escape'] || keys['Backspace'])) {
     keys['Escape'] = false;
     keys['Backspace'] = false;
@@ -4469,7 +4559,7 @@ function drawKingdomBackground(kingdom, W, H, t) {
 }
 
 function getDrawBackgroundKingdom() {
-  if (state === 'dead' || state === 'levelcomplete') {
+  if (state === 'dead' || state === 'levelcomplete' || state === 'gamecomplete') {
     const level = inDailyChallenge ? null : INITIAL_LEVELS[currentLevel];
     return (level && level.kingdom) || 'castle';
   }
@@ -4631,8 +4721,14 @@ function draw() {
     const todayDate = getTodayDate();
     const bestDaily = playerData.daily_date === todayDate ? playerData.daily_score : 0;
     const bestText = bestDaily > 0 ? `${bestDaily}s` : '--';
+    const completedCount = getCompletedCampaignLevelCount();
+    const campaignTotal = INITIAL_LEVELS.length;
+    const completionText = playerData.full_game_completed
+      ? 'Campaign Complete ✓'
+      : `Campaign: ${completedCount}/${campaignTotal}`;
     ctx.fillText(`Daily Best: ${bestText}`, W / 2, statsY);
-    ctx.fillText('Audio settings: [O] / AUDIO button', W / 2, hintY);
+    ctx.fillText(completionText, W / 2, statsY + controlsGap);
+    ctx.fillText('Audio settings: [O] / AUDIO button', W / 2, hintY + controlsGap);
 
     return;
   }
@@ -5543,7 +5639,15 @@ function draw() {
       
       playerData.total_coins += coins.filter(c => c.collected).length;
       markLevelCompleted(currentLevel);
+      const completionSync = syncFullGameCompletionStatus();
       savePlayerData();
+
+      if (completionSync.becameComplete || (playerData.full_game_completed && !playerData.full_game_celebration_seen)) {
+        playerData.full_game_celebration_seen = true;
+        savePlayerData();
+        state = 'gamecomplete';
+        return;
+      }
       
       if (currentLevel < INITIAL_LEVELS.length - 1) {
         initGame(currentLevel + 1);
@@ -5555,6 +5659,56 @@ function draw() {
     // Draw home icon for levelcomplete state
     drawHomeIcon(homeIconBounds.x + 10, homeIconBounds.y + 10, 36, txt);
     
+  }
+
+  if (state === 'gamecomplete') {
+    const overlayPulse = 0.45 + Math.sin(Date.now() * 0.003) * 0.1;
+    ctx.fillStyle = `rgba(0, 0, 0, ${overlayPulse})`;
+    ctx.fillRect(0, 0, W, H);
+
+    const completedCount = getCompletedCampaignLevelCount();
+    const campaignTotal = INITIAL_LEVELS.length;
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#facc15';
+    ctx.font = 'bold 44px Silkscreen';
+    ctx.fillText('CAMPAIGN COMPLETE!', W / 2, H / 2 - 90);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '18px Silkscreen, Arial, sans-serif';
+    ctx.fillText('You beat every level in Pixel Dash.', W / 2, H / 2 - 50);
+
+    ctx.fillStyle = '#22d3ee';
+    ctx.font = '16px Silkscreen, Arial, sans-serif';
+    ctx.fillText(`Levels Cleared: ${completedCount}/${campaignTotal}`, W / 2, H / 2 - 20);
+    ctx.fillText(`Coins Collected: ${playerData.total_coins}`, W / 2, H / 2 + 6);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(W / 2 - 155, H / 2 + 36, 140, 42);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 14px Silkscreen';
+    ctx.fillText('LEVEL SELECT', W / 2 - 85, H / 2 + 62);
+    registerUiButton(W / 2 - 155, H / 2 + 36, 140, 42, () => {
+      state = 'levelselect';
+      selectedLevel = 0;
+      selectedKingdom = 0;
+      levelSelectScrollY = 0;
+    });
+
+    ctx.fillStyle = '#22d3ee';
+    ctx.fillRect(W / 2 + 15, H / 2 + 36, 140, 42);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillText('MAIN MENU', W / 2 + 85, H / 2 + 62);
+    registerUiButton(W / 2 + 15, H / 2 + 36, 140, 42, () => {
+      state = 'menu';
+    });
+
+    ctx.fillStyle = '#f0f9ff';
+    ctx.font = '14px Silkscreen, Arial, sans-serif';
+    ctx.fillText('[ SPACE / ENTER TO MENU ]', W / 2, H / 2 + 110);
+    ctx.fillText('[ L ] LEVEL SELECT', W / 2, H / 2 + 132);
+
+    drawHomeIcon(homeIconBounds.x + 10, homeIconBounds.y + 10, 36, txt);
   }
 }
 
@@ -5664,14 +5818,14 @@ function handleTouches(e) {
     const ty = touches[i].clientY - rect.top;
 
     // Don't map home icon touches to movement/jump controls.
-    if ((state === 'playing' || state === 'dead' || state === 'levelcomplete') &&
+    if ((state === 'playing' || state === 'dead' || state === 'levelcomplete' || state === 'gamecomplete') &&
         tx >= homeIconBounds.x && tx <= homeIconBounds.x + homeIconBounds.w &&
         ty >= homeIconBounds.y && ty <= homeIconBounds.y + homeIconBounds.h) {
       return;
     }
 
     // Gameplay controls use three full-screen zones: left, center, right.
-    if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+    if (state === 'playing' || state === 'dead' || state === 'levelcomplete' || state === 'gamecomplete') {
       const third = canvas.width / 3;
       if (tx < third) {
         touchLeft = true;
@@ -5738,7 +5892,7 @@ const touchEndHandler = (e) => {
     const ty = e.changedTouches[0].clientY - rect.top;
 
     if (!isSwipeScrolling) {
-      if ((state === 'playing' || state === 'dead' || state === 'levelcomplete') &&
+      if ((state === 'playing' || state === 'dead' || state === 'levelcomplete' || state === 'gamecomplete') &&
           tx >= homeIconBounds.x && tx <= homeIconBounds.x + homeIconBounds.w &&
           ty >= homeIconBounds.y && ty <= homeIconBounds.y + homeIconBounds.h) {
         state = 'menu';
@@ -5762,7 +5916,7 @@ const clickHandler = (e) => {
   if (clickX >= homeIconBounds.x && clickX <= homeIconBounds.x + homeIconBounds.w &&
       clickY >= homeIconBounds.y && clickY <= homeIconBounds.y + homeIconBounds.h) {
     // Return to menu if in playing, dead, or levelcomplete states
-    if (state === 'playing' || state === 'dead' || state === 'levelcomplete') {
+    if (state === 'playing' || state === 'dead' || state === 'levelcomplete' || state === 'gamecomplete') {
       state = 'menu';
       return;
     }
