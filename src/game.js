@@ -11,7 +11,7 @@ const defaultConfig = {
 };
 
 let config = { ...defaultConfig };
-const GAME_VERSION = 'v.0.9.9.7';
+const GAME_VERSION = 'v.0.9.9.8';
 
 // Initialize player data early (before loadPlayerData is called)
 let playerData = { 
@@ -278,7 +278,7 @@ window.addEventListener('keydown', e => {
   if (cheatCode.includes('COMPLETE')) {
     markAllLevelsCompleted();
     savePlayerData();
-    state = 'gamecomplete';
+    state = 'menu';
     cheatCode = '';
     return;
   }
